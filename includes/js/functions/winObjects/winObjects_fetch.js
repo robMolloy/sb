@@ -9,7 +9,7 @@ async function fetchWinObjects(winObjectType){
 }
 
 
-function updateWinDbObjects(winObjectType){
+async function updateWinDbObjects(winObjectType){
     winDbObjects = await fetchWinObjects(winObjectType);
     window[`win_db_${winObjectType}`] = fetchWinObjects(winObjectType);
 }

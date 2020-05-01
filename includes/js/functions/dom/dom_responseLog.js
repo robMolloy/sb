@@ -3,13 +3,22 @@
 function createResponseLog(){
 	if(!document.getElementById('responseLog')){
 		let rlog = '<div id="responseLog" class="hidden"></div>';
-		document.querySelector('body').insertAdjacentHTML('afterbegin','<div id="responseLog" class="hidden"></div>');
+		document.querySelector('#content').insertAdjacentHTML('afterbegin',`
+            <div id="responseLog" class="hidden">
+                <div id="responseLogButtons">
+                    <div class="button jc" onclick="ajax({'file':'nav/css.nav.php?nav=refreshCss'});">
+                        Refresh CSS
+                    </div>
+                </div>
+                <div id="responseLogContent"></div>
+            </div>
+        `);
 	}
 }
 
-function showInResponseLog(json){
+function showInResponseLogContent(json){
     createResponseLog();
-	document.getElementById('responseLog').innerHTML = prettifyJson(json);
+	document.getElementById('responseLogContent').innerHTML = prettifyJson(json);
 }
 
 function toggleResponseLog(){

@@ -30,10 +30,8 @@ $aca = $accentColorsArray;
 $eca = $errorColorsArray;
 
 ?>
-<link href="includes/css/icons/css/all.css" rel="stylesheet">
-<style type="text/css">
 /*load fonts*/
-@font-face {font-family:'Montserrat';font-style:normal;font-weight:400;src:url('includes/css/fonts/montserrat-v14-latin-regular.eot');src:local('Montserrat Regular'),local('Montserrat-Regular'),url('includes/css/fonts/montserrat-v14-latin-regular.eot?#iefix') format('embedded-opentype'),url('includes/css/fonts/montserrat-v14-latin-regular.woff2') format('woff2'),url('includes/css/fonts/montserrat-v14-latin-regular.woff') format('woff'),url('includes/css/fonts/montserrat-v14-latin-regular.ttf') format('truetype'),url('includes/css/fonts/montserrat-v14-latin-regular.svg#Montserrat') format('svg'); }
+@font-face {font-family:'Montserrat';font-style:normal;font-weight:400;src:url('includes/css/fonts/montserrat-v14-latin-regular.eot');src:local('Montserrat Regular'),local('Montserrat-Regular'),url('includes/css/fonts/montserrat-v14-latin-regular.eot?#iefix') format('embedded-opentype'),url('includes/css/fonts/montserrat-v14-latin-regular.woff2') format('woff2'),url('includes/css/fonts/montserrat-v14-latin-regular.woff') format('woff'),url('includes/css/fonts/montserrat-v14-latin-regular.ttf') format('truetype'),url('includes/css/fonts/montserrat-v14-latin-regular.svg#Montserrat') format('svg');}
 
 
 
@@ -44,7 +42,7 @@ head    {display:none;}
 body    {height:100vh;width:100vw;background-color:<?php echo $tca[3];?>;flex-flow:column;font-family:'Montserrat';}
 	
 header  {background-color:<?php echo $tca[4]; ?>;border-bottom:2px solid <?php echo $tca[2]; ?>;overflow-x:auto;width:100%;font-weight:600;}
-#content{flex:1;overflow-y:auto;}
+#content{flex:1;overflow-y:auto;position:relative;}
 footer {background-color:#FFFFFF;border-top:1px solid <?php echo $tca[2]; ?>;align-items:center;justify-content:center;}
 
 /*elements*/
@@ -297,13 +295,12 @@ input.error {background-color:<?php echo $eca[0]; ?>;}
 .notification > * {margin:auto;display:inline-block;background-color:<?php echo $tca[4]; ?>;padding:20px;border:solid 5px <?php echo $aca[4]; ?>;min-width:40vw;max-width:70vw;}
 
 
-#responseLogIcon {position:fixed;bottom:<?php echo $g+$sg; ?>px;right:<?php echo $sg; ?>px;max-height:55px;max-width:55px;cursor:pointer;z-index:1;}
+#responseLogIcon {position:absolute;bottom:<?php echo $sg; ?>px;right:<?php echo $sg; ?>px;height:<?php echo 2*$brs; ?>px;width:<?php echo 2*$brs; ?>px;cursor:pointer;z-index:1;background-color:<?php echo $tca[1]; ?>;border-radius:<?php echo $brs; ?>px;}
 #responseLogIcon > * {height:100%;width:100%;}
-#responseLog {position:fixed;bottom:20px;right:0px;background-color:<?php echo $aca[4]; ?>;overflow-wrap:break-word;min-width:400px;min-height:400px;border-radius:0 0 30px 0;overflow-y:auto;}
+#responseLog {position:fixed;bottom:20px;right:0px;background-color:<?php echo $aca[4]; ?>;overflow-wrap:break-word;min-width:400px;min-height:400px;border-radius:0 0 30px 0;overflow-y:auto;z-index:1;flex-direction:column;}
 
 
 @media(max-width:768px){
 	button:active {background-color:<?php echo $tca[3];?>;color:<?php echo $tca[2];?>;}
 	main {min-width:100vw;max-width:100vw;border-left:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;border-right:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;}
 }
-</style>

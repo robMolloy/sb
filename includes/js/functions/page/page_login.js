@@ -50,3 +50,7 @@ async function logout(){
     let response = initJson(await ajax({'file':'nav/login.nav.php?nav=logout'}));
     if(response==true){window.location.href='index.php';}
 }
+
+async function userIsLoggedIn(){
+    return true;
+}

@@ -14,7 +14,7 @@ function issetReturn(array,value=''){
 	return istrue ? array() : value;
 }
 
-function roughSizeOfObject(object) {
+function roughSizeOfObjectInBytes(object) {
     var objectList = [];
     var stack = [ object ];
     var bytes = 0;
@@ -31,6 +31,19 @@ function roughSizeOfObject(object) {
         }
     }
     return bytes;
+}
+
+function roughSizeOfObject(object,unit='b'){
+    let bytes = roughSizeOfObjectInBytes(object);
+    switch(unit.toLowerCase()){
+        case 'b':return `${bytes} bytes`;
+        case 'kb':return `${bytes/1000} kilobytes`;
+        case 'mb':return `${bytes/1000000} megabytes`;
+        case 'gb':return `${bytes/1000000000} gigabytes`;
+    }
+    if(bytes>1000000){return `${bytes/1000000} megabytes`;}
+    if(bytes>1000){return `${bytes/1000} kilobytes`;}
+    return `${bytes} bytes`;
 }
 
 function valid(elm){

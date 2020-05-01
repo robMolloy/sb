@@ -12,7 +12,7 @@ function ajax(params={}) {
 		request.onload = (()=>{
 			if (request.status == 200){
 				//~ ONLY TRUE IN DEV ////////////////////////////////////////////////////////////
-				if(true){showInResponseLog(request.response);}
+				if(true){showInResponseLogContent(request.response);}
 				resolve(request.response);
 			} 
 			else {reject(Error(request.statusText));}
