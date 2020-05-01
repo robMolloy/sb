@@ -1,4 +1,5 @@
 <?php
+
 $bigGap = 20;
 $mediumGap = 10;
 $smallGap = 5;
