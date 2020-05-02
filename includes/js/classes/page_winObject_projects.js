@@ -4,6 +4,16 @@ class project extends winObject{
         return 'projects';
     }
     
+    static addFormsInForm(forms,addedObject=''){
+        let datarowArray = Array.from(forms).map((form)=>{
+            let datarow = prj_cus_link.getFromForm(form);
+            datarow['prj_cus_link_prj_id'] = issetReturn(()=>addedObject['prj_id'],'');
+            return datarow;
+        });
+        let datarowObject = indexAnArrayOfObjects(datarowArray,'prj_cus_link_cus_id');
+        Object.values(datarowObject).forEach(datarow=>prj_cus_link.addObject(datarow));
+    }
+    
     static getPanelHtml(project){
         let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[project.prj_id],{});
         let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[project.prj_id],{});
@@ -59,6 +69,10 @@ class project extends winObject{
         return acronyms.some(acr=>acr.toLowerCase()==acronym.toLowerCase());
     }
     
+    static ifInputValueIsSameAsProjectAcronymAddError(input){
+        if(this.winAcronymExists(input.value)){input.parentElement.classList.add('inputError');}
+    }
+    
     static getFormPanelHtml(project){
         let labelRow = win_info['projects']['labels'];
         
@@ -68,7 +82,7 @@ class project extends winObject{
                 ${wrapInputElement(`<input 
                     type="text" value="${issetReturn(()=>project.prj_acronym,'')}" name="prj_acronym" 
                     checks="isNotBlank minChars_3" placeholder="${labelRow.prj_acronym}" 
-                    oninput="if(project.winAcronymExists(this.value)){this.parentElement.classList.add('inputError');}"
+                    oninput="project.ifInputValueIsSameAsProjectAcronymAddError(this);"
                 >`)}
                 <div>What is the address of this project?</div>
                 ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_address_1,'')}" 
@@ -132,7 +146,7 @@ class project extends winObject{
                         </select>`
                     )}
                 </div>
-                <div>
+                <div class="buttonRow">
                     <button onclick="project.addCustomerForm(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                     <span class="flex1"></span>
                     <button onclick="project.addObjectFromAnyElementInForm(this);">Save Project</button>
@@ -151,11 +165,11 @@ class project extends winObject{
     }
 
     static getSummaryLine(project){
-        return `${project.prj_acronym}: ${[project.prj_address_1,project.prj_address_2,project.prj_city,project.prj_postcode].filter((entry)=>entry.trim()!='').join(', ')}`;
+        return `${project.prj_acronym}: ${[project.prj_address_1,project.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
+    }
+    
+    static addCustomerForm(formChild){
+        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
+        form.querySelector('.buttonRow').insertAdjacentHTML('beforeBegin',prj_cus_link.getLinkToProjectFormHtml());
     }
 }
-
-
-
-
-

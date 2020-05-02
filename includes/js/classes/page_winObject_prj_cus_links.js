@@ -17,6 +17,17 @@ class prj_cus_link extends winObject{
             </div>
         `;
     }
+    
+    static getLinkToProjectFormHtml(){
+        let labelRow = win_info['prj_cus_links']['labels'];
+        return `
+            <div class="form">
+                ${wrapSelectElement(`
+                    ${customer.getSelect('',`placeholder="${labelRow.prj_cus_link_cus_id}" name="prj_cus_link_cus_id" checks="isNotBlank"`)}
+                `)}
+            </div>
+        `;
+    }
 }
 
 

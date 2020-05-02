@@ -8,6 +8,10 @@ class winObject{
         return window[`win_${this.getWinObjectType()}`]
     }
     
+    static addFormsInForm(){
+        return '';
+    }
+    
     static initObjects(){
         let objectType = this.getWinObjectType();
         let keys = win_info[objectType][`keys`];
@@ -120,8 +124,8 @@ class winObject{
         let keys = win_info[this.getWinObjectType()]['keys'];
         
         let tempId = tempIdString();
-        defaultValues[`${keys['primary']}`] = tempIdString;
-        defaultValues[`${keys['temp_id']}`] = tempIdString;
+        defaultValues[`${keys['primary']}`] = tempId;
+        defaultValues[`${keys['temp_id']}`] = tempId;
         return defaultValues;
     }
     
@@ -140,8 +144,6 @@ class winObject{
         
         let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
         mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
-        refreshWinVars();
-        this.loadPage();
     }
 
     static addObjectFromForm(form){
@@ -149,12 +151,11 @@ class winObject{
         if(valid(form)){
             let object = this.getFromForm(form);
             this.addObject(object);
+            this.addFormsInForm(form.querySelectorAll('.form'),object);
+            refreshWinVars();
+            this.loadPage();
         } else {
-            getAllInputs(form).forEach((input)=>{
-                input.parentElement.classList.remove('inputError');
-                input.parentElement.classList.add('inputValid');
-            });
-            getInvalidInputs(form).forEach((input)=>input.parentElement.classList.add('inputError'));
+            getAllInputs(form).forEach((input)=>input.oninput());
         }
     }
 

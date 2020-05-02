@@ -49,12 +49,11 @@ function roughSizeOfObject(object,unit='b'){
 function valid(elm){
     elm = initJson(elm);
     let valid = true;
-    
     getAllInputs(elm).forEach(input=>{
         if(!input.disabled && !input.readOnly){
-            console.log(input);
             input.oninput();
-            if(input.parentElement.classList.contains('inputInvalid') && !input.parentElement.classList.contains('inputDisabled'))
+            //~ if(input.name=='prj_acronym'){console.log(input.parentElement);}
+            if(input.parentElement.classList.contains('inputError') && !input.parentElement.classList.contains('inputDisabled'))
                 {valid = false;}
             if(!checkInput(input)){valid = false;}
         }
@@ -111,9 +110,9 @@ function checkInput(input){
     checks = checks==null || checks.trim()=='' ? [] : input.getAttribute('checks').split(' ');
     return checks.every((check)=>checkValue(check,getInputValue(input)));
 }
+
 function checkInputWrapper(input){
     let inputWrapper = input.classList.contains('inputWrapper') ? input : getParentElementWithClass(input,'inputWrapper');
-    console.log(inputWrapper);
 }
 
 

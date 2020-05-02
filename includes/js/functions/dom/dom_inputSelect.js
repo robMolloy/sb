@@ -2,7 +2,6 @@ function inputSelect(inputString,options,blankOption=`None`,runChecks=false){
     let originalInput = createElementFromHtmlString(inputString);
     if(originalInput.tagName!='INPUT'){console.error(originalInput);console.error(`The input string passed does not create an input.`);}
     originalInput.extendAttribute('oninput',`defaultCopyValueToInput(this);`)
-    //~ console.log(originalInput);
     
     let input = copyElm(originalInput);
     input.name = `${originalInput.name}_input`;
