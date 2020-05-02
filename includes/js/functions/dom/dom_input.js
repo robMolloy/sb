@@ -12,8 +12,6 @@ function input(inputString,runChecks=false){
     input.classList = [];
     
     input.extendAttribute('oninput',`defaultInputWithWrapperFunction(this);`);
-    input.extendAttribute('onfocus',`this.oninput();`);
-    input.extendAttribute('onfocusout',`this.oninput();`);
     
     if(input.value!=''){wrapperClasses.push('inputFilled');}
     if(runChecks){wrapperClasses.push(checkInput(input) ? `inputValid` : `inputInvalid`);}
@@ -26,16 +24,20 @@ function input(inputString,runChecks=false){
     `;
 }
 
-function inputWrapperUpdate(elm){
-    let parent = getParentElementWithClass(elm,'inputWrapper')
-    
-    if(elm.value==''){parent.classList.remove('inputFilled');}else{parent.classList.add('inputFilled');}
-    if(checkInput(elm)){
-        parent.classList.remove('inputError');
-        parent.classList.add('inputValid');
+function inputWrapperUpdate(input){
+    let parent = getParentElementWithClass(input,'inputWrapper')
+    if(input.value==''){parent.classList.remove('inputFilled');}else{parent.classList.add('inputFilled');}
+    changeClassesOnInputWrapperIfValid(input,checkInput(input));
+}
+
+function changeClassesOnInputWrapperIfValid(input,valid){
+    if(valid){
+        input.parentElement.classList.remove('inputError');
+        input.parentElement.classList.add('inputValid');
     }else{
-        parent.classList.add('inputError');
-        parent.classList.remove('inputValid');
+        input.parentElement.classList.add('inputError');
+        input.parentElement.classList.remove('inputValid');
     }
+
 }
 

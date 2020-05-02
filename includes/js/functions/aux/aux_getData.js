@@ -63,11 +63,27 @@ function getInputValue(input){
         
         case 'SELECT':
             return input.value;
-            //~ return elm.options[elm.selectedIndex].value;
         break;
         
         case 'TEXTAREA':
             return input.innerHTML;
+        break;
+    }
+}
+
+function changeInputValue(input,value){
+    input = initElement(input);
+    switch(input.tagName){
+        case 'INPUT':
+            input.value = value;
+        break;
+        
+        case 'SELECT':
+            input.value = value;
+        break;
+        
+        case 'TEXTAREA':
+            input.innerHTML = value;
         break;
     }
 }

@@ -6,10 +6,11 @@ function dateInput(inputString,runChecks=false){
     let inputValueDate = input.value=='' ? new Date() : new Date(input.value);
     
     input.placeholder='';
-    input.setAttribute('onchange',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onchange')};`);
-    input.setAttribute('onfocusout',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onfocusout')};`);
+    input.setAttribute('oninput',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onchange')};`);
+    //~ input.setAttribute('onfocusout',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onfocusout')};`);
     
     let realInput = convertInputElementToDateInputElement(input,'hidden');
+    realInput.readOnly = "readonly"
     input.name='';
     let timeInput = convertInputElementToDateInputElement(input,'time');
     let dateInput = convertInputElementToDateInputElement(input,'date');

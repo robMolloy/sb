@@ -45,7 +45,7 @@ class record extends winObject{
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
                 
-                <div class="jr"><span class="button" onclick="record.addObjectFromAnyElementInForm(this);">Save Record</span></div>
+                <div class="jr"><button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button></div>
             </div>
         `;
     }

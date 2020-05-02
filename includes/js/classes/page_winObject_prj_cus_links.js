@@ -13,7 +13,7 @@ class prj_cus_link extends winObject{
                 ${wrapSelectElement(`
                     ${customer.getSelect('',`placeholder="${labelRow.prj_cus_link_cus_id}" name="prj_cus_link_cus_id" checks="isNotBlank"`)}
                 `)}
-                <div class="jr"><span class="button" onclick="prj_cus_link.addObjectFromAnyElementInForm(this);">Save prj_cus_link</span></div>
+                <div class="jr"><button onclick="prj_cus_link.addObjectFromAnyElementInForm(this);">Save prj_cus_link</button></div>
             </div>
         `;
     }

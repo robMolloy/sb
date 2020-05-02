@@ -36,6 +36,5 @@ function convertInputElementToSelectElement(input,options=[],blankOption=`None`)
     `;
     
     let select = createElementFromHtmlString(selectString);
-    select.extendAttribute('onchange',select.getAttribute('oninput'));
     return select;
 }

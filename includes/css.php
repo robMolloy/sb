@@ -34,12 +34,9 @@ $eca = $errorColorsArray;
 /*load fonts*/
 @font-face {font-family:'Montserrat';font-style:normal;font-weight:400;src:url('includes/css/fonts/montserrat-v14-latin-regular.eot');src:local('Montserrat Regular'),local('Montserrat-Regular'),url('includes/css/fonts/montserrat-v14-latin-regular.eot?#iefix') format('embedded-opentype'),url('includes/css/fonts/montserrat-v14-latin-regular.woff2') format('woff2'),url('includes/css/fonts/montserrat-v14-latin-regular.woff') format('woff'),url('includes/css/fonts/montserrat-v14-latin-regular.ttf') format('truetype'),url('includes/css/fonts/montserrat-v14-latin-regular.svg#Montserrat') format('svg');}
 
-
-
 /*skeleton elements*/
 *       {margin:0;padding:0;color:<?php echo $tca[0];?>;box-sizing:border-box;display:flex;}
 head    {display:none;}
-
 body    {height:100vh;width:100vw;background-color:<?php echo $tca[3];?>;flex-flow:column;font-family:'Montserrat';}
 	
 header  {background-color:<?php echo $tca[4]; ?>;border-bottom:2px solid <?php echo $tca[2]; ?>;overflow-x:auto;width:100%;font-weight:600;}
@@ -54,6 +51,7 @@ input, select {
     height:<?php echo $lh; ?>px;padding:0 <?php echo $g; ?>px;color:<?php echo $tca[0];?>;width:100%;min-width:0px;outline:0;
     background-color:<?php echo $tca[5]; ?>;border:none;
 }
+input:disabled, select:disabled {color:<?php echo $tca[2]; ?>;}
 select {-moz-appearance:none;-webkit-appearance:none;appearance:none;
 }
 .selectWrapper::after {content:'\25BC';position:absolute;right:<?php echo $g; ?>px;font-size:1.3em;color:<?php echo $tca[2]; ?>;pointer-events:none;}
@@ -78,24 +76,25 @@ input[type=datetime-local]::-webkit-inner-spin-button,input[type=date]::-webkit-
 .inputWrapper:focus-within>div, .inputWrapper.inputFilled>div {top:0;font-size:0.7em;width:auto;}
 .inputWrapper.inputValid {border-color:<?php echo $aca[2]; ?>;}
 .inputWrapper.inputError {border-color:<?php echo $eca[1]; ?>;}
+.inputWrapper.disabled {display:none;}
 
 
 
 
 
-.button {
+button {
 	border-radius:<?php echo $rs; ?>px;height:<?php echo $lh; ?>px;padding:0 <?php echo $g; ?>px;
     outline:none;background-color:<?php echo $tca[4]; ?>;border:solid 2px <?php echo $aca[2]; ?>;
     display:grid;grid-auto-flow:column;grid-column-gap:<?php echo $g; ?>px;
 }
-.button, .button * {
+button, button * {
     color:<?php echo $aca[2]; ?>;cursor:pointer;text-decoration:none;font-weight:600;font-size:0.95em;
     justify-content:center;align-items:center;text-transform:uppercase;color:<?php echo $aca[2]; ?>;
     white-space:nowrap;
 }
-.button:hover, .button:hover * {background-color:<?php echo $aca[2];?>;color:<?php echo $tca[4]; ?>;}
-.button span {display:none;}
-.button:hover span {display:flex;}
+button:hover, button:hover * {background-color:<?php echo $aca[2];?>;color:<?php echo $tca[4]; ?>;}
+button div {display:none;}
+button:hover div {display:flex;}
 
 
 /*my elements*/
@@ -246,6 +245,9 @@ input.error {background-color:<?php echo $eca[0]; ?>;}
 .alignTop, .at {align-items:baseline;}
 .alignCenter, .ac {align-items:center;}
 .alignBottom, .ab {align-items:end;}
+.textAlignLeft, .tal {text-align:left;}
+.textAlignRight, .tar {text-align:right;}
+.textAlignCenter, .tac {text-align:center;}
 
 
 

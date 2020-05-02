@@ -51,10 +51,17 @@ function valid(elm){
     let valid = true;
     
     getAllInputs(elm).forEach(input=>{
-        if(!checkInput(input)){valid = false;}
+        if(!input.disabled && !input.readOnly){
+            console.log(input);
+            input.oninput();
+            if(input.parentElement.classList.contains('inputInvalid') && !input.parentElement.classList.contains('inputDisabled'))
+                {valid = false;}
+            if(!checkInput(input)){valid = false;}
+        }
     });
     return valid;
 }
+
 
 function checkValue(check,value){
     let checkArray = check.split('_');
@@ -62,11 +69,20 @@ function checkValue(check,value){
         case '':
         return true;
         
+        case 'moreThan':
+        return parseFloat(value) > parseFloat(checkArray[1]);
+        
+        case 'lessThan':
+        return parseFloat(value) < parseFloat(checkArray[1]);
+        
         case 'maxChars':
         return value.length <= checkArray[1];
         
         case 'minChars':
         return value.length >= checkArray[1];
+        
+        case 'doesNotEqual':
+        return value!=checkArray[1];
         
         case 'isNotBlank':
         return value!='';
@@ -75,8 +91,8 @@ function checkValue(check,value){
         return value == parseFloat(value);
 
         case 'isInt':
-            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<0){return false;}
-            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>0){return false;}
+            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<=0){return false;}
+            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>=0){return false;}
         return value == parseInt(value);
         
 
@@ -95,6 +111,11 @@ function checkInput(input){
     checks = checks==null || checks.trim()=='' ? [] : input.getAttribute('checks').split(' ');
     return checks.every((check)=>checkValue(check,getInputValue(input)));
 }
+function checkInputWrapper(input){
+    let inputWrapper = input.classList.contains('inputWrapper') ? input : getParentElementWithClass(input,'inputWrapper');
+    console.log(inputWrapper);
+}
+
 
 function getInvalidInputs(elm){
     elm = initElement(elm);

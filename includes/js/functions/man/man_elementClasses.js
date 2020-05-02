@@ -20,15 +20,11 @@ function toggleClassOnElementsInsideElementAndFocusChildIfClassRemoved(class1,qs
     parentElement.querySelectorAll(qsString).forEach(elm=>{
         if(elm.classList.contains(class1)){
             elm.classList.remove(class1);
-            getAllInputs(elm).forEach(input=>{
-                input.focus();
-                input.disabled="";
-                input.onfocus();
-            });
+            getAllInputs(elm).forEach(input=>{input.focus();input.disabled="";});
         }
         else{
             elm.classList.add(class1);
-            getAllInputs(elm).forEach(input=>{input.disabled="disabled";input.onfocus();});
+            getAllInputs(elm).forEach(input=>{input.disabled="disabled";});
         }
     });
 }

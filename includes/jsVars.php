@@ -16,6 +16,8 @@
     win_user = {usr_id:'4',usr_first_name:'rob',usr_last_name:'molloy',usr_email:'robmolloy@hotmail.co.uk'};
     win_pages = ['projects','customers','contacts','records','prj_cus_links','rec_items'];
     win_time_units = ['day','week','month','year'];
+    win_contact_types = ['phone','email'];
+    win_contact_method = ['default','sms','whatsapp','call'];
     
     win_info = {
         projects:{
@@ -35,8 +37,8 @@
         },
         contacts:{
             keys:{primary:'con_id',temp:'con_temp_id',user:'con_usr_id'},
-            blank:{con_id:'',con_usr_id:'',con_cus_id:'',con_type:'',con_method:'',con_description:'',con_address:''},
-            labels:{con_id:'Id',con_temp_id:'Temp Id',con_usr_id:'User Id',con_cus_id:'Customer Id',con_type:'type',con_method:'method',con_description:'Description',con_address:'Address'}
+            blank:{con_id:'',con_usr_id:'',con_cus_id:'',con_type:'',con_method:'',con_address:''},
+            labels:{con_id:'Id',con_temp_id:'Temp Id',con_usr_id:'User Id',con_cus_id:'Customer Id',con_type:'type',con_method:'method',con_address:'Address'}
         },
         records:{
             keys:{primary:'rec_id',temp:'rec_temp_id',user:'rec_usr_id'},
@@ -72,11 +74,11 @@
         5:{prj_cus_link_id:5,prj_cus_link_temp_id:'',prj_cus_link_usr_id:4,prj_cus_link_prj_id:1,prj_cus_link_cus_id:5}
     };
     win_db_contacts = {
-        1:{con_id:1,con_temp_id:'',con_usr_id:4,con_cus_id:2,con_type:'mobile',con_method:'whatsapp',con_description:'Mobile',con_address:'+447590912293'},
-        2:{con_id:2,con_temp_id:'',con_usr_id:4,con_cus_id:2,con_type:'email',con_method:'email',con_description:'Email',con_address:'steve@poole.com'},
-        3:{con_id:3,con_temp_id:'',con_usr_id:4,con_cus_id:1,con_type:'mobile',con_method:'sms',con_description:'Mobile',con_address:'+447777122777'},
-        4:{con_id:4,con_temp_id:'',con_usr_id:4,con_cus_id:1,con_type:'email',con_method:'email',con_description:'Email',con_address:'netty@poole.com'},
-        5:{con_id:5,con_temp_id:'',con_usr_id:4,con_cus_id:5,con_type:'mobile',con_method:'sms',con_description:'Email',con_address:'+447934647667'}
+        1:{con_id:1,con_temp_id:'',con_usr_id:4,con_cus_id:2,con_type:'mobile',con_method:'whatsapp',con_address:'+447590912293'},
+        2:{con_id:2,con_temp_id:'',con_usr_id:4,con_cus_id:2,con_type:'email',con_method:'email',con_address:'steve@poole.com'},
+        3:{con_id:3,con_temp_id:'',con_usr_id:4,con_cus_id:1,con_type:'mobile',con_method:'sms',con_address:'+447777122777'},
+        4:{con_id:4,con_temp_id:'',con_usr_id:4,con_cus_id:1,con_type:'email',con_method:'email',con_address:'netty@poole.com'},
+        5:{con_id:5,con_temp_id:'',con_usr_id:4,con_cus_id:5,con_type:'mobile',con_method:'sms',con_address:'+447934647667'}
     };
     win_db_records = {
         1:{rec_id:1,rec_temp_id:'',rec_usr_id:4,rec_prj_id:1,rec_description:'hi',rec_timestamp_planned_start:1583111310000,rec_timestamp_planned_finish:1584311310000,rec_timestamp_completed:1584321310000,rec_timestamp_paid:0,rec_total:157},

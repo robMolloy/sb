@@ -35,6 +35,6 @@ function getUrl(){
 }
 
 function getPage(){
-    let page = getUrl().split('/').slice(-1)[0];
-    return page=='' ? 'index.php' : page;
+    
+    return getUrl().split('/').slice(-1)[0];
 }

@@ -10,8 +10,8 @@ HTMLElement.prototype.getAttributeIfSet = function(attributeName){
     return this.getAttribute(attributeName)==null ? '' : this.getAttribute(attributeName);
 }
 
-HTMLElement.prototype.extendAttribute = function(attributeName,extendString){
-    this.setAttribute(attributeName,`${this.getAttributeIfSet(attributeName)}${extendString}`)
+HTMLElement.prototype.extendAttribute = function(attributeName,beforeString='',afterString=''){
+    this.setAttribute(attributeName,`${beforeString} ${this.getAttributeIfSet(attributeName)} ${afterString}`)
 }
 
 String.prototype.toDate = function(){return new Date(this.valueOf());}
@@ -207,43 +207,80 @@ class winObject{
 }
 
 
+class formObject {
+    constructor(formChild){
+        this.constructorElement = formElement;
+        this.form = formElement.classList.contains('form') ? formElement : getParentElementWithClass(formElement,'form');
+        return this;
+    }
+    
+    function changeInputWithNameToElementValue(name,element=''){
+        element = element=='' ? this.constructorElement : element;
+        let input = this.form.querySelector(`[name="${name}"]`);
+        changeInputValue(input,value);
+    }
+    
+    function enableInputWithName(name){
+        
+    }
+    
+    function elementValueIs(){
+        
+    }
+}
+
 class contact extends winObject{
     static getWinObjectType(){
         return 'contacts';
     }
     
     static getFormPanelHtml(contact){
-        return `<div class="panel form">
-        <div class="inputWrapper inputValid">
-            <input type="text" name="con_id" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">Id</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_usr_id" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">User Id</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_cus_id" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">Customer Id</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_type" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">type</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_method" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">method</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_description" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">Description</div>
-        </div>
-        <div class="inputWrapper">
-            <input type="text" name="con_address" placeholder="" value="" class="" oninput="defaultInputWithWrapperFunction(this);" onfocus="this.oninput();" onfocusout="this.oninput();">
-            <div class="inputLabel">Address</div>
-        </div>
-                    <div class="jr"><span class="button" onclick="contact.addObjectFromAnyElementInForm(this);">Save contact</span></div>
-                </div>`;
+        let labelRow = win_info['contacts']['labels'];
+        return `
+            <div class="panel form">
+                ${wrapSelectElement(`
+                    ${customer.getSelect('',`placeholder="${labelRow.con_cus_id}" name="con_cus_id" checks="isNotBlank"`)}
+                `)}
+                <div class="flexl1r2 flexGap">
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>contact.con_type,'phone')}"
+                            onchange="ifElementIsNotValueDisableInputWithNameOnForm(this,'phone','con_method');"
+                            placeholder="${labelRow.con_type}" name="con_type" checks="isNotBlank" 
+                        >
+                            ${win_contact_types.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                        </select>`
+                    )}
+                    ${input(`<input 
+                        type="text" value="${issetReturn(()=>contact.con_address,'')}" 
+                        placeholder="${labelRow.con_address}" name="con_address"  
+                    >`)}
+                </div>
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" placeholder="${labelRow.con_method}" name="con_method" checks="isNotBlank" 
+                        value="${issetReturn(()=>contact.con_method,'')}" 
+                        ${issetReturn(()=>contact.con_type,'phone')!='phone' ? `disabled="disabled"` : ``}
+                    >
+                        ${win_contact_method.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                    </select>`
+                )}
+                <div class="jr"><button onclick="contact.addObjectFromAnyElementInForm(this);">Save contact</button></div>
+            </div>
+        `;
+    }
+}
+
+function ifElementIsNotValueDisableInputWithNameOnForm(elm,value,name){
+    let form = getParentElementWithClass(elm,'form');
+    let input = form.querySelector(`[name="${name}"]`)
+    let inputWrapper = getParentElementWithClass(input,'inputWrapper');
+    if(getInputValue(elm)!=value){
+        input.disabled = 'disabled';
+        inputWrapper.classList.add('disabled')
+    } else {
+        input.disabled = '';
+        inputWrapper.classList.remove('disabled')
     }
 }
 
@@ -268,7 +305,7 @@ class customer extends winObject{
                         </div>
                     </a>
                 `).join('')}
-                <span class="button">Add New Method Of Contact +</span>
+                <button><span>Add New Method Of Contact +</span></button>
             </div>
         `;
     }
@@ -287,9 +324,9 @@ class customer extends winObject{
                     placeholder="${labelRow.cus_last_name}" name="cus_last_name" checks="isNotBlank" 
                 >`)}
                 <div>
-                    <span class="button icon">+<span>Add Contact</span></span>
+                    <button class="icon"><span class="flexGap"><span>+</span><div>Add Contact</div></span></button>
                     <div class="flex1"></div>
-                    <span class="button" onclick="customer.addObjectFromAnyElementInForm(this);">Save Customer</span>
+                    <button onclick="customer.addObjectFromAnyElementInForm(this);"><span>Save Customer</span></button>
                 </div>
             </div>
         `;
@@ -331,7 +368,7 @@ class prj_cus_link extends winObject{
                 ${wrapSelectElement(`
                     ${customer.getSelect('',`placeholder="${labelRow.prj_cus_link_cus_id}" name="prj_cus_link_cus_id" checks="isNotBlank"`)}
                 `)}
-                <div class="jr"><span class="button" onclick="prj_cus_link.addObjectFromAnyElementInForm(this);">Save prj_cus_link</span></div>
+                <div class="jr"><button onclick="prj_cus_link.addObjectFromAnyElementInForm(this);">Save prj_cus_link</button></div>
             </div>
         `;
     }
@@ -355,7 +392,7 @@ class project extends winObject{
         return `
             <div class="panel singleColumn">
                 <div class="fw600">
-                    <div class="">${[project.prj_address_1,project.prj_address_2,project.prj_city,project.prj_postcode].filter((entry)=>entry.trim()!='').join(', ')} (${project.prj_acronym})</div>
+                    <div class="">${this.getSummaryLine(project)}</div>
                     <div class=" flex1 jr">£${project.prj_rate_per_default_unit}/${project.prj_default_unit}</div>
                 </div>
                 <span>
@@ -382,7 +419,7 @@ class project extends winObject{
                     <div>Records (${Object.keys(recordsOnProject).length} on project) &#9660;</div>
                 </span>
                 <div class="singleColumn hidden flex1">
-                    <span><span class="button">Add Record</span></span>
+                    <span><button><span>Add Record</span></button></span>
                     ${Object.values(recordsOnProject).map(record=>`
                         <div class="grid12">
                             <div class="gs4 borderRight">${formatTimestampToDate(record.rec_timestamp_planned_start)}</div>
@@ -390,9 +427,14 @@ class project extends winObject{
                         </div>
                     `).join('')}
                 </div>
-                <div class="jr"><span class="button icon edit"><i class="fas fa-pencil-ruler" style=""></i></button></div>
+                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler" style=""></i></span></button></div>
             </div>
         `;
+    }
+    
+    static winAcronymExists(acronym){
+        let acronyms = Object.keys(indexAnObjectOfObjects(win_projects,'prj_acronym'));
+        return acronyms.some(acr=>acr.toLowerCase()==acronym.toLowerCase());
     }
     
     static getFormPanelHtml(project){
@@ -401,8 +443,10 @@ class project extends winObject{
         return `
             <div class="panel form">
                 <div>Pick a unique reference for this project</div>
-                ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_acronym,'')}" 
-                    placeholder="${labelRow.prj_acronym}" name="prj_acronym" checks="isNotBlank" 
+                ${wrapInputElement(`<input 
+                    type="text" value="${issetReturn(()=>project.prj_acronym,'')}" name="prj_acronym" 
+                    checks="isNotBlank minChars_3" placeholder="${labelRow.prj_acronym}" 
+                    oninput="if(project.winAcronymExists(this.value)){this.parentElement.classList.add('inputError');}"
                 >`)}
                 <div>What is the address of this project?</div>
                 ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_address_1,'')}" 
@@ -452,10 +496,10 @@ class project extends winObject{
                 </div>
                 <div>How often will the work take place?</div>
                 <div class="flexGap">
-                    <div class="padSmall borderTop borderBottom">Every</div>
+                    <div class="padSmall borderTop borderBottom width3Lh jc">Every</div>
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_repeat_every_qty,'1')}" 
                         name="prj_default_repeat_every_qty" placeholder="${labelRow.prj_default_repeat_every_qty}" 
-                        checks="isInt_positive" class="width2Lh"
+                        checks="isInt_positive" class="width3Lh"
                     >`)}
                     ${wrapSelectElement(
                         `<select 
@@ -464,10 +508,13 @@ class project extends winObject{
                         >
                             ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`)}
                         </select>`
-                        ,''
                     )}
                 </div>
-                <div class="jr"><span class="button" onclick="project.addObjectFromAnyElementInForm(this);">Save Project</span></div>
+                <div>
+                    <button><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
+                    <span class="flex1"></span>
+                    <button onclick="project.addObjectFromAnyElementInForm(this);">Save Project</button>
+                </div>
             </div>
         `;
     }
@@ -549,11 +596,11 @@ class rec_item extends winObject{
                         <span class="lightText">Total</span>
                         <span class="lightText">|</span>
                         <span class="jr" name="rci_price">
-                            <input class="jr" type="text" name="rci_total" value="${price('')}" readonly>
+                            <input class="tar width3Lh" type="text" name="rci_total" value="${price('')}" readonly>
                         </span>
                     </span>
                     <span class="flex1"></span>
-                    <span class="button" onclick="rec_item.addObjectFromAnyElementInForm(this);">Save rec_item</span>
+                    <button onclick="rec_item.addObjectFromAnyElementInForm(this);">Save rec_item</button>
                 </div>
             </div>
         `;
@@ -609,7 +656,7 @@ class record extends winObject{
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
                 
-                <div class="jr"><span class="button" onclick="record.addObjectFromAnyElementInForm(this);">Save Record</span></div>
+                <div class="jr"><button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button></div>
             </div>
         `;
     }
@@ -687,6 +734,10 @@ class mightyStorage {
         let newCache = {};
         Object.keys(localStorage).forEach(key=>newCache[key] = this.get(key));
         return newCache;
+    }
+    
+    static removeAll(){
+        Object.keys(localStorage).forEach(key=>this.remove(key));
     }
     
     static after(key=''){
@@ -819,8 +870,8 @@ function getUrl(){
 }
 
 function getPage(){
-    let page = getUrl().split('/').slice(-1)[0];
-    return page=='' ? 'index.php' : page;
+    
+    return getUrl().split('/').slice(-1)[0];
 }
 
 function getElementValues(params={}){
@@ -888,11 +939,27 @@ function getInputValue(input){
         
         case 'SELECT':
             return input.value;
-            //~ return elm.options[elm.selectedIndex].value;
         break;
         
         case 'TEXTAREA':
             return input.innerHTML;
+        break;
+    }
+}
+
+function changeInputValue(input,value){
+    input = initElement(input);
+    switch(input.tagName){
+        case 'INPUT':
+            input.value = value;
+        break;
+        
+        case 'SELECT':
+            input.value = value;
+        break;
+        
+        case 'TEXTAREA':
+            input.innerHTML = value;
         break;
     }
 }
@@ -950,10 +1017,17 @@ function valid(elm){
     let valid = true;
     
     getAllInputs(elm).forEach(input=>{
-        if(!checkInput(input)){valid = false;}
+        if(!input.disabled && !input.readOnly){
+            console.log(input);
+            input.oninput();
+            if(input.parentElement.classList.contains('inputInvalid') && !input.parentElement.classList.contains('inputDisabled'))
+                {valid = false;}
+            if(!checkInput(input)){valid = false;}
+        }
     });
     return valid;
 }
+
 
 function checkValue(check,value){
     let checkArray = check.split('_');
@@ -961,11 +1035,20 @@ function checkValue(check,value){
         case '':
         return true;
         
+        case 'moreThan':
+        return parseFloat(value) > parseFloat(checkArray[1]);
+        
+        case 'lessThan':
+        return parseFloat(value) < parseFloat(checkArray[1]);
+        
         case 'maxChars':
         return value.length <= checkArray[1];
         
         case 'minChars':
         return value.length >= checkArray[1];
+        
+        case 'doesNotEqual':
+        return value!=checkArray[1];
         
         case 'isNotBlank':
         return value!='';
@@ -974,8 +1057,8 @@ function checkValue(check,value){
         return value == parseFloat(value);
 
         case 'isInt':
-            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<0){return false;}
-            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>0){return false;}
+            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<=0){return false;}
+            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>=0){return false;}
         return value == parseInt(value);
         
 
@@ -994,6 +1077,11 @@ function checkInput(input){
     checks = checks==null || checks.trim()=='' ? [] : input.getAttribute('checks').split(' ');
     return checks.every((check)=>checkValue(check,getInputValue(input)));
 }
+function checkInputWrapper(input){
+    let inputWrapper = input.classList.contains('inputWrapper') ? input : getParentElementWithClass(input,'inputWrapper');
+    console.log(inputWrapper);
+}
+
 
 function getInvalidInputs(elm){
     elm = initElement(elm);
@@ -1090,7 +1178,6 @@ function convertInputElementToSelectElement(input,options=[],blankOption=`None`)
     `;
     
     let select = createElementFromHtmlString(selectString);
-    select.extendAttribute('onchange',select.getAttribute('oninput'));
     return select;
 }
 
@@ -1102,10 +1189,11 @@ function dateInput(inputString,runChecks=false){
     let inputValueDate = input.value=='' ? new Date() : new Date(input.value);
     
     input.placeholder='';
-    input.setAttribute('onchange',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onchange')};`);
-    input.setAttribute('onfocusout',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onfocusout')};`);
+    input.setAttribute('oninput',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onchange')};`);
+    //~ input.setAttribute('onfocusout',`defaultDateInputWithWrapperFunction(this);${input.getAttribute('onfocusout')};`);
     
     let realInput = convertInputElementToDateInputElement(input,'hidden');
+    realInput.readOnly = "readonly"
     input.name='';
     let timeInput = convertInputElementToDateInputElement(input,'time');
     let dateInput = convertInputElementToDateInputElement(input,'date');
@@ -1200,9 +1288,10 @@ function getHeaderBarHtml(){
 }
 
 function getHeaderTabsHtml(){
+    let fileType = getUrl().split('.').slice(-1).join();
     return `<span id="tabs">
                 ${win_pages.map((page)=>`
-                    <a class="tab" id="tab_${page}" href="${page}.php">${formatStringForTitle(page)}</a>
+                    <a  class="tab" id="tab_${page}" ${fileType=='php' ? `href="${page}.php"` : `onclick="${page.slice(0,-1)}.loadPage();"`}>${formatStringForTitle(page)}</a>
                 `).join('')}
             </span>`;
 }
@@ -1232,8 +1321,6 @@ function input(inputString,runChecks=false){
     input.classList = [];
     
     input.extendAttribute('oninput',`defaultInputWithWrapperFunction(this);`);
-    input.extendAttribute('onfocus',`this.oninput();`);
-    input.extendAttribute('onfocusout',`this.oninput();`);
     
     if(input.value!=''){wrapperClasses.push('inputFilled');}
     if(runChecks){wrapperClasses.push(checkInput(input) ? `inputValid` : `inputInvalid`);}
@@ -1246,17 +1333,21 @@ function input(inputString,runChecks=false){
     `;
 }
 
-function inputWrapperUpdate(elm){
-    let parent = getParentElementWithClass(elm,'inputWrapper')
-    
-    if(elm.value==''){parent.classList.remove('inputFilled');}else{parent.classList.add('inputFilled');}
-    if(checkInput(elm)){
-        parent.classList.remove('inputError');
-        parent.classList.add('inputValid');
+function inputWrapperUpdate(input){
+    let parent = getParentElementWithClass(input,'inputWrapper')
+    if(input.value==''){parent.classList.remove('inputFilled');}else{parent.classList.add('inputFilled');}
+    changeClassesOnInputWrapperIfValid(input,checkInput(input));
+}
+
+function changeClassesOnInputWrapperIfValid(input,valid){
+    if(valid){
+        input.parentElement.classList.remove('inputError');
+        input.parentElement.classList.add('inputValid');
     }else{
-        parent.classList.add('inputError');
-        parent.classList.remove('inputValid');
+        input.parentElement.classList.add('inputError');
+        input.parentElement.classList.remove('inputValid');
     }
+
 }
 
 
@@ -1264,6 +1355,7 @@ function inputSelect(inputString,options,blankOption=`None`,runChecks=false){
     let originalInput = createElementFromHtmlString(inputString);
     if(originalInput.tagName!='INPUT'){console.error(originalInput);console.error(`The input string passed does not create an input.`);}
     originalInput.extendAttribute('oninput',`defaultCopyValueToInput(this);`)
+    //~ console.log(originalInput);
     
     let input = copyElm(originalInput);
     input.name = `${originalInput.name}_input`;
@@ -1275,12 +1367,13 @@ function inputSelect(inputString,options,blankOption=`None`,runChecks=false){
     
     let hiddenInput = copyElm(originalInput);
     hiddenInput.type = 'hidden';
+    hiddenInput.setAttribute('oninput','');
     
     return `
         <div class="flexGap inputSelectWrapper">
-            <span class="button lhSquare" onclick="defaultToggleInputSelectBehaviour(this);">
+            <button class="lhSquare" onclick="defaultToggleInputSelectBehaviour(this);">
                 <i class="fas fa-pencil-alt hidden"></i><i class="far fa-hand-point-up"></i>
-            </span>
+            </button>
             ${wrapInputElement(getHtmlStringFromElement(input))}
             ${wrapSelectElement(getHtmlStringFromElement(select))}
             ${getHtmlStringFromElement(hiddenInput)}
@@ -1341,24 +1434,11 @@ function copyElm(elm){
 function findParentWithClass(elm,class1){
     console.error('findParentWithClass() deprecated, change to getParentElementWithClass()');
     return getParentElementWithClass(elm,class1);
-    /*
-    let parent = elm.parentElement;
-    if(parent.classList.contains(class1)){
-        return parent;
-    } else {
-        return findParentWithClass(parent,class1);
-    }
-    */
 }
 
 function findOriginalElementInForm(elm){
     console.error('findOriginalElementInForm() deprecated, change to getOriginalElementInForm()');
     return getOriginalElementInForm(elm);
-    /*
-    if(elm.name.slice(-5)!='_copy'){console.error(`Element passed in findOriginalElementInForm() must have a name ending in "_copy"`);}
-    let parent = findParentWithClass(elm,'form');
-    return parent.querySelector(`[name=${elm.name.slice(0,-5)}]`);
-    */
 }
 
 
@@ -1428,9 +1508,11 @@ function select(selectString,runChecks=false){
     let wrapperClasses = [...select.classList,...['selectWrapper','inputWrapper']];
     
     select.placeholder = '';
-    select.extendAttribute('onchange',`defaultSelectWithWrapperFunction(this);`);
-    select.extendAttribute('onfocus',`this.onchange();`);
+    select.extendAttribute('oninput',`defaultSelectWithWrapperFunction(this);`);
+    //~ select.extendAttribute('onchange',`defaultSelectWithWrapperFunction(this);`);
+    //~ select.extendAttribute('onfocus',`this.onchange();`);
     
+    changeValueOfSelect(select)
     if(select.value!=''){wrapperClasses.push('inputFilled');}
     if(runChecks){wrapperClasses.push(checkInput(select) ? `inputValid` : `inputInvalid`);}
     
@@ -1440,6 +1522,14 @@ function select(selectString,runChecks=false){
             <div class="inputLabel">${selectPlaceholder}</div>
         </div>
     `;
+}
+
+function changeValueOfSelect(select,value=''){
+    value = value=='' ? select.getAttributeIfSet('value') : value;
+    Array.from(select.options).some((opt,key)=>{
+        if(opt.value==value){opt.setAttribute('selected',true);return true;}
+    });
+    return select;
 }
 
 function searchArrayOfObjects(arr,index,value){
@@ -1565,15 +1655,11 @@ function toggleClassOnElementsInsideElementAndFocusChildIfClassRemoved(class1,qs
     parentElement.querySelectorAll(qsString).forEach(elm=>{
         if(elm.classList.contains(class1)){
             elm.classList.remove(class1);
-            getAllInputs(elm).forEach(input=>{
-                input.focus();
-                input.disabled="";
-                input.onfocus();
-            });
+            getAllInputs(elm).forEach(input=>{input.focus();input.disabled="";});
         }
         else{
             elm.classList.add(class1);
-            getAllInputs(elm).forEach(input=>{input.disabled="disabled";input.onfocus();});
+            getAllInputs(elm).forEach(input=>{input.disabled="disabled";});
         }
     });
 }
@@ -1713,16 +1799,19 @@ function loadIndexPage(){
 
 function initPage(page=''){
     page = page=='' ? getPage() : page;
-    switch(page){
-        case 'index.php':displayHeaderBar('');appendToMain(`<div class="panel">At Index.php</div>`);break;
-        case 'customers.php':customer.loadPage();break;
-        case 'contacts.php':contact.loadPage();break;
-        case 'projects.php':project.loadPage();break;
-        case 'records.php':record.loadPage();break;
-        case 'prj_cus_links.php':prj_cus_link.loadPage();break;
-        case 'rec_items.php':rec_item.loadPage();break;
+    if(page=='' && dev){window.location.href = 'index.php';return;}
+    pageName = page.split('.')[0];
+    switch(pageName){
+        case 'index':displayHeaderBar('');appendToMain(`<div class="panel">At Index.php</div>`);break;
+        case 'customers':customer.loadPage();break;
+        case 'contacts':contact.loadPage();break;
+        case 'projects':project.loadPage();break;
+        case 'records':record.loadPage();break;
+        case 'prj_cus_links':prj_cus_link.loadPage();break;
+        case 'rec_items':rec_item.loadPage();break;
     }
 }
+
 
 
 function getLoginHtml(params={}){

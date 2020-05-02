@@ -24,6 +24,10 @@ class mightyStorage {
         return newCache;
     }
     
+    static removeAll(){
+        Object.keys(localStorage).forEach(key=>this.remove(key));
+    }
+    
     static after(key=''){
         return key=='' ? this.getAll() : this.getWithKey(key);
     }

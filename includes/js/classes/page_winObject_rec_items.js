@@ -56,11 +56,11 @@ class rec_item extends winObject{
                         <span class="lightText">Total</span>
                         <span class="lightText">|</span>
                         <span class="jr" name="rci_price">
-                            <input class="jr" type="text" name="rci_total" value="${price('')}" readonly>
+                            <input class="tar width3Lh" type="text" name="rci_total" value="${price('')}" readonly>
                         </span>
                     </span>
                     <span class="flex1"></span>
-                    <span class="button" onclick="rec_item.addObjectFromAnyElementInForm(this);">Save rec_item</span>
+                    <button onclick="rec_item.addObjectFromAnyElementInForm(this);">Save rec_item</button>
                 </div>
             </div>
         `;

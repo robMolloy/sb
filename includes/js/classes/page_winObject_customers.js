@@ -19,7 +19,7 @@ class customer extends winObject{
                         </div>
                     </a>
                 `).join('')}
-                <span class="button">Add New Method Of Contact +</span>
+                <button><span>Add New Method Of Contact +</span></button>
             </div>
         `;
     }
@@ -38,9 +38,9 @@ class customer extends winObject{
                     placeholder="${labelRow.cus_last_name}" name="cus_last_name" checks="isNotBlank" 
                 >`)}
                 <div>
-                    <span class="button icon">+<span>Add Contact</span></span>
+                    <button class="icon"><span class="flexGap"><span>+</span><div>Add Contact</div></span></button>
                     <div class="flex1"></div>
-                    <span class="button" onclick="customer.addObjectFromAnyElementInForm(this);">Save Customer</span>
+                    <button onclick="customer.addObjectFromAnyElementInForm(this);"><span>Save Customer</span></button>
                 </div>
             </div>
         `;

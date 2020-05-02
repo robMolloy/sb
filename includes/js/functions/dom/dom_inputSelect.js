@@ -2,6 +2,7 @@ function inputSelect(inputString,options,blankOption=`None`,runChecks=false){
     let originalInput = createElementFromHtmlString(inputString);
     if(originalInput.tagName!='INPUT'){console.error(originalInput);console.error(`The input string passed does not create an input.`);}
     originalInput.extendAttribute('oninput',`defaultCopyValueToInput(this);`)
+    //~ console.log(originalInput);
     
     let input = copyElm(originalInput);
     input.name = `${originalInput.name}_input`;
@@ -13,12 +14,13 @@ function inputSelect(inputString,options,blankOption=`None`,runChecks=false){
     
     let hiddenInput = copyElm(originalInput);
     hiddenInput.type = 'hidden';
+    hiddenInput.setAttribute('oninput','');
     
     return `
         <div class="flexGap inputSelectWrapper">
-            <span class="button lhSquare" onclick="defaultToggleInputSelectBehaviour(this);">
+            <button class="lhSquare" onclick="defaultToggleInputSelectBehaviour(this);">
                 <i class="fas fa-pencil-alt hidden"></i><i class="far fa-hand-point-up"></i>
-            </span>
+            </button>
             ${wrapInputElement(getHtmlStringFromElement(input))}
             ${wrapSelectElement(getHtmlStringFromElement(select))}
             ${getHtmlStringFromElement(hiddenInput)}

@@ -8,9 +8,10 @@ function getHeaderBarHtml(){
 }
 
 function getHeaderTabsHtml(){
+    let fileType = getUrl().split('.').slice(-1).join();
     return `<span id="tabs">
                 ${win_pages.map((page)=>`
-                    <a class="tab" id="tab_${page}" href="${page}.php">${formatStringForTitle(page)}</a>
+                    <a  class="tab" id="tab_${page}" ${fileType=='php' ? `href="${page}.php"` : `onclick="${page.slice(0,-1)}.loadPage();"`}>${formatStringForTitle(page)}</a>
                 `).join('')}
             </span>`;
 }

@@ -10,9 +10,11 @@ function select(selectString,runChecks=false){
     let wrapperClasses = [...select.classList,...['selectWrapper','inputWrapper']];
     
     select.placeholder = '';
-    select.extendAttribute('onchange',`defaultSelectWithWrapperFunction(this);`);
-    select.extendAttribute('onfocus',`this.onchange();`);
+    select.extendAttribute('oninput',`defaultSelectWithWrapperFunction(this);`);
+    //~ select.extendAttribute('onchange',`defaultSelectWithWrapperFunction(this);`);
+    //~ select.extendAttribute('onfocus',`this.onchange();`);
     
+    changeValueOfSelect(select)
     if(select.value!=''){wrapperClasses.push('inputFilled');}
     if(runChecks){wrapperClasses.push(checkInput(select) ? `inputValid` : `inputInvalid`);}
     
@@ -22,4 +24,12 @@ function select(selectString,runChecks=false){
             <div class="inputLabel">${selectPlaceholder}</div>
         </div>
     `;
+}
+
+function changeValueOfSelect(select,value=''){
+    value = value=='' ? select.getAttributeIfSet('value') : value;
+    Array.from(select.options).some((opt,key)=>{
+        if(opt.value==value){opt.setAttribute('selected',true);return true;}
+    });
+    return select;
 }

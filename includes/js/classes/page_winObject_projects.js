@@ -14,7 +14,7 @@ class project extends winObject{
         return `
             <div class="panel singleColumn">
                 <div class="fw600">
-                    <div class="">${[project.prj_address_1,project.prj_address_2,project.prj_city,project.prj_postcode].filter((entry)=>entry.trim()!='').join(', ')} (${project.prj_acronym})</div>
+                    <div class="">${this.getSummaryLine(project)}</div>
                     <div class=" flex1 jr">£${project.prj_rate_per_default_unit}/${project.prj_default_unit}</div>
                 </div>
                 <span>
@@ -41,7 +41,7 @@ class project extends winObject{
                     <div>Records (${Object.keys(recordsOnProject).length} on project) &#9660;</div>
                 </span>
                 <div class="singleColumn hidden flex1">
-                    <span><span class="button">Add Record</span></span>
+                    <span><button><span>Add Record</span></button></span>
                     ${Object.values(recordsOnProject).map(record=>`
                         <div class="grid12">
                             <div class="gs4 borderRight">${formatTimestampToDate(record.rec_timestamp_planned_start)}</div>
@@ -49,9 +49,14 @@ class project extends winObject{
                         </div>
                     `).join('')}
                 </div>
-                <div class="jr"><span class="button icon edit"><i class="fas fa-pencil-ruler" style=""></i></button></div>
+                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler" style=""></i></span></button></div>
             </div>
         `;
+    }
+    
+    static winAcronymExists(acronym){
+        let acronyms = Object.keys(indexAnObjectOfObjects(win_projects,'prj_acronym'));
+        return acronyms.some(acr=>acr.toLowerCase()==acronym.toLowerCase());
     }
     
     static getFormPanelHtml(project){
@@ -60,8 +65,10 @@ class project extends winObject{
         return `
             <div class="panel form">
                 <div>Pick a unique reference for this project</div>
-                ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_acronym,'')}" 
-                    placeholder="${labelRow.prj_acronym}" name="prj_acronym" checks="isNotBlank" 
+                ${wrapInputElement(`<input 
+                    type="text" value="${issetReturn(()=>project.prj_acronym,'')}" name="prj_acronym" 
+                    checks="isNotBlank minChars_3" placeholder="${labelRow.prj_acronym}" 
+                    oninput="if(project.winAcronymExists(this.value)){this.parentElement.classList.add('inputError');}"
                 >`)}
                 <div>What is the address of this project?</div>
                 ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_address_1,'')}" 
@@ -111,10 +118,10 @@ class project extends winObject{
                 </div>
                 <div>How often will the work take place?</div>
                 <div class="flexGap">
-                    <div class="padSmall borderTop borderBottom">Every</div>
+                    <div class="padSmall borderTop borderBottom width3Lh jc">Every</div>
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_repeat_every_qty,'1')}" 
                         name="prj_default_repeat_every_qty" placeholder="${labelRow.prj_default_repeat_every_qty}" 
-                        checks="isInt_positive" class="width2Lh"
+                        checks="isInt_positive" class="width3Lh"
                     >`)}
                     ${wrapSelectElement(
                         `<select 
@@ -123,10 +130,13 @@ class project extends winObject{
                         >
                             ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`)}
                         </select>`
-                        ,''
                     )}
                 </div>
-                <div class="jr"><span class="button" onclick="project.addObjectFromAnyElementInForm(this);">Save Project</span></div>
+                <div>
+                    <button onclick="project.addCustomerForm(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
+                    <span class="flex1"></span>
+                    <button onclick="project.addObjectFromAnyElementInForm(this);">Save Project</button>
+                </div>
             </div>
         `;
     }
