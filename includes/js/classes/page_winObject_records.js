@@ -45,9 +45,22 @@ class record extends winObject{
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
                 
-                <div class="jr"><button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button></div>
+                <div class="buttonRow">
+                    <button onclick="rec_item.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                    <div class="flex1"></div>
+                    <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
+                </div>
             </div>
         `;
+    }
+    
+    static addFormsInForm(forms,addedObject=''){
+        let datarowArray = Array.from(forms).map((form)=>{
+            let datarow = rec_item.getFromForm(form);
+            datarow['rci_rec_id'] = issetReturn(()=>addedObject['rec_id'],'');
+            return datarow;
+        });
+        datarowArray.forEach(datarow=>rec_item.addObject(datarow));
     }
     
     static getSummaryLine(record){

@@ -25,7 +25,7 @@ class project extends winObject{
             <div class="panel singleColumn">
                 <div class="fw600">
                     <div class="">${this.getSummaryLine(project)}</div>
-                    <div class=" flex1 jr">£${project.prj_rate_per_default_unit}/${project.prj_default_unit}</div>
+                    <div class="flex1 jr">${price(project.prj_rate_per_default_unit)}/${project.prj_default_unit}</div>
                 </div>
                 <span>
                     <span>
@@ -147,7 +147,7 @@ class project extends winObject{
                     )}
                 </div>
                 <div class="buttonRow">
-                    <button onclick="project.addCustomerForm(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
+                    <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                     <span class="flex1"></span>
                     <button onclick="project.addObjectFromAnyElementInForm(this);">Save Project</button>
                 </div>
@@ -168,8 +168,7 @@ class project extends winObject{
         return `${project.prj_acronym}: ${[project.prj_address_1,project.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
     }
     
-    static addCustomerForm(formChild){
-        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
-        form.querySelector('.buttonRow').insertAdjacentHTML('beforeBegin',prj_cus_link.getLinkToProjectFormHtml());
+    static aboveButtonRowFormHtml(){
+        return prj_cus_link.getLinkToProjectFormHtml();
     }
 }

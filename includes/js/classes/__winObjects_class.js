@@ -8,10 +8,6 @@ class winObject{
         return window[`win_${this.getWinObjectType()}`]
     }
     
-    static addFormsInForm(){
-        return '';
-    }
-    
     static initObjects(){
         let objectType = this.getWinObjectType();
         let keys = win_info[objectType][`keys`];
@@ -145,7 +141,11 @@ class winObject{
         let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
         mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
     }
-
+    
+    static addFormsInForm(){
+        return '';
+    }
+    
     static addObjectFromForm(form){
         form = initElement(form);
         if(valid(form)){
@@ -181,6 +181,17 @@ class winObject{
                 }).join('')}
             </select>
         `;
+    }
+    
+    static appendFormAboveButtonRow(buttonRowChild){
+        let buttonRow = buttonRowChild.classList.contains('buttonRow') 
+            ? formChild 
+            : getParentElementWithClass(buttonRowChild,'buttonRow');
+        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml());
+    }
+    
+    static getLinkFormHtml(){
+        return `<div>${this.getFormPanelHtml()}</div>`;
     }
 }
 

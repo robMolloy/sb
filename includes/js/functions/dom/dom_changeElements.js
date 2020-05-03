@@ -38,3 +38,16 @@ function convertInputElementToSelectElement(input,options=[],blankOption=`None`)
     let select = createElementFromHtmlString(selectString);
     return select;
 }
+
+function ifElementIsNotValueDisableInputWithNameOnForm(elm,value,name){
+    let form = getParentElementWithClass(elm,'form');
+    let input = form.querySelector(`[name="${name}"]`)
+    let inputWrapper = getParentElementWithClass(input,'inputWrapper');
+    if(getInputValue(elm)!=value){
+        input.disabled = 'disabled';
+        inputWrapper.classList.add('disabled')
+    } else {
+        input.disabled = '';
+        inputWrapper.classList.remove('disabled')
+    }
+}

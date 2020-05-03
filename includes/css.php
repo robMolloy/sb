@@ -1,35 +1,32 @@
 <?php
-
 $bigGap = 20;
 $mediumGap = 10;
 $smallGap = 5;
+$lineHeight = 36;
 $gap = $mediumGap;
 
 $bigRadiusSize = 25;
-$smallRadiusSize = 10;
-$radiusSize = $smallRadiusSize;
+$mediumRadiusSize = $mediumGap;
+$smallRadiusSize = $smallGap;
+$radiusSize = $mediumRadiusSize;
 
-$lineHeight = 36;
+$smallBorderWidth = 1;
+$thickBorderWidth = 2;
+$borderWidth = $tbw;
 
 $themeColorsArray = ['#222222','#999999','#CCCCCC','#EEEEEE','#FFFFFF','#FFFFFF00'];
 $accentColorsArray = ['#151965','#0F4C75','#3282B8','#1E90FF','#BBE1FA'];
 $errorColorsArray = ['#FF223322','#FF111177','#FF0000AA','#FF0000CC','#FFCCCC'];
 
-$bg = $bigGap;
-$mg = $mediumGap;
-$sg = $smallGap;
-$g = $gap;
+$bg=$bigGap; $mg=$mediumGap; $sg=$smallGap;
+$brs=$bigRadiusSize; $srs=$smallRadiusSize;
+$sbw=$smallBorderWidth; $tbw=$thickBorderWidth;
+$tca=$themeColorsArray; $aca=$accentColorsArray; $eca=$errorColorsArray;
 
-$brs = $bigRadiusSize;
-$srs = $smallRadiusSize;
-$rs = $radiusSize;
-
+$g=$gap;
+$rs=$radiusSize;
+$bw = $borderWidth;
 $lh = $lineHeight;
-
-$tca = $themeColorsArray;
-$aca = $accentColorsArray;
-$eca = $errorColorsArray;
-
 ?>
 /*load fonts*/
 @font-face {font-family:'Montserrat';font-style:normal;font-weight:400;src:url('includes/css/fonts/montserrat-v14-latin-regular.eot');src:local('Montserrat Regular'),local('Montserrat-Regular'),url('includes/css/fonts/montserrat-v14-latin-regular.eot?#iefix') format('embedded-opentype'),url('includes/css/fonts/montserrat-v14-latin-regular.woff2') format('woff2'),url('includes/css/fonts/montserrat-v14-latin-regular.woff') format('woff'),url('includes/css/fonts/montserrat-v14-latin-regular.ttf') format('truetype'),url('includes/css/fonts/montserrat-v14-latin-regular.svg#Montserrat') format('svg');}
@@ -81,10 +78,9 @@ input[type=datetime-local]::-webkit-inner-spin-button,input[type=date]::-webkit-
 
 
 
-
 button {
-	border-radius:<?php echo $rs; ?>px;height:<?php echo $lh; ?>px;padding:0 <?php echo $g; ?>px;
-    outline:none;background-color:<?php echo $tca[4]; ?>;border:solid 2px <?php echo $aca[2]; ?>;
+	border-radius:<?php echo $rs; ?>px;height:<?php echo $lh; ?>px;padding:0 <?php echo $g; ?>px;outline:none;
+    min-width:<?php echo $lh; ?>px;background-color:<?php echo $tca[4]; ?>;border:solid 2px <?php echo $aca[2]; ?>;
     display:grid;grid-auto-flow:column;grid-column-gap:<?php echo $g; ?>px;
 }
 button, button * {
@@ -96,6 +92,12 @@ button:hover, button:hover * {background-color:<?php echo $aca[2];?>;color:<?php
 button div {display:none;}
 button:hover div {display:flex;}
 
+button.errorButton {border-color:<?php echo $eca[2]; ?>;}
+button.errorButton:hover, button.errorButton:hover * {background-color:<?php echo $eca[2];?>;}
+button.errorButton * {color:<?php echo $eca[2]; ?>;}
+
+.closeButton {width:<?php echo $lh; ?>px;height:<?php echo $lh; ?>px;justify-content:center;cursor:pointer;font-size:1.25em;}
+.closeButton:hover {font-weight:600;}
 
 /*my elements*/
 /*don't show scrollbar*/
@@ -108,36 +110,37 @@ header > * > * {padding:<?php echo $bg; ?>px;border-right:1px solid <?php echo $
 header > * > *:hover {background-color:<?php echo $aca[4]; ?>;color:<?php echo $tca[4]; ?>;}
 header > * > *.highlight {background-color:<?php echo $aca[2]; ?>;}
 
-#wrapperMain {display:block;text-align:center;margin:0 auto;padding:<?php echo $sg; ?>px 0;flex:1;overflow-y:scroll;}
+#wrapperMain {
+    display:block;text-align:center;margin:0 auto;padding:<?php echo $g; ?>px 0;flex:1;overflow-y:scroll;
+}
+/*don't show scrollbar*/ /**/
+#wrapperMain  {-ms-overflow-style:none;scrollbar-width:none;}
+#wrapperMain::-webkit-scrollbar {display:none;}
+/**/
 main {
 	min-width:40%;max-width:80vw;text-align:center;overflow-wrap:break-word;
 	/*.singleColumn*/
-	display:inline-grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $sg; ?>px;
+	display:inline-grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;
 }
 main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 
 
 /*my dimensions*/
+.h100 {height:100%;}
 .lh {height:<?php echo $lh; ?>px;}
 .lhSquare {height:<?php echo $lh; ?>px;width:<?php echo $lh; ?>px;}
+.mediumSquare {height:<?php echo $lh-$sg; ?>px;width:<?php echo $lh-$sg; ?>px;}
 .widthLh {width:<?php echo $lh; ?>px;}
 .width2Lh {width:<?php echo 2*$lh; ?>px;}
 .width3Lh {width:<?php echo 3*$lh; ?>px;}
 .width4Lh {width:<?php echo 4*$lh; ?>px;}
 .width5Lh {width:<?php echo 5*$lh; ?>px;}
+.widthLhNoBorder {width:<?php echo $lh-2*$bw; ?>px;}
+.width2LhNoBorder {width:<?php echo 2*$lh-2*$bw; ?>px;}
+.width3LhNoBorder {width:<?php echo 3*$lh-2*$bw; ?>px;}
+.width4LhNoBorder {width:<?php echo 4*$lh-2*$bw; ?>px;}
+.width5LhNoBorder {width:<?php echo 5*$lh-2*$bw; ?>px;}
 
-/*my element classes*/
-.h100 {height:100%;}
-.click {cursor:pointer;}
-.click:active {background-color:<?php echo $tca[3]; ?>;}
-.hidden {display:none !important;}
-.error {color:<?php echo $eca[1];?> !important;}
-.highlight {background-color:<?php echo $aca[3]; ?>;color:<?php echo $tca[4]; ?>;font-weight:600;}
-.lightText {color:<?php echo $tca[1]; ?>;}
-.accentText {color:<?php echo $aca[3]; ?>;}
-.transparent {opacity:0;}
-
-input.error {background-color:<?php echo $eca[0]; ?>;}
 
 
 /*my panels*/
@@ -155,30 +158,17 @@ input.error {background-color:<?php echo $eca[0]; ?>;}
 
 
 /*my forms*/
-.form {display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;}
-
+.form {position:relative;display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;}
+.form .form {flex:1;border-top:solid <?php echo $sbw; ?>px <?php echo $tca[2]; ?>;padding-top:<?php echo $g; ?>px;}
 
 /*my columns*/
 .singleColumn {display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;}
 
-/*
-.singleColumn {grid-row-gap:0px;}
-.singleColumnSmallGap {grid-row-gap:<?php echo $sg; ?>px;}
-.singleColumnMediumGap {grid-row-gap:<?php echo $g; ?>px;}
-.singleColumnGap {grid-row-gap:<?php echo $g; ?>px;}
-.singleColumnNoGap {grid-row-gap:0px;}
-*/
 
 
 /*my rows*/
 .equalRow {display:grid;grid-auto-flow:column;grid-auto-columns: 1fr;}
 .singleRow {display:grid;grid-auto-flow:column;grid-column-gap:<?php echo $g; ?>px;}
-/*
-.singleRowNoGap {grid-column-gap:0px;}
-.singleRowSmallGap {grid-column-gap:<?php echo $sg; ?>px;}
-.singleRowMediumGap {grid-column-gap:<?php echo $g; ?>px;}
-.singleRowGap {grid-column-gap:<?php echo $g; ?>px;}
-*/
 
 
 
@@ -257,8 +247,7 @@ input.error {background-color:<?php echo $eca[0]; ?>;}
 .borderRight {border-right:2px solid <?php echo $tca[2]; ?>;}
 .borderBottom {border-bottom:2px solid <?php echo $tca[2]; ?>;}
 .borderLeft {border-left:2px solid <?php echo $tca[2]; ?>;}
-
-.lightBg {background-color:<?php echo $tca[3]; ?>;}
+.borderRadius {border-radius:<?php echo $rs; ?>px;}
 
 
 /*geometry*/
@@ -301,6 +290,34 @@ input.error {background-color:<?php echo $eca[0]; ?>;}
 #responseLogIcon {position:absolute;bottom:<?php echo $sg; ?>px;right:<?php echo $sg; ?>px;height:<?php echo 2*$brs; ?>px;width:<?php echo 2*$brs; ?>px;cursor:pointer;z-index:1;background-color:<?php echo $tca[1]; ?>;border-radius:<?php echo $brs; ?>px;}
 #responseLogIcon > * {height:100%;width:100%;}
 #responseLog {position:fixed;bottom:20px;right:0px;background-color:<?php echo $aca[4]; ?>;overflow-wrap:break-word;min-width:400px;min-height:400px;border-radius:0 0 30px 0;overflow-y:auto;z-index:1;flex-direction:column;}
+
+
+
+/*my classes*/
+.hidden {display:none !important;}
+.error {color:<?php echo $eca[1];?> !important;}
+.highlight {background-color:<?php echo $aca[3]; ?>;color:<?php echo $tca[4]; ?>;font-weight:600;}
+
+.click {cursor:pointer;}
+.click:active {background-color:<?php echo $tca[3]; ?>;}
+
+.lightText {color:<?php echo $tca[1]; ?>;}
+.accentText {color:<?php echo $aca[2]; ?>;}
+
+.lightBg {background-color:<?php echo $tca[3]; ?>;}
+.accentBg {background-color:<?php echo $aca[2]; ?>;}
+
+.accentBorder {border-color:<?php echo $aca[2]; ?>;}
+.lightAccentBorder {border-color:<?php echo $aca[2]; ?>99;}
+
+
+.transparent {opacity:0;}
+
+.padLeftRight {padding:0 <?php echo $mg; ?>px;}
+
+
+
+
 
 
 @media(max-width:768px){

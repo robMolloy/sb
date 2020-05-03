@@ -6,19 +6,23 @@ class customer extends winObject{
     
     static getPanelHtml(customer){
         let contactsOnCustomer = issetReturn(()=>win_contactsGroupedByCus_id[customer.cus_id],{});
-        
         return `
             <div class="panel singleColumn">
                 <div class="fw600 jc">${customer.cus_first_name} ${customer.cus_last_name}</div>
-                ${Object.values(contactsOnCustomer).map((contact)=>`
-                    <a class="grid12" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
-                        <div class="gs4">${contact.con_description} [${contact.con_method}]</div>
-                        <div class="gs7 jr">${contact.con_address}</div>
-                        <div class="gs1 jc border">
-                            <span class="${customer.cus_primary_con_id == contact.con_id ? `error` :`transparent`}">&#9673;</span>
-                        </div>
-                    </a>
-                `).join('')}
+                ${Object.values(contactsOnCustomer).map((contact)=>{
+                    let primaryContact = customer.cus_primary_con_id==contact.con_id;
+                    return `
+                        <a class="flexl1r2 flexGap lh" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
+                            <div class="nowrap">${contact.con_type} [${contact.con_method}]</div>
+                            <div class="jr flexGap">
+                                <div class="jr">${contact.con_address}</div>
+                                <span class="jc lightAccentBorder border mediumSquare borderRadius">
+                                    <span class="${primaryContact ? `accentText` : `transparent`}">&#9673;</span>
+                                </span>
+                            </div>
+                        </a>
+                    `;
+                }).join('')}
                 <button><span>Add New Method Of Contact +</span></button>
             </div>
         `;
@@ -37,8 +41,8 @@ class customer extends winObject{
                     type="text" value="${issetReturn(()=>customer.cus_last_name,'')}" 
                     placeholder="${labelRow.cus_last_name}" name="cus_last_name" checks="isNotBlank" 
                 >`)}
-                <div>
-                    <button class="icon"><span class="flexGap"><span>+</span><div>Add Contact</div></span></button>
+                <div class="buttonRow">
+                    <button onclick="contact.appendFormAboveButtonRow(this)"><span class="flexGap"><span>+</span><div class="">Add Contact</div></span></button>
                     <div class="flex1"></div>
                     <button onclick="customer.addObjectFromAnyElementInForm(this);"><span>Save Customer</span></button>
                 </div>
@@ -57,6 +61,15 @@ class customer extends winObject{
     
     static getSummaryLine(customer){
         return `${customer.cus_first_name} ${customer.cus_last_name}`;
+    }
+    
+    static addFormsInForm(forms,addedObject=''){
+        let datarowArray = Array.from(forms).map((form)=>{
+            let datarow = contact.getFromForm(form);
+            datarow['con_cus_id'] = issetReturn(()=>addedObject['cus_id'],'');
+            return datarow;
+        });
+        datarowArray.forEach(datarow=>contact.addObject(datarow));
     }
 }
 

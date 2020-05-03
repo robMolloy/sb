@@ -47,8 +47,8 @@
         },
         rec_items:{
             keys:{primary:'rci_id',temp:'rci_temp_id',user:'rci_usr_id'},
-            blank:{rci_id:'',rec_usr_id:'',rci_rec_id:'',rci_work:'',rci_unit:'',rci_qty:'',rci_cost_per_unit:'',rci_cost:''},
-            labels:{rci_id:'Id',rci_temp_id:'Id',rec_usr_id:'User Id',rci_rec_id:'Record Id',rci_work:'Type Of Work',rci_unit:'Unit',rci_qty:'Quantity',rci_cost_per_unit:'Cost per Unit',rci_cost:'Cost'}
+            blank:{rci_id:'',rci_usr_id:'',rci_rec_id:'',rci_work:'',rci_unit:'',rci_qty:'',rci_cost_per_unit:'',rci_total:''},
+            labels:{rci_id:'Id',rci_temp_id:'Id',rci_usr_id:'User Id',rci_rec_id:'Record Id',rci_work:'Type Of Work',rci_unit:'Unit',rci_qty:'Quantity',rci_cost_per_unit:'Cost per Unit',rci_total:'Total'}
         }
     };
     
@@ -90,9 +90,9 @@
         7:{rec_id:7,rec_temp_id:'',rec_usr_id:4,rec_prj_id:2,rec_description:'e',rec_timestamp_planned_start:1584311910000,rec_timestamp_planned_finish:1584311310000,rec_timestamp_completed:0,rec_timestamp_paid:0,rec_total:0}
     };
     win_db_rec_items = {
-        1:{rci_id:1,rci_temp_id:'',rec_usr_id:4,rci_rec_id:1,rci_work:'Mowing',rci_unit:'hr',rci_qty:2,rci_cost_per_unit:20.50,rci_cost:41.00},
-        2:{rci_id:2,rci_temp_id:'',rec_usr_id:4,rci_rec_id:1,rci_work:'Hedge Cutting',rci_unit:'hr',rci_qty:2,rci_cost_per_unit:20,rci_cost:40},
-        4:{rci_id:4,rci_temp_id:'',rec_usr_id:4,rci_rec_id:1,rci_work:'Power Washing',rci_unit:'tile',rci_qty:38,rci_cost_per_unit:2,rci_cost:76}
+        1:{rci_id:1,rci_temp_id:'',rci_usr_id:4,rci_rec_id:1,rci_work:'Mowing',rci_unit:'hr',rci_qty:2,rci_cost_per_unit:20.50,rci_total:41.00},
+        2:{rci_id:2,rci_temp_id:'',rci_usr_id:4,rci_rec_id:1,rci_work:'Hedge Cutting',rci_unit:'hr',rci_qty:2,rci_cost_per_unit:20,rci_total:40},
+        4:{rci_id:4,rci_temp_id:'',rci_usr_id:4,rci_rec_id:1,rci_work:'Power Washing',rci_unit:'tile',rci_qty:38,rci_cost_per_unit:2,rci_total:76}
     };
     
     

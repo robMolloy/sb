@@ -31,10 +31,6 @@ class winObject{
         return window[`win_${this.getWinObjectType()}`]
     }
     
-    static addFormsInForm(){
-        return '';
-    }
-    
     static initObjects(){
         let objectType = this.getWinObjectType();
         let keys = win_info[objectType][`keys`];
@@ -168,7 +164,11 @@ class winObject{
         let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
         mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
     }
-
+    
+    static addFormsInForm(){
+        return '';
+    }
+    
     static addObjectFromForm(form){
         form = initElement(form);
         if(valid(form)){
@@ -205,30 +205,19 @@ class winObject{
             </select>
         `;
     }
+    
+    static appendFormAboveButtonRow(buttonRowChild){
+        let buttonRow = buttonRowChild.classList.contains('buttonRow') 
+            ? formChild 
+            : getParentElementWithClass(buttonRowChild,'buttonRow');
+        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml());
+    }
+    
+    static getLinkFormHtml(){
+        return `<div>${this.getFormPanelHtml()}</div>`;
+    }
 }
 
-
-class formObject {
-    constructor(formChild){
-        this.constructorElement = formElement;
-        this.form = formElement.classList.contains('form') ? formElement : getParentElementWithClass(formElement,'form');
-        return this;
-    }
-    
-    function changeInputWithNameToElementValue(name,element=''){
-        element = element=='' ? this.constructorElement : element;
-        let input = this.form.querySelector(`[name="${name}"]`);
-        changeInputValue(input,value);
-    }
-    
-    function enableInputWithName(name){
-        
-    }
-    
-    function elementValueIs(){
-        
-    }
-}
 
 class contact extends winObject{
     static getWinObjectType(){
@@ -270,20 +259,41 @@ class contact extends winObject{
             </div>
         `;
     }
-}
-
-function ifElementIsNotValueDisableInputWithNameOnForm(elm,value,name){
-    let form = getParentElementWithClass(elm,'form');
-    let input = form.querySelector(`[name="${name}"]`)
-    let inputWrapper = getParentElementWithClass(input,'inputWrapper');
-    if(getInputValue(elm)!=value){
-        input.disabled = 'disabled';
-        inputWrapper.classList.add('disabled')
-    } else {
-        input.disabled = '';
-        inputWrapper.classList.remove('disabled')
+    
+    static getLinkFormHtml(){
+        let labelRow = win_info['contacts']['labels'];
+        return `
+            <div class="form">
+                <div class="flexGap">
+                    <div class="closeButton" onclick="removeParentElementWithClass(this,'form');">&#8855;</div>
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>contact.con_type,'phone')}"
+                            onchange="ifElementIsNotValueDisableInputWithNameOnForm(this,'phone','con_method');"
+                            placeholder="${labelRow.con_type}" name="con_type" checks="isNotBlank" class="width3Lh"
+                        >
+                            ${win_contact_types.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                        </select>`
+                    )}
+                    ${input(`<input 
+                        type="text" value="${issetReturn(()=>contact.con_address,'')}" 
+                        placeholder="${labelRow.con_address}" name="con_address" checks="isNotBlank"
+                    >`)}
+                </div>
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" placeholder="${labelRow.con_method}" name="con_method" checks="isNotBlank" 
+                        value="${issetReturn(()=>contact.con_method,'')}" 
+                        ${issetReturn(()=>contact.con_type,'phone')!='phone' ? `disabled="disabled"` : ``}
+                    >
+                        ${win_contact_method.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                    </select>`
+                )}
+            </div>
+        </div>`;
     }
 }
+
 
 
 class customer extends winObject{
@@ -293,19 +303,23 @@ class customer extends winObject{
     
     static getPanelHtml(customer){
         let contactsOnCustomer = issetReturn(()=>win_contactsGroupedByCus_id[customer.cus_id],{});
-        
         return `
             <div class="panel singleColumn">
                 <div class="fw600 jc">${customer.cus_first_name} ${customer.cus_last_name}</div>
-                ${Object.values(contactsOnCustomer).map((contact)=>`
-                    <a class="grid12" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
-                        <div class="gs4">${contact.con_description} [${contact.con_method}]</div>
-                        <div class="gs7 jr">${contact.con_address}</div>
-                        <div class="gs1 jc border">
-                            <span class="${customer.cus_primary_con_id == contact.con_id ? `error` :`transparent`}">&#9673;</span>
-                        </div>
-                    </a>
-                `).join('')}
+                ${Object.values(contactsOnCustomer).map((contact)=>{
+                    let primaryContact = customer.cus_primary_con_id==contact.con_id;
+                    return `
+                        <a class="flexl1r2 flexGap lh" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
+                            <div class="nowrap">${contact.con_type} [${contact.con_method}]</div>
+                            <div class="jr flexGap">
+                                <div class="jr">${contact.con_address}</div>
+                                <span class="jc lightAccentBorder border mediumSquare borderRadius">
+                                    <span class="${primaryContact ? `accentText` : `transparent`}">&#9673;</span>
+                                </span>
+                            </div>
+                        </a>
+                    `;
+                }).join('')}
                 <button><span>Add New Method Of Contact +</span></button>
             </div>
         `;
@@ -324,8 +338,8 @@ class customer extends winObject{
                     type="text" value="${issetReturn(()=>customer.cus_last_name,'')}" 
                     placeholder="${labelRow.cus_last_name}" name="cus_last_name" checks="isNotBlank" 
                 >`)}
-                <div>
-                    <button class="icon"><span class="flexGap"><span>+</span><div>Add Contact</div></span></button>
+                <div class="buttonRow">
+                    <button onclick="contact.appendFormAboveButtonRow(this)"><span class="flexGap"><span>+</span><div class="">Add Contact</div></span></button>
                     <div class="flex1"></div>
                     <button onclick="customer.addObjectFromAnyElementInForm(this);"><span>Save Customer</span></button>
                 </div>
@@ -344,6 +358,15 @@ class customer extends winObject{
     
     static getSummaryLine(customer){
         return `${customer.cus_first_name} ${customer.cus_last_name}`;
+    }
+    
+    static addFormsInForm(forms,addedObject=''){
+        let datarowArray = Array.from(forms).map((form)=>{
+            let datarow = contact.getFromForm(form);
+            datarow['con_cus_id'] = issetReturn(()=>addedObject['cus_id'],'');
+            return datarow;
+        });
+        datarowArray.forEach(datarow=>contact.addObject(datarow));
     }
 }
 
@@ -374,7 +397,7 @@ class prj_cus_link extends winObject{
         `;
     }
     
-    static getLinkToProjectFormHtml(){
+    static getLinkFormHtml(){
         let labelRow = win_info['prj_cus_links']['labels'];
         return `
             <div class="form">
@@ -415,7 +438,7 @@ class project extends winObject{
             <div class="panel singleColumn">
                 <div class="fw600">
                     <div class="">${this.getSummaryLine(project)}</div>
-                    <div class=" flex1 jr">£${project.prj_rate_per_default_unit}/${project.prj_default_unit}</div>
+                    <div class="flex1 jr">${price(project.prj_rate_per_default_unit)}/${project.prj_default_unit}</div>
                 </div>
                 <span>
                     <span>
@@ -537,7 +560,7 @@ class project extends winObject{
                     )}
                 </div>
                 <div class="buttonRow">
-                    <button onclick="project.addCustomerForm(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
+                    <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                     <span class="flex1"></span>
                     <button onclick="project.addObjectFromAnyElementInForm(this);">Save Project</button>
                 </div>
@@ -558,9 +581,8 @@ class project extends winObject{
         return `${project.prj_acronym}: ${[project.prj_address_1,project.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
     }
     
-    static addCustomerForm(formChild){
-        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
-        form.querySelector('.buttonRow').insertAdjacentHTML('beforeBegin',prj_cus_link.getLinkToProjectFormHtml());
+    static aboveButtonRowFormHtml(){
+        return prj_cus_link.getLinkToProjectFormHtml();
     }
 }
 
@@ -632,7 +654,55 @@ class rec_item extends winObject{
         `;
     }
     
-    
+    static getLinkFormHtml(){
+        let labelRow = win_info['rec_items']['labels'];
+        return `
+            <div class="form">
+                ${inputSelect(
+                    `<input 
+                        type="text" value="${issetReturn(()=>rec_item.rci_work,'')}"
+                        placeholder="${labelRow.rci_work}" name="rci_work" checks="isNotBlank" 
+                    >`
+                    ,Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work'))
+                )}
+                ${inputSelect(
+                    `<input 
+                        type="text" value="${issetReturn(()=>rec_item.rci_unit,'')}"
+                        placeholder="${labelRow.rci_unit}" name="rci_unit" checks="isNotBlank" 
+                    >`
+                    ,
+                    Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit'))
+                )}
+                <div class="flexGap">
+                    <span class="lhSquare jc borderBottom borderTop padSmall">£</span>
+                    ${input(`<input 
+                        type="number" value="${issetReturn(()=>rec_item.rci_cost_per_unit,'0.00')}" class="flex1"
+                        oninput="updateInputOnFormWithNameRci_total(this);" step="0.01"
+                        placeholder="${labelRow.rci_cost_per_unit}" name="rci_cost_per_unit" checks="isNotBlank" 
+                    >`)}
+                    <span class="lhSquare jc borderBottom borderTop padSmall">x</span>
+                    ${input(`<input 
+                        type="number" value="${issetReturn(()=>rec_item.rci_qty,'1')}" class="flex1" 
+                        oninput="updateInputOnFormWithNameRci_total(this);" step="0.01"
+                        placeholder="${labelRow.rci_qty}" name="rci_qty" checks="isNotBlank" 
+                    >`)}
+                </div>
+                <div>
+                    <span class="borderBottom borderTop lh padSmall flexGap">
+                        <span class="lightText">Total</span>
+                        <span class="lightText">|</span>
+                        <span class="jr" name="rci_price">
+                            <input class="tar width3Lh" type="text" name="rci_total" value="${price('')}" readonly>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+
+    static getSummaryLine(recItemRow){
+        return `${recItemRow.rci_work}: ${recItemRow.rci_qty}${recItemRow.rci_unit} x ${price(recItemRow.rci_cost_per_unit)} = ${price(recItemRow.rci_total)}`;
+    }
 }
 
 
@@ -682,9 +752,22 @@ class record extends winObject{
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
                 
-                <div class="jr"><button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button></div>
+                <div class="buttonRow">
+                    <button onclick="rec_item.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                    <div class="flex1"></div>
+                    <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
+                </div>
             </div>
         `;
+    }
+    
+    static addFormsInForm(forms,addedObject=''){
+        let datarowArray = Array.from(forms).map((form)=>{
+            let datarow = rec_item.getFromForm(form);
+            datarow['rci_rec_id'] = issetReturn(()=>addedObject['rec_id'],'');
+            return datarow;
+        });
+        datarowArray.forEach(datarow=>rec_item.addObject(datarow));
     }
     
     static getSummaryLine(record){
@@ -1206,6 +1289,19 @@ function convertInputElementToSelectElement(input,options=[],blankOption=`None`)
     return select;
 }
 
+function ifElementIsNotValueDisableInputWithNameOnForm(elm,value,name){
+    let form = getParentElementWithClass(elm,'form');
+    let input = form.querySelector(`[name="${name}"]`)
+    let inputWrapper = getParentElementWithClass(input,'inputWrapper');
+    if(getInputValue(elm)!=value){
+        input.disabled = 'disabled';
+        inputWrapper.classList.add('disabled')
+    } else {
+        input.disabled = '';
+        inputWrapper.classList.remove('disabled')
+    }
+}
+
 function dateInput(inputString,runChecks=false){
     let input = createElementFromHtmlString(inputString);
     if(input.tagName!='INPUT'){console.error(input);console.error(`The input string passed does not create an input.`);}
@@ -1280,6 +1376,10 @@ function getParentElementWithClass(elm,class1){
     } else {
         return getParentElementWithClass(parent,class1);
     }
+}
+
+function removeParentElementWithClass(elm,class1){
+    getParentElementWithClass(elm,class1).remove();
 }
 
 function getOriginalElementInForm(elm){
@@ -1915,6 +2015,10 @@ function changeValueOfInputWithNameOnFormToThisValue(name,elmChild){
 }
 
 
+function addUnknownWinObjectForm(){
+    
+}
+
 
 function getPrimaryWinVars(){
     return ['win_projects','win_customers','win_prj_cus_links','win_contacts','win_records','win_rec_items'];
@@ -1987,8 +2091,6 @@ function getCustomersGroupedByPrj_id(){
     });
     return prj_idIndexedCustomers;
 }
-
-
 
 //~ async function fetchWinObjects(winObjectType){
     //~ if(devVerbose){console.error('fetchWinObjects() is currently not set up to fetch data from server-side');}

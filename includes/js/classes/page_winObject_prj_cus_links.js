@@ -18,7 +18,7 @@ class prj_cus_link extends winObject{
         `;
     }
     
-    static getLinkToProjectFormHtml(){
+    static getLinkFormHtml(){
         let labelRow = win_info['prj_cus_links']['labels'];
         return `
             <div class="form">

@@ -42,5 +42,5 @@
 <script type="text/javascript" src="includes/js/functions/page/page_recItems.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_init.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_login.js"></script>
+<script type="text/javascript" src="includes/js/functions/page/page_winObject.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_winVars.js"></script>
-<script type="text/javascript" src="includes/js/functions/style/style_elements.js"></script>

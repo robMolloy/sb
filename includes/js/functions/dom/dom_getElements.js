@@ -7,6 +7,10 @@ function getParentElementWithClass(elm,class1){
     }
 }
 
+function removeParentElementWithClass(elm,class1){
+    getParentElementWithClass(elm,class1).remove();
+}
+
 function getOriginalElementInForm(elm){
     if(elm.name.slice(-5)!='_copy'){console.error(`Element passed in getOriginalElementInForm() must have a name ending in "_copy"`);}
     let parent = getParentElementWithClass(elm,'form');
