@@ -60,6 +60,7 @@ button, button * {
 }
 button:hover, button:hover * {background-color:#3282B8;color:#FFFFFF;}
 button div {display:none;}
+button div, button div * {font-size:0.7em}
 button:hover div {display:flex;}
 
 button.errorButton {border-color:#FF0000AA;}
@@ -98,27 +99,27 @@ main > *:nth-last-child(1) {margin-bottom:5px;}
 /*my dimensions*/
 .h100 {height:100%;}
 .lh {height:36px;}
-.lhSquare {height:36px;width:36px;}
-.mediumSquare {height:31px;width:31px;}
-.widthLh {width:36px;}
-.width2Lh {width:72px;}
-.width3Lh {width:108px;}
-.width4Lh {width:144px;}
-.width5Lh {width:180px;}
-.widthLhNoBorder {width:36px;}
-.width2LhNoBorder {width:72px;}
-.width3LhNoBorder {width:108px;}
-.width4LhNoBorder {width:144px;}
-.width5LhNoBorder {width:180px;}
+.lhSquare {height:36px;min-width:36px;width:36px;}
+.mediumSquare {height:31px;min-width:31px;width:72px;}
+.widthLh {min-width:36px;width:36px;}
+.width2Lh {min-width:72px;width:72px;}
+.width3Lh {min-width:108px;width:108px;}
+.width4Lh {min-width:144px;width:144px;}
+.width5Lh {min-width:180px;width:180px;}
+.widthLhNoBorder {min-width:32px;width:32px;}
+.width2LhNoBorder {min-width:68px;width:68px;}
+.width3LhNoBorder {min-width:104px;width:104px;}
+.width4LhNoBorder {min-width:140px;width:140px;}
+.width5LhNoBorder {min-width:176px;width:176px;}
 
 
 
 /*my panels*/
-.singlePanel {margin-top:5px;}
 .panel {
     padding:20px;text-align:left;position:relative;background-color:#FFFFFF;
     border-radius:25px 0 0 0;
 }
+.singlePanel {margin-top:5px;}
 .panel:after{
     content:'';height:25px;width:25px;background-color:#3282B8;
     z-index:-1;position:absolute;top:0;left:0;border-radius:5px;
@@ -130,6 +131,11 @@ main > *:nth-last-child(1) {margin-bottom:5px;}
 /*my forms*/
 .form {position:relative;display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:10px;}
 .form .form {flex:1;border-top:solid 1px #CCCCCC;padding-top:10px;}
+.formLabel {
+    height:36px;width:72px;min-width:72px;justify-content:center;
+    border-top:2px solid #CCCCCC;border-bottom:2px solid #CCCCCC;white-space:nowrap;
+}
+
 
 /*my columns*/
 .singleColumn {display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:10px;}
@@ -243,6 +249,7 @@ main > *:nth-last-child(1) {margin-bottom:5px;}
 
 
 /*font styles*/
+.fs70 {font-size:0.7em;}
 .fs80 {font-size:0.8em;}
 .fs150 {font-size:1.5em;}
 .fs200 {font-size:2em;}

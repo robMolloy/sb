@@ -6,9 +6,9 @@ function createResponseLog(){
 		document.querySelector('#content').insertAdjacentHTML('afterbegin',`
             <div id="responseLog" class="hidden">
                 <div id="responseLogButtons">
-                    <div class="button jc" onclick="ajax({'file':'nav/css.nav.php?nav=refreshCss'});">
-                        Refresh CSS
-                    </div>
+                    <button onclick="window.scrollTo(0,1)">
+                        Scroll
+                    </button>
                 </div>
                 <div id="responseLogContent"></div>
             </div>

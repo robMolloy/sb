@@ -1,9 +1,11 @@
 function initPage(page=''){
     page = page=='' ? getPage() : page;
     if(page=='' && dev){window.location.href = 'index.php';return;}
+    
+    refreshWinVars();
     pageName = page.split('.')[0];
     switch(pageName){
-        case 'index':displayHeaderBar('');appendToMain(`<div class="panel">At Index.php</div>`);break;
+        case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
         case 'customers':customer.loadPage();break;
         case 'contacts':contact.loadPage();break;
         case 'projects':project.loadPage();break;

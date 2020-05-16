@@ -183,15 +183,16 @@ class winObject{
         `;
     }
     
-    static appendFormAboveButtonRow(buttonRowChild){
+    static appendFormAboveButtonRow(buttonRowChild,objectDatarow=''){
         let buttonRow = buttonRowChild.classList.contains('buttonRow') 
             ? formChild 
             : getParentElementWithClass(buttonRowChild,'buttonRow');
-        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml());
+        
+        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml(objectDatarow));
     }
     
-    static getLinkFormHtml(){
-        return `<div>${this.getFormPanelHtml()}</div>`;
+    static getLinkFormHtml(objectDatarow=''){
+        return `<div>${this.getFormPanelHtml(objectDatarow)}</div>`;
     }
 }
 

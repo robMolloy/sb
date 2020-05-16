@@ -14,6 +14,15 @@ HTMLElement.prototype.extendAttribute = function(attributeName,beforeString='',a
     this.setAttribute(attributeName,`${beforeString} ${this.getAttributeIfSet(attributeName)} ${afterString}`)
 }
 
+HTMLElement.prototype.parentWithClass = function(classString){
+    let parent = this.parentElement;
+    if(parent.classList.contains(classString)){
+        return parent;
+    } else {
+        return parent.parentWithClass(classString);
+    }
+}
+
 String.prototype.toDate = function(){return new Date(this.valueOf());}
 
 String.prototype.toggleSuffix = function(suffix){
@@ -206,15 +215,16 @@ class winObject{
         `;
     }
     
-    static appendFormAboveButtonRow(buttonRowChild){
+    static appendFormAboveButtonRow(buttonRowChild,objectDatarow=''){
         let buttonRow = buttonRowChild.classList.contains('buttonRow') 
             ? formChild 
             : getParentElementWithClass(buttonRowChild,'buttonRow');
-        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml());
+        
+        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml(objectDatarow));
     }
     
-    static getLinkFormHtml(){
-        return `<div>${this.getFormPanelHtml()}</div>`;
+    static getLinkFormHtml(objectDatarow=''){
+        return `<div>${this.getFormPanelHtml(objectDatarow)}</div>`;
     }
 }
 
@@ -472,7 +482,7 @@ class project extends winObject{
                         </div>
                     `).join('')}
                 </div>
-                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler" style=""></i></span></button></div>
+                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler"></i></span></button></div>
             </div>
         `;
     }
@@ -518,9 +528,9 @@ class project extends winObject{
                         type="text" value="${issetReturn(()=>project.prj_default_work,'')}"
                         placeholder="${labelRow.prj_default_work}" name="prj_default_work" checks="isNotBlank" 
                     >`
-                    ,win_units
+                    ,win_work
                 )}
-                <div>What unit is work usually measured in?</div>
+                <div>What is the default unit of work?</div>
                 ${inputSelect(
                     `<input 
                         type="text" value="${issetReturn(()=>project.prj_default_unit,'')}"
@@ -528,36 +538,68 @@ class project extends winObject{
                     >`
                     ,win_units
                 )}
-                <div>How many units will the work usually take?</div>
+                <div>How many units of work will usually take place?</div>
                 <div class="flexGap">
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_qty,'')}" 
                         name="prj_default_qty" placeholder="${labelRow.prj_default_qty}" checks="isFloat" 
                     >`)}
-                    <div class="borderTop borderBottom padSmall jc width3Lh">Units</div>
+                    <div class="formLabel">Units</div>
                 </div>
-                <div>What is the rate charged per unit?</div>
+                <div>What is the rate charged per unit of work?</div>
                 <div class="flexGap">
+                    <span class="width2Lh jc borderBottom borderTop padSmall">£</span>
                     ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_rate_per_default_unit,'')}" 
                         name="prj_rate_per_default_unit" placeholder="${labelRow.prj_rate_per_default_unit}" 
                         checks="isFloat"
                     >`)}
-                    <div class="borderTop borderBottom padSmall jc nowrap width3Lh">Per Unit</div>
+                    <div class="borderTop borderBottom padSmall jc nowrap width2Lh">Per Unit</div>
                 </div>
                 <div>How often will the work take place?</div>
                 <div class="flexGap">
-                    <div class="padSmall borderTop borderBottom width3Lh jc">Every</div>
+                    <div class="padSmall borderTop borderBottom width2Lh jc">Every</div>
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_repeat_every_qty,'1')}" 
                         name="prj_default_repeat_every_qty" placeholder="${labelRow.prj_default_repeat_every_qty}" 
-                        checks="isInt_positive" class="width3Lh"
+                        checks="isInt_positive" class="width2Lh"
                     >`)}
                     ${wrapSelectElement(
                         `<select 
                             type="text" value="${issetReturn(()=>project.prj_default_repeat_every_unit,'')}"
                             placeholder="${labelRow.prj_default_repeat_every_unit}" name="prj_default_repeat_every_unit" checks="isNotBlank" 
                         >
-                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`)}
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
                         </select>`
                     )}
+                </div>
+                <div class="singleColumn gridGap0">
+                    <div>What is the usual duration of this work?</div>
+                    <div class="fs70 jr">(May be the same as the default unit and quantity              )</div>
+                </div>
+                <div class="flexGap">
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_duration_qty,'1')}" 
+                        name="prj_default_duration_qty" placeholder="${labelRow.prj_default_duration_qty}" 
+                        checks="isInt_positive" class="width2Lh"
+                    >`)}
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>project.prj_default_duration_unit,'hour')}"
+                            placeholder="${labelRow.prj_default_duration_unit}" name="prj_default_duration_unit" 
+                            checks="isNotBlank" 
+                        >
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                        </select>`
+                    )}
+                </div>
+                <div class="singleColumn gridGap0">
+                    <div>What is the rate charged per unit of time worked?</div>
+                    <div class="fs70 jr">(Leave as 0 if not paid per unit of time)</div>
+                </div>
+                <div class="flexGap">                                                     
+                    <span class="width2Lh jc borderBottom borderTop padSmall">£</span>
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_cost_per_duration_unit,'0.00')}" 
+                        name="prj_default_cost_per_duration_unit" placeholder="${labelRow.prj_default_cost_per_duration_unit}" 
+                        checks="isInt_positive"
+                    >`)}
+                    <div class="borderTop borderBottom padSmall jc nowrap width2Lh">Per Unit</div>
                 </div>
                 <div class="buttonRow">
                     <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
@@ -603,9 +645,10 @@ class rec_item extends winObject{
                         ${Object.values(win_records).map((rec)=>{
                             let prjRow = win_projects[rec.rec_prj_id];
                             return `
-                            <option value="${rec.rec_id}" ${rec.rec_id==issetReturn(()=>rec_item.rci_rec_id,'') ? `selected="selected"` : ``}>
-                                ${prjRow.prj_acronym}: ${formatTimestampToDate(rec.rec_timestamp_planned_start)}: ${rec.rec_description}
-                            </option>`;
+                                <option value="${rec.rec_id}" ${rec.rec_id==issetReturn(()=>rec_item.rci_rec_id,'') ? `selected="selected"` : ``}>
+                                    ${prjRow.prj_acronym}: ${formatTimestampToDate(rec.rec_timestamp_planned_start)}: ${rec.rec_description}
+                                </option>
+                            `;
                         }).join('')}
                     </select>
                 `)}
@@ -626,7 +669,7 @@ class rec_item extends winObject{
                     Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit'))
                 )}
                 <div class="flexGap">
-                    <span class="lhSquare jc borderBottom borderTop padSmall">£</span>
+                    <span class="lhSquare jc borderBottom borderTop">£</span>
                     ${input(`<input 
                         type="number" value="${issetReturn(()=>rec_item.rci_cost_per_unit,'0.00')}" class="flex1"
                         oninput="updateInputOnFormWithNameRci_total(this);" step="0.01"
@@ -654,7 +697,8 @@ class rec_item extends winObject{
         `;
     }
     
-    static getLinkFormHtml(){
+    static getLinkFormHtml(rec_item){
+        console.log(rec_item);
         let labelRow = win_info['rec_items']['labels'];
         return `
             <div class="form">
@@ -663,7 +707,8 @@ class rec_item extends winObject{
                         type="text" value="${issetReturn(()=>rec_item.rci_work,'')}"
                         placeholder="${labelRow.rci_work}" name="rci_work" checks="isNotBlank" 
                     >`
-                    ,Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work'))
+                    ,
+                    win_work
                 )}
                 ${inputSelect(
                     `<input 
@@ -671,7 +716,7 @@ class rec_item extends winObject{
                         placeholder="${labelRow.rci_unit}" name="rci_unit" checks="isNotBlank" 
                     >`
                     ,
-                    Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit'))
+                    win_units
                 )}
                 <div class="flexGap">
                     <span class="lhSquare jc borderBottom borderTop padSmall">£</span>
@@ -692,7 +737,7 @@ class rec_item extends winObject{
                         <span class="lightText">Total</span>
                         <span class="lightText">|</span>
                         <span class="jr" name="rci_price">
-                            <input class="tar width3Lh" type="text" name="rci_total" value="${price('')}" readonly>
+                            <input class="tar width3Lh" type="text" name="rci_total" value="${price(issetReturn(()=>rec_item.rci_total,'0.00'))}" readonly>
                         </span>
                     </span>
                 </div>
@@ -703,6 +748,36 @@ class rec_item extends winObject{
     static getSummaryLine(recItemRow){
         return `${recItemRow.rci_work}: ${recItemRow.rci_qty}${recItemRow.rci_unit} x ${price(recItemRow.rci_cost_per_unit)} = ${price(recItemRow.rci_total)}`;
     }
+    
+    static getRecItemDefaultDatarowFromProjectId(projectId){
+        let projectDatarow = win_projects[projectId];
+        let recItemDatarow = win_info['rec_items']['blank'];
+        
+        recItemDatarow['rci_work'] = projectDatarow['prj_default_work'];
+        recItemDatarow['rci_qty'] = projectDatarow['prj_default_qty'];
+        recItemDatarow['rci_unit'] = projectDatarow['prj_default_unit'];
+        recItemDatarow['rci_cost_per_unit'] = projectDatarow['prj_rate_per_default_unit'];
+        recItemDatarow['rci_total'] = recItemDatarow['rci_qty'] * recItemDatarow['rci_cost_per_unit'];
+        
+        return recItemDatarow;
+    }
+    
+    static getRecItemDurationDatarowFromProjectId(projectId){
+        let projectDatarow = win_projects[projectId];
+        let recItemDatarow = win_info['rec_items']['blank'];
+        console.log(projectDatarow);
+        
+        recItemDatarow['rci_work'] = projectDatarow['prj_default_work'];
+        recItemDatarow['rci_qty'] = projectDatarow['prj_default_duration_qty'];
+        recItemDatarow['rci_unit'] = projectDatarow['prj_default_duration_unit'];
+        recItemDatarow['rci_cost_per_unit'] = projectDatarow['prj_default_cost_per_duration_unit'];
+        recItemDatarow['rci_total'] = 
+            parseFloat(recItemDatarow['rci_qty']) * parseFloat(recItemDatarow['rci_cost_per_unit']);
+        
+        console.log(recItemDatarow);
+        return recItemDatarow;
+    }
+    
 }
 
 
@@ -735,7 +810,10 @@ class record extends winObject{
         return `
             <div class="panel form">
                 ${wrapSelectElement(`
-                    ${project.getSelect('',`placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank"`)}
+                    ${project.getSelect('',`
+                        placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank" 
+                        oninput="record.updateFormWithProjectDetails(this,this.value);"
+                    `)}
                 `)}
                 
                 ${inputSelect(
@@ -751,9 +829,33 @@ class record extends winObject{
                     value="${issetReturn(()=>record.rec_timestamp_planned_start,'')}" checks="isNotBlank" 
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
-                
-                <div class="buttonRow">
-                    <button onclick="rec_item.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                <div class="flexGap">
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>record.rec_duration_qty,'1')}" 
+                        name="rec_duration_qty" placeholder="${labelRow.rec_duration_qty}" 
+                        checks="isInt_positive" class="width2Lh"
+                    >`)}
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>record.rec_duration_unit,'hour')}"
+                            placeholder="${labelRow.rec_duration_unit}" name="rec_duration_unit" 
+                            checks="isNotBlank" 
+                        >
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                        </select>`
+                    )}
+                </div>
+                <div>
+                    <span class="borderBottom borderTop lh padSmall flexGap">
+                        <span class="lightText">Total</span>
+                        <span class="lightText">|</span>
+                        <span class="jr" name="rec_price">
+                            <input class="tar width3Lh" type="text" name="rec_total" value="${price('')}" readonly>
+                        </span>
+                    </span>
+                </div>                
+                <div class="buttonRow flexGap">
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDefaultDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDurationDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span><i class="far fa-clock"></i></span><div>Add Duration</div></span></button>
                     <div class="flex1"></div>
                     <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
                 </div>
@@ -773,6 +875,13 @@ class record extends winObject{
     static getSummaryLine(record){
         let prjRow = win_projects[record.rec_prj_id];
         return `${prjRow.prj_acronym}: ${formatTimestampToDate(record.rec_timestamp_planned_start)}: ${record.rec_description}`;
+    }
+    
+    static updateFormWithProjectDetails(formChild,projectId){
+        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
+        let project = win_projects[projectId];
+        form.querySelector(`[name=rec_duration_qty]`).value = project['prj_default_duration_qty'];
+        form.querySelector(`[name=rec_duration_unit]`).value = project['prj_default_duration_unit'];
     }
 }
 
@@ -1073,6 +1182,152 @@ function changeInputValue(input,value){
     }
 }
 
+function openIndexedDB(){
+    let indexedDBRequest = indexedDB.open(dbName);
+    return new Promise((resolve, reject) => {
+        indexedDBRequest.onsuccess = dbEvent => {resolve(dbEvent.target.result);}
+		indexedDBRequest.onerror = () => {reject(Error("IndexedDb request error"));}
+    });
+}
+
+
+/* *********  Generic Table Functions  ************** */
+
+async function getDatarow(tableName,id){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let getRequest = idb.transaction([tableName]).objectStore(tableName).get(id);
+        
+        getRequest.onsuccess = getEvent => {
+            tableDatarow = getEvent.target.result;
+            resolve(tableDatarow);
+        }
+    });
+}
+
+
+async function addDatarow(tableName,datarow){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let addRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).add(datarow);
+        
+        addRequest.onsuccess = addEvent => {resolve(datarow);}
+        addRequest.onerror = addEvent => {resolve(false);}
+    });
+}
+
+
+async function changeDatarow(tableName,datarow){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let putRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).put(datarow);
+        
+        putRequest.onsuccess = putEvent => {resolve(datarow);}
+        putRequest.onerror = putEvent => {resolve(false);}
+    });
+}
+
+
+async function getAllDatarows(tableName){
+    let datarows = [];
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let iterateRequest = idb.transaction([tableName]).objectStore(tableName).openCursor()
+
+        iterateRequest.onsuccess = iterateEvent => {
+            let cursor = iterateEvent.target.result;
+            if(cursor) {datarows.push(cursor.value);cursor.continue();}
+            else {resolve(datarows);}
+        }
+        //~ iterateRequest.onerror = iterateEvent => {resolve(false)}
+    });
+}
+
+
+async function removeDatarow(tableName,id) {
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let deleteRequest = idb.transaction([tableName],'readwrite').objectStore(tableName).delete(id);
+        
+        deleteRequest.onsuccess = deleteEvent => {resolve(true);}
+        deleteRequest.onerror = deleteEvent => {resolve(true);}
+    });
+}
+
+
+
+
+/* *********** Employee Table Functions *********** */
+
+async function showEmployee(id=''){
+    id = id=='' ? getDatarowFromMyForm().id : id;
+    let tableDatarow = await getDatarow('employees',id);
+    
+    let message = tableDatarow!==undefined ? tableDatarow : `No employee exists with id: ${id}`;
+    showInMain(message);
+}
+
+
+async function showAllEmployees(){
+    let tableDatarows = await getAllDatarows('employees');
+    showInMain(tableDatarows.map(datarow=>`<div>${datarow.id}: ${JSON.stringify(datarow)}</div>`).join(''));
+}
+
+
+async function addEmployee(datarow=''){
+    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
+    
+    //~ let tableDatarow = await getDatarow('employees',datarow.id);
+    //~ if(tableDatarow!==undefined){
+        //~ showInMain(`An employee already exists with that id: ${JSON.stringify(tableDatarow)}`);
+        //~ return;
+    //~ }
+    
+    let addResponse = await addDatarow('employees',datarow);
+    //~ tableDatarow = await getDatarow('employees',datarow.id);
+    
+    //~ appendToMain(employeePanel(datarow));
+    //~ resetMyForm();
+}
+
+
+async function removeEmployee(id=''){
+    id = id=='' ? getDatarowFromMyForm().id : id;
+    
+    let tableDatarow = await getDatarow('employees',id);
+    if(tableDatarow===undefined){
+        showInMain(`An employee does not exist with that id: ${id}`);
+        return;
+    }
+    
+    let removeResponse = await removeDatarow('employees',id);
+    let message = `employee removed ${removeResponse ? `successfully` : `unsuccessfully`}`
+    showInMain(message);
+}
+
+
+async function changeEmployee(datarow=''){
+    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
+    
+    let tableDatarow = await getDatarow('employees',datarow.id);
+    if(tableDatarow===undefined){
+        showInMain(`An employee does not exist with that id: ${datarow.id}`);
+        return;
+    }
+    
+    let changeResponse = await changeDatarow('employees',datarow);
+    let message = `employee changed ${changeResponse ? `successfully` : `unsuccessfully`}`
+    showInMain(message);
+}
+
+
+
+
 function isset(array){
 	//~ TO USE: isset(() => arr1.json.datarow.wobble.blah) ? 'true' : 'false';
 	try{return typeof array() !== 'undefined'}
@@ -1157,6 +1412,15 @@ function checkValue(check,value){
         
         case 'doesNotEqual':
         return value!=checkArray[1];
+        
+        case 'isTimestamp':
+        return value == parseInt(value);
+        
+        case 'isTimeString':
+        return new Date(`1970-01-01 ${value}`)!='Invalid Date';
+        
+        case 'isTimeString':
+        return new Date(`${value}`)!='Invalid Date'
         
         case 'isNotBlank':
         return value!='';
@@ -1248,15 +1512,52 @@ function showInfoBar(text='',seconds=30){
 	setTimeout(()=>document.getElementById(id).remove(),seconds*1000);
 }
 
+function changeTargetElements(sourceElement,qsStringOrElms,changeValueFunction='',limitSearchToParentElementClass=''){
+    let value = getInputValue(sourceElement)
+    let parentElement = parentElementClass=='' ? document.body : getParentElementWithClass(parentElementClass);
+    let targetElements = parentElement.querySelectorAll(qsString);
+    let newValue = changeValueFunction=='' ? value : changeValueFunction(value);
+    changeElmValues(target,newValue);
+}
+
+function changeDateTimeInputsOnForm(sourceElement){
+    let value = getInputValue(sourceElement);
+    let isTimestamp = checkValue('isTimestamp',value);
+    let timestampInputName = isTimestamp ? sourceElement.name : sourceElement.name.split('_').slice(0,-1).join('_');
+    
+    let form = sourceElement.parentWithClass('form');
+    let dateInput = form.querySelector(`name=${timestampInputName}_date`);
+    let timeInput = form.querySelector(`name=${timestampInputName}_time`);
+    let timestampInput = form.querySelector(`name=${timestampInputName}`);
+    
+    if(isTimestamp){
+        let dt = new Date(parseInt(value));
+        dateInput.value = dt.getMyDate();
+        timeInput.value = dt.getMyTime();
+    } else {
+        let dt = new Date(`${dateInput.value} ${timeInput.value}`);
+        timestampInput = dt.getTime();
+    }
+}
+
+
+
+
+
+
 function changeAllElementsInParentWithClassUsingQuerySelectorToValue(elmChild,class1,qsString,value){
     let elms = getAllElementsInParentWithClassUsingQuerySelector(elmChild,class1,qsString);
     elms.forEach((elm)=>{changeElmValue(elm,value)});
 }
 
 function changeElmValue(elm,value){
-    elm = initElement(elm);
     if(['SELECT','INPUT','OPTION','BUTTON'].indexOf(elm.tagName)>-1){elm.value=value;}
     else{elm.innerHTML = value;}
+}
+
+function changeElmValues(elms,value){
+    elms = Array.isArray(elms) ? elms : [elms]
+    elms.forEach(elm=>changeElmValue(elm,value));
 }
 
 
@@ -1301,6 +1602,8 @@ function ifElementIsNotValueDisableInputWithNameOnForm(elm,value,name){
         inputWrapper.classList.remove('disabled')
     }
 }
+
+
 
 function dateInput(inputString,runChecks=false){
     let input = createElementFromHtmlString(inputString);
@@ -1368,6 +1671,12 @@ function convertInputElementToDateInputElement(inputElm,inputType='DATE'){
     }
     return newInputElm;
 }
+
+function getTargetElementValue(elmChild,parentClass,qsString){
+    let parent = elmChild.classList.contains('form') ? elmChild : getParentElementWithClass(elmChild,parentClass);
+    return parent.querySelector(`${qsString}`).value;
+}
+
 
 function getParentElementWithClass(elm,class1){
     let parent = elm.parentElement;
@@ -1598,9 +1907,9 @@ function createResponseLog(){
 		document.querySelector('#content').insertAdjacentHTML('afterbegin',`
             <div id="responseLog" class="hidden">
                 <div id="responseLogButtons">
-                    <div class="button jc" onclick="ajax({'file':'nav/css.nav.php?nav=refreshCss'});">
-                        Refresh CSS
-                    </div>
+                    <button onclick="window.scrollTo(0,1)">
+                        Scroll
+                    </button>
                 </div>
                 <div id="responseLogContent"></div>
             </div>
@@ -1924,9 +2233,11 @@ function loadIndexPage(){
 function initPage(page=''){
     page = page=='' ? getPage() : page;
     if(page=='' && dev){window.location.href = 'index.php';return;}
+    
+    refreshWinVars();
     pageName = page.split('.')[0];
     switch(pageName){
-        case 'index':displayHeaderBar('');appendToMain(`<div class="panel">At Index.php</div>`);break;
+        case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
         case 'customers':customer.loadPage();break;
         case 'contacts':contact.loadPage();break;
         case 'projects':project.loadPage();break;
@@ -2049,8 +2360,8 @@ async function initSecondaryWinVar(winVar){
         case 'win_contactsGroupedByCus_id': win_contactsGroupedByCus_id = groupAnObjectOfObjectsByIndex(win_contacts,'con_cus_id'); break;
         case 'win_recordsGroupedByPrj_id': win_recordsGroupedByPrj_id = groupAnObjectOfObjectsByIndex(win_records,'rec_prj_id'); break;
         case 'win_rec_itemsGroupedByRec_id': win_rec_itemsGroupedByRec_id = groupAnObjectOfObjectsByIndex(win_rec_items,'rci_rec_id'); break;
-        case 'win_units': win_units = Object.keys(mergeTwoIndexedObjects(indexAnObjectOfObjects(win_rec_items,'rci_unit'),indexAnObjectOfObjects(win_projects,'prj_default_unit')));break;
-        case 'win_work': win_work = Object.keys(mergeTwoIndexedObjects(indexAnObjectOfObjects(win_rec_items,'rci_work'),indexAnObjectOfObjects(win_projects,'prj_default_work')));break;
+        case 'win_units': win_units = [...win_time_units,...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_unit'))];break;
+        case 'win_work': win_work = [...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_work'))];break;
         
         default:console.error(`${winVar} cannot be initiated, case does not exist in initWinVar()`);
     }

@@ -1,3 +1,9 @@
+function getTargetElementValue(elmChild,parentClass,qsString){
+    let parent = elmChild.classList.contains('form') ? elmChild : getParentElementWithClass(elmChild,parentClass);
+    return parent.querySelector(`${qsString}`).value;
+}
+
+
 function getParentElementWithClass(elm,class1){
     let parent = elm.parentElement;
     if(parent.classList.contains(class1)){

@@ -28,7 +28,10 @@ class record extends winObject{
         return `
             <div class="panel form">
                 ${wrapSelectElement(`
-                    ${project.getSelect('',`placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank"`)}
+                    ${project.getSelect('',`
+                        placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank" 
+                        oninput="record.updateFormWithProjectDetails(this,this.value);"
+                    `)}
                 `)}
                 
                 ${inputSelect(
@@ -44,9 +47,33 @@ class record extends winObject{
                     value="${issetReturn(()=>record.rec_timestamp_planned_start,'')}" checks="isNotBlank" 
                     placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
                 >`)}
-                
-                <div class="buttonRow">
-                    <button onclick="rec_item.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                <div class="flexGap">
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>record.rec_duration_qty,'1')}" 
+                        name="rec_duration_qty" placeholder="${labelRow.rec_duration_qty}" 
+                        checks="isInt_positive" class="width2Lh"
+                    >`)}
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>record.rec_duration_unit,'hour')}"
+                            placeholder="${labelRow.rec_duration_unit}" name="rec_duration_unit" 
+                            checks="isNotBlank" 
+                        >
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                        </select>`
+                    )}
+                </div>
+                <div>
+                    <span class="borderBottom borderTop lh padSmall flexGap">
+                        <span class="lightText">Total</span>
+                        <span class="lightText">|</span>
+                        <span class="jr" name="rec_price">
+                            <input class="tar width3Lh" type="text" name="rec_total" value="${price('')}" readonly>
+                        </span>
+                    </span>
+                </div>                
+                <div class="buttonRow flexGap">
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDefaultDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDurationDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span><i class="far fa-clock"></i></span><div>Add Duration</div></span></button>
                     <div class="flex1"></div>
                     <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
                 </div>
@@ -66,6 +93,13 @@ class record extends winObject{
     static getSummaryLine(record){
         let prjRow = win_projects[record.rec_prj_id];
         return `${prjRow.prj_acronym}: ${formatTimestampToDate(record.rec_timestamp_planned_start)}: ${record.rec_description}`;
+    }
+    
+    static updateFormWithProjectDetails(formChild,projectId){
+        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
+        let project = win_projects[projectId];
+        form.querySelector(`[name=rec_duration_qty]`).value = project['prj_default_duration_qty'];
+        form.querySelector(`[name=rec_duration_unit]`).value = project['prj_default_duration_unit'];
     }
 }
 

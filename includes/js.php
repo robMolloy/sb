@@ -14,6 +14,7 @@
 <script type="text/javascript" src="includes/js/functions/aux/aux_cache.js"></script>
 <script type="text/javascript" src="includes/js/functions/aux/aux_generic.js"></script>
 <script type="text/javascript" src="includes/js/functions/aux/aux_getData.js"></script>
+<script type="text/javascript" src="includes/js/functions/aux/aux_indexedDb.js"></script>
 <script type="text/javascript" src="includes/js/functions/check/check.js"></script>
 <script type="text/javascript" src="includes/js/functions/check/check_type.js"></script>
 <script type="text/javascript" src="includes/js/functions/dom/dom_alerts.js"></script>

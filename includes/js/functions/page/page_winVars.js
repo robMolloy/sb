@@ -28,8 +28,8 @@ async function initSecondaryWinVar(winVar){
         case 'win_contactsGroupedByCus_id': win_contactsGroupedByCus_id = groupAnObjectOfObjectsByIndex(win_contacts,'con_cus_id'); break;
         case 'win_recordsGroupedByPrj_id': win_recordsGroupedByPrj_id = groupAnObjectOfObjectsByIndex(win_records,'rec_prj_id'); break;
         case 'win_rec_itemsGroupedByRec_id': win_rec_itemsGroupedByRec_id = groupAnObjectOfObjectsByIndex(win_rec_items,'rci_rec_id'); break;
-        case 'win_units': win_units = Object.keys(mergeTwoIndexedObjects(indexAnObjectOfObjects(win_rec_items,'rci_unit'),indexAnObjectOfObjects(win_projects,'prj_default_unit')));break;
-        case 'win_work': win_work = Object.keys(mergeTwoIndexedObjects(indexAnObjectOfObjects(win_rec_items,'rci_work'),indexAnObjectOfObjects(win_projects,'prj_default_work')));break;
+        case 'win_units': win_units = [...win_time_units,...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_unit'))];break;
+        case 'win_work': win_work = [...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_work'))];break;
         
         default:console.error(`${winVar} cannot be initiated, case does not exist in initWinVar()`);
     }

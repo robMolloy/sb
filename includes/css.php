@@ -12,7 +12,7 @@ $radiusSize = $mediumRadiusSize;
 
 $smallBorderWidth = 1;
 $thickBorderWidth = 2;
-$borderWidth = $tbw;
+$borderWidth = $thickBorderWidth;
 
 $themeColorsArray = ['#222222','#999999','#CCCCCC','#EEEEEE','#FFFFFF','#FFFFFF00'];
 $accentColorsArray = ['#151965','#0F4C75','#3282B8','#1E90FF','#BBE1FA'];
@@ -90,6 +90,7 @@ button, button * {
 }
 button:hover, button:hover * {background-color:<?php echo $aca[2];?>;color:<?php echo $tca[4]; ?>;}
 button div {display:none;}
+button div, button div * {font-size:0.7em}
 button:hover div {display:flex;}
 
 button.errorButton {border-color:<?php echo $eca[2]; ?>;}
@@ -128,27 +129,27 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 /*my dimensions*/
 .h100 {height:100%;}
 .lh {height:<?php echo $lh; ?>px;}
-.lhSquare {height:<?php echo $lh; ?>px;width:<?php echo $lh; ?>px;}
-.mediumSquare {height:<?php echo $lh-$sg; ?>px;width:<?php echo $lh-$sg; ?>px;}
-.widthLh {width:<?php echo $lh; ?>px;}
-.width2Lh {width:<?php echo 2*$lh; ?>px;}
-.width3Lh {width:<?php echo 3*$lh; ?>px;}
-.width4Lh {width:<?php echo 4*$lh; ?>px;}
-.width5Lh {width:<?php echo 5*$lh; ?>px;}
-.widthLhNoBorder {width:<?php echo $lh-2*$bw; ?>px;}
-.width2LhNoBorder {width:<?php echo 2*$lh-2*$bw; ?>px;}
-.width3LhNoBorder {width:<?php echo 3*$lh-2*$bw; ?>px;}
-.width4LhNoBorder {width:<?php echo 4*$lh-2*$bw; ?>px;}
-.width5LhNoBorder {width:<?php echo 5*$lh-2*$bw; ?>px;}
+.lhSquare {height:<?php echo $lh; ?>px;min-width:<?php echo $lh; ?>px;width:<?php echo $lh; ?>px;}
+.mediumSquare {height:<?php echo $lh-$sg; ?>px;min-width:<?php echo $lh-$sg; ?>px;width:<?php echo 2*$lh; ?>px;}
+.widthLh {min-width:<?php echo $lh; ?>px;width:<?php echo $lh; ?>px;}
+.width2Lh {min-width:<?php echo 2*$lh; ?>px;width:<?php echo 2*$lh; ?>px;}
+.width3Lh {min-width:<?php echo 3*$lh; ?>px;width:<?php echo 3*$lh; ?>px;}
+.width4Lh {min-width:<?php echo 4*$lh; ?>px;width:<?php echo 4*$lh; ?>px;}
+.width5Lh {min-width:<?php echo 5*$lh; ?>px;width:<?php echo 5*$lh; ?>px;}
+.widthLhNoBorder {min-width:<?php echo $lh-2*$bw; ?>px;width:<?php echo $lh-2*$bw; ?>px;}
+.width2LhNoBorder {min-width:<?php echo 2*$lh-2*$bw; ?>px;width:<?php echo 2*$lh-2*$bw; ?>px;}
+.width3LhNoBorder {min-width:<?php echo 3*$lh-2*$bw; ?>px;width:<?php echo 3*$lh-2*$bw; ?>px;}
+.width4LhNoBorder {min-width:<?php echo 4*$lh-2*$bw; ?>px;width:<?php echo 4*$lh-2*$bw; ?>px;}
+.width5LhNoBorder {min-width:<?php echo 5*$lh-2*$bw; ?>px;width:<?php echo 5*$lh-2*$bw; ?>px;}
 
 
 
 /*my panels*/
-.singlePanel {margin-top:<?php echo ($g - $sg); ?>px;}
 .panel {
     padding:<?php echo $bg; ?>px;text-align:left;position:relative;background-color:<?php echo $tca[4]; ?>;
     border-radius:<?php echo $brs; ?>px 0 0 0;
 }
+.singlePanel {margin-top:<?php echo ($g - $sg); ?>px;}
 .panel:after{
     content:'';height:<?php echo $brs; ?>px;width:<?php echo $brs; ?>px;background-color:<?php echo $aca[2]; ?>;
     z-index:-1;position:absolute;top:0;left:0;border-radius:<?php echo $sg; ?>px;
@@ -160,6 +161,11 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 /*my forms*/
 .form {position:relative;display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;}
 .form .form {flex:1;border-top:solid <?php echo $sbw; ?>px <?php echo $tca[2]; ?>;padding-top:<?php echo $g; ?>px;}
+.formLabel {
+    height:<?php echo $lh; ?>px;width:<?php echo 2*$lh; ?>px;min-width:<?php echo 2*$lh; ?>px;justify-content:center;
+    border-top:2px solid <?php echo $tca[2]; ?>;border-bottom:2px solid <?php echo $tca[2]; ?>;white-space:nowrap;
+}
+
 
 /*my columns*/
 .singleColumn {display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;}
@@ -273,6 +279,7 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 
 
 /*font styles*/
+.fs70 {font-size:0.7em;}
 .fs80 {font-size:0.8em;}
 .fs150 {font-size:1.5em;}
 .fs200 {font-size:2em;}

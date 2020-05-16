@@ -83,6 +83,15 @@ function checkValue(check,value){
         case 'doesNotEqual':
         return value!=checkArray[1];
         
+        case 'isTimestamp':
+        return value == parseInt(value);
+        
+        case 'isTimeString':
+        return new Date(`1970-01-01 ${value}`)!='Invalid Date';
+        
+        case 'isTimeString':
+        return new Date(`${value}`)!='Invalid Date'
+        
         case 'isNotBlank':
         return value!='';
 

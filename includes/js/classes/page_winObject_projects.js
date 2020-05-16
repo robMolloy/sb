@@ -59,7 +59,7 @@ class project extends winObject{
                         </div>
                     `).join('')}
                 </div>
-                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler" style=""></i></span></button></div>
+                <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler"></i></span></button></div>
             </div>
         `;
     }
@@ -105,9 +105,9 @@ class project extends winObject{
                         type="text" value="${issetReturn(()=>project.prj_default_work,'')}"
                         placeholder="${labelRow.prj_default_work}" name="prj_default_work" checks="isNotBlank" 
                     >`
-                    ,win_units
+                    ,win_work
                 )}
-                <div>What unit is work usually measured in?</div>
+                <div>What is the default unit of work?</div>
                 ${inputSelect(
                     `<input 
                         type="text" value="${issetReturn(()=>project.prj_default_unit,'')}"
@@ -115,36 +115,68 @@ class project extends winObject{
                     >`
                     ,win_units
                 )}
-                <div>How many units will the work usually take?</div>
+                <div>How many units of work will usually take place?</div>
                 <div class="flexGap">
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_qty,'')}" 
                         name="prj_default_qty" placeholder="${labelRow.prj_default_qty}" checks="isFloat" 
                     >`)}
-                    <div class="borderTop borderBottom padSmall jc width3Lh">Units</div>
+                    <div class="formLabel">Units</div>
                 </div>
-                <div>What is the rate charged per unit?</div>
+                <div>What is the rate charged per unit of work?</div>
                 <div class="flexGap">
+                    <span class="width2Lh jc borderBottom borderTop padSmall">£</span>
                     ${wrapInputElement(`<input type="text" value="${issetReturn(()=>project.prj_rate_per_default_unit,'')}" 
                         name="prj_rate_per_default_unit" placeholder="${labelRow.prj_rate_per_default_unit}" 
                         checks="isFloat"
                     >`)}
-                    <div class="borderTop borderBottom padSmall jc nowrap width3Lh">Per Unit</div>
+                    <div class="borderTop borderBottom padSmall jc nowrap width2Lh">Per Unit</div>
                 </div>
                 <div>How often will the work take place?</div>
                 <div class="flexGap">
-                    <div class="padSmall borderTop borderBottom width3Lh jc">Every</div>
+                    <div class="padSmall borderTop borderBottom width2Lh jc">Every</div>
                     ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_repeat_every_qty,'1')}" 
                         name="prj_default_repeat_every_qty" placeholder="${labelRow.prj_default_repeat_every_qty}" 
-                        checks="isInt_positive" class="width3Lh"
+                        checks="isInt_positive" class="width2Lh"
                     >`)}
                     ${wrapSelectElement(
                         `<select 
                             type="text" value="${issetReturn(()=>project.prj_default_repeat_every_unit,'')}"
                             placeholder="${labelRow.prj_default_repeat_every_unit}" name="prj_default_repeat_every_unit" checks="isNotBlank" 
                         >
-                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`)}
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
                         </select>`
                     )}
+                </div>
+                <div class="singleColumn gridGap0">
+                    <div>What is the usual duration of this work?</div>
+                    <div class="fs70 jr">(May be the same as the default unit and quantity              )</div>
+                </div>
+                <div class="flexGap">
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_duration_qty,'1')}" 
+                        name="prj_default_duration_qty" placeholder="${labelRow.prj_default_duration_qty}" 
+                        checks="isInt_positive" class="width2Lh"
+                    >`)}
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>project.prj_default_duration_unit,'hour')}"
+                            placeholder="${labelRow.prj_default_duration_unit}" name="prj_default_duration_unit" 
+                            checks="isNotBlank" 
+                        >
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                        </select>`
+                    )}
+                </div>
+                <div class="singleColumn gridGap0">
+                    <div>What is the rate charged per unit of time worked?</div>
+                    <div class="fs70 jr">(Leave as 0 if not paid per unit of time)</div>
+                </div>
+                <div class="flexGap">                                                     
+                    <span class="width2Lh jc borderBottom borderTop padSmall">£</span>
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>project.prj_default_cost_per_duration_unit,'0.00')}" 
+                        name="prj_default_cost_per_duration_unit" placeholder="${labelRow.prj_default_cost_per_duration_unit}" 
+                        checks="isInt_positive"
+                    >`)}
+                    <div class="borderTop borderBottom padSmall jc nowrap width2Lh">Per Unit</div>
                 </div>
                 <div class="buttonRow">
                     <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
