@@ -148,6 +148,8 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 .panel {
     padding:<?php echo $bg; ?>px;text-align:left;position:relative;background-color:<?php echo $tca[4]; ?>;
     border-radius:<?php echo $brs; ?>px 0 0 0;
+    /* Single Column */
+    display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:<?php echo $g; ?>px;
 }
 .singlePanel {margin-top:<?php echo ($g - $sg); ?>px;}
 .panel:after{

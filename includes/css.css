@@ -118,6 +118,8 @@ main > *:nth-last-child(1) {margin-bottom:5px;}
 .panel {
     padding:20px;text-align:left;position:relative;background-color:#FFFFFF;
     border-radius:25px 0 0 0;
+    /* Single Column */
+    display:grid;grid-template-columns:repeat(1,auto);grid-row-gap:10px;
 }
 .singlePanel {margin-top:5px;}
 .panel:after{

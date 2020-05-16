@@ -22,8 +22,7 @@
         3:{emp_id:3,emp_name:'Judy',emp_age:60,job:'Hr',emp_height_qty:100,emp_height_unit:'cm'}
     }
     
-        
-        
+    
     class win_employeeObject{
         constructor(employeeIdentifier=''){
             this.objectType == 'employee';
@@ -66,17 +65,13 @@
         
     }
     
-    class win_employeeFormPanel{
-        constructor(datarow=''){
-            this.init(datarow);
-        }
-        
-        init(datarow){
-            this.datarow = datarow;
-            this.labelrow = win_info['employee']['labelrow'];
-            this.id = datarow['emp_id']=='' ? `formPanel` : `formPanel_${datarow['emp_id']}`;
-            this.create();
-            this.visible = true;
+    
+    class Panel{
+        init(datarow=''){
+            this.datarow = datarow=='' ? this.datarow : datarow;
+            this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${datarow[this.primaryKey]}`;
+            this.element = document.getElementById(this.id);
+            this.render();
         }
         
         update(){
@@ -85,8 +80,65 @@
         
         toggleVisiblity(){
             let hidden = this.element.classList.toggle('hidden');
-            this.visibility(!hidden);
-            return this.visibility;
+            this.visible = !hidden;
+            return this.visible;
+        }
+        
+        
+        render(position=''){
+            if(this.element!==null){this.update();return;}
+            position = position=='' ? this.defaultPosition : position;
+            
+            appendNthInMain(position,`<div id="${this.id}" class="panel ${this.defaultClasses.join(' ')}"></div>`);
+            this.element = document.getElementById(this.id);
+            
+            this.update();
+            this.visible = true;
+        }
+        
+        getHtml(){}
+    }
+    
+    
+    class win_employee_DisplayPanel extends Panel{
+        constructor(datarow=''){
+            super(datarow);
+            
+            this.primaryKey = 'emp_id';
+            this.idPrefix = 'displayPanel';
+            this.defaultPosition = 'last';
+            this.defaultClasses = [];
+            
+            this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
+            this.labelrow = win_info['employee']['labelrow'];
+            
+            this.init();
+        }
+        
+        getHtml(){
+            return `
+                <div>${this.labelrow[`emp_id`]}: ${this.datarow[`emp_id`]}</div>
+                <div>${this.labelrow[`emp_name`]}: ${this.datarow[`emp_name`]}</div>
+                <div>${this.labelrow[`emp_age`]}: ${this.datarow[`emp_age`]}</div>
+                <div>${this.labelrow[`emp_height_qty`]}: ${this.datarow[`emp_height_qty`]}</div>
+                <div>${this.labelrow[`emp_height_unit`]}: ${this.datarow[`emp_height_unit`]}</div>
+            `;
+        }
+    }
+    
+    class win_employee_FormPanel extends Panel{
+        constructor(datarow=''){
+            super(datarow);
+            
+            this.primaryKey = 'emp_id';
+            this.idPrefix = 'formPanel';
+            this.defaultPosition = 0;
+            this.defaultClasses = [];
+            
+            this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
+            this.labelrow = win_info['employee']['labelrow'];
+            
+            this.init();
         }
         
         getHtml(){
@@ -109,13 +161,8 @@
                 <div onclick="console.log(${this});">test!</div>
             `;
         }
-        
-        create(){
-            appendNthInMain(0,`<div id="${this.id}" class="panel"></div>`);
-            this.element = document.getElementById(this.id);
-            this.update();
-        }
     }
+    
 
     win_employeeObjects = {};
     Object.values(win_employeeRows).forEach(datarow=>win_employeeObjects[datarow['emp_id']] = new win_employeeObject(datarow));
