@@ -62,6 +62,11 @@
             this.formPanel.update();
         }
         
+        renderDisplayPanel(){
+            if(this.displayPanel===false){this.displayPanel = new win_employeeDisplayPanel(this.datarow);}
+            this.displayPanel.update();
+        }
+        
         
     }
     
@@ -69,6 +74,7 @@
     class Panel{
         init(datarow=''){
             this.datarow = datarow=='' ? this.datarow : datarow;
+            this.objectId = this.datarow[this.primaryKey];
             this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${datarow[this.primaryKey]}`;
             this.element = document.getElementById(this.id);
             this.render();
@@ -100,17 +106,18 @@
     }
     
     
-    class win_employee_DisplayPanel extends Panel{
+    class win_employeeDisplayPanel extends Panel{
         constructor(datarow=''){
             super(datarow);
             
-            this.primaryKey = 'emp_id';
             this.idPrefix = 'displayPanel';
             this.defaultPosition = 'last';
             this.defaultClasses = [];
             
             this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
             this.labelrow = win_info['employee']['labelrow'];
+            
+            this.primaryKey = 'emp_id';
             
             this.init();
         }
@@ -126,17 +133,18 @@
         }
     }
     
-    class win_employee_FormPanel extends Panel{
+    class win_employeeFormPanel extends Panel{
         constructor(datarow=''){
             super(datarow);
             
-            this.primaryKey = 'emp_id';
             this.idPrefix = 'formPanel';
             this.defaultPosition = 0;
             this.defaultClasses = [];
             
             this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
             this.labelrow = win_info['employee']['labelrow'];
+            this.primaryKey = 'emp_id';
+            this.objectId = this.datarow[this.primaryKey];
             
             this.init();
         }
@@ -158,7 +166,7 @@
                 <div>${wrapInputElement(
                     `<input type="text" name="emp_height_unit" value="${this.datarow[`emp_height_unit`]}" placeholder="${this.labelrow[`emp_height_unit`]}">`
                 )}</div>
-                <div onclick="console.log(${this});">test!</div>
+                <div onclick="console.log(win_employeeObjects[${this.objectId}]);">test!</div>
             `;
         }
     }
