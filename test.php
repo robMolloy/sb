@@ -52,14 +52,11 @@
         }
         
         renderFormPanel(){
-            let classNameString = 'win_employeeFormPanel';
-            if(this.formPanel===false){this.formPanel = new window[classNameString](this.datarow);}
-            this.formPanel.update();
+            this.formPanel.show();
         }
         
         renderDisplayPanel(){
-            if(this.displayPanel===false){this.displayPanel = new win_employeeDisplayPanel(this.datarow);}
-            this.displayPanel.update();
+            this.displayPanel.show();
         }
     }
 
@@ -79,12 +76,10 @@
     
     class Panel{
         init(datarow=''){
-            console.log(this.primaryKey);
             this.datarow = datarow=='' ? this.datarow : datarow;
             this.objectId = this.datarow[this.primaryKey];
             this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${this.datarow[this.primaryKey]}`;
             this.element = document.getElementById(this.id);
-            this.render();
         }
         
         update(){
@@ -95,6 +90,15 @@
             let hidden = this.element.classList.toggle('hidden');
             this.visible = !hidden;
             return this.visible;
+        }
+        
+        show(){
+            this.element.classList.remove('hidden');
+        }
+        
+
+        hide(){
+            this.element.classList.add('hidden');
         }
         
         
@@ -124,7 +128,6 @@
             
             this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
             this.labelrow = win_info['employee']['labelrow'];
-            
             
             this.init();
         }
@@ -180,16 +183,20 @@
     function initEmployeePage(){
         win_employeeObjects = {};
         Object.values(win_employeeRows).forEach(datarow=>win_employeeObjects[datarow['emp_id']] = new win_employeeObject(datarow));
+        Object.values(win_employeeObjects).forEach(object=>object.formPanel.render());
+        
     }
     
     </script>
 </head>
 
 <body onload="initEmployeePage()">
-    <div class="wrapperMain" id="wrapperMain">
-        <main>
-            _
-        </main>
+    <div id="content">
+        <div class="wrapperMain" id="wrapperMain">
+            <main>
+                _
+            </main>
+        </div>
+        <div id="responseLogIcon" onclick="toggleResponseLog()"></div>
     </div>
-    <div id="responseLogIcon" onclick="toggleResponseLog()"></div>
 </body>
