@@ -23,22 +23,16 @@
     }
     
     
-    class win_employeeObject{
-        constructor(employeeIdentifier=''){
-            this.objectType == 'employee';
-            this.init(employeeIdentifier);
-        }
-        
+    
+    class win_object2{
         init(uniqueIdentifier=''){
-            this.displayPanel = this.displayPanel ? this.displayPanel : false;
-            this.formPanel = this.formPanel ? this.formPanel : false;
-            this.blankrow = win_info['employee']['blankrow'];
+            this.blankrow = win_info[this.objectType]['blankrow'];
+            this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {[this.primaryKey]:uniqueIdentifier};
+            this.populateDatarow();
             
-            this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {emp_id:uniqueIdentifier};
-            this.id = this.datarow['emp_id'];
-            this.exists = win_employeeRows[this.id] !== undefined;
+            this.id = this.datarow[this.primaryKey];
+            this.exists = window[`win_${this.objectType}Rows`][this.id] !== undefined;
             
-            this.populateDatarow(uniqueIdentifier);
             return this;
         }
          
@@ -47,7 +41,7 @@
             datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
             
             let newDatarow = {};
-            let templateDatarow = this.exists ? win_employeeRows[datarow['emp_id']] : this.blankrow;
+            let templateDatarow = this.exists ? window[`win_${this.objectType}Rows`][this.id] : this.blankrow;
             
             Object.keys(templateDatarow).forEach(key=>{
                 newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
@@ -58,7 +52,8 @@
         }
         
         renderFormPanel(){
-            if(this.formPanel===false){this.formPanel = new win_employeeFormPanel(this.datarow);}
+            let classNameString = 'win_employeeFormPanel';
+            if(this.formPanel===false){this.formPanel = new window[classNameString](this.datarow);}
             this.formPanel.update();
         }
         
@@ -66,16 +61,28 @@
             if(this.displayPanel===false){this.displayPanel = new win_employeeDisplayPanel(this.datarow);}
             this.displayPanel.update();
         }
-        
-        
     }
+
     
+    class win_employeeObject extends win_object2{
+        constructor(uniqueIdentifier=''){
+            super();
+            
+            this.objectType = 'employee';
+            this.primaryKey = 'emp_id';
+            this.init(uniqueIdentifier);
+            
+            this.displayPanel = new win_employeeDisplayPanel(this.datarow);
+            this.formPanel = new win_employeeFormPanel(this.datarow);
+        }
+    }
     
     class Panel{
         init(datarow=''){
+            console.log(this.primaryKey);
             this.datarow = datarow=='' ? this.datarow : datarow;
             this.objectId = this.datarow[this.primaryKey];
-            this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${datarow[this.primaryKey]}`;
+            this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${this.datarow[this.primaryKey]}`;
             this.element = document.getElementById(this.id);
             this.render();
         }
@@ -111,13 +118,13 @@
             super(datarow);
             
             this.idPrefix = 'displayPanel';
+            this.primaryKey = 'emp_id';
             this.defaultPosition = 'last';
             this.defaultClasses = [];
             
             this.datarow = datarow=='' ? win_info['employee']['blankrow'] : datarow;
             this.labelrow = win_info['employee']['labelrow'];
             
-            this.primaryKey = 'emp_id';
             
             this.init();
         }
@@ -170,15 +177,15 @@
             `;
         }
     }
-    
-
-    win_employeeObjects = {};
-    Object.values(win_employeeRows).forEach(datarow=>win_employeeObjects[datarow['emp_id']] = new win_employeeObject(datarow));
+    function initEmployeePage(){
+        win_employeeObjects = {};
+        Object.values(win_employeeRows).forEach(datarow=>win_employeeObjects[datarow['emp_id']] = new win_employeeObject(datarow));
+    }
     
     </script>
 </head>
 
-<body onload="">
+<body onload="initEmployeePage()">
     <div class="wrapperMain" id="wrapperMain">
         <main>
             _

@@ -1,4 +1,9 @@
+/*
+class win_employeeObject{}
+class winObject2{}
 
+
+*/
 class winObject{
     static getWinObjectType(){
         return 'winObjects';

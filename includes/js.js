@@ -30,7 +30,12 @@ String.prototype.toggleSuffix = function(suffix){
 }
 
 
+/*
+class win_employeeObject{}
+class winObject2{}
 
+
+*/
 class winObject{
     static getWinObjectType(){
         return 'winObjects';
