@@ -331,5 +331,6 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 
 @media(max-width:768px){
 	button:active {background-color:<?php echo $tca[3];?>;color:<?php echo $tca[2];?>;}
-	main {min-width:100vw;max-width:100vw;border-left:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;border-right:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;}
+    #wrapperMain {padding-top:<?php echo $sg; ?>px;}
+	main {min-width:100vw;max-width:100vw;border-left:<?php echo $sg; ?>px solid <?php echo $tca[3]; ?>;border-right:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;}
 }

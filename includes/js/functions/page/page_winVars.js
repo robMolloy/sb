@@ -1,6 +1,5 @@
-
 function getPrimaryWinVars(){
-    return ['win_projects','win_customers','win_prj_cus_links','win_contacts','win_records','win_rec_items'];
+    return ['project','customer','prj_cus_link','contact','record','rec_item'];
 }
 
 function getSecondaryWinVars(){
@@ -13,10 +12,10 @@ async function initPrimaryWinVar(winVar){
         switch(winVar){
             case 'win_loggedIn': win_loggedIn = await userIsLoggedIn(); break;
             case 'win_pages': break;
-            case 'win_projects': win_projects = await fetchProjects(); break;
-            case 'win_customers': win_customers = await fetchCustomers(); break;
-            case 'win_prj_cus_links': win_prj_cus_links = await fetchPrjCusLinks(); break;
-            case 'win_contacts': win_contacts = await fetchContacts(); break;
+            case 'project': win_projects = await fetchProjects(); break;
+            case 'customer': win_customers = await fetchCustomers(); break;
+            case 'prj_cus_link': win_prj_cus_links = await fetchPrjCusLinks(); break;
+            case 'contact': win_contacts = await fetchContacts(); break;
             default:console.error(`${winVar} cannot be initiated, case does not exist in initWinVar()`);
         }
     }
@@ -37,12 +36,12 @@ async function initSecondaryWinVar(winVar){
 
 function refreshPrimaryWinVar(winVar){
     switch(winVar){
-        case 'win_projects':        project.initObjects();break;
-        case 'win_customers':       customer.initObjects();break;
-        case 'win_prj_cus_links':   win_prj_cus_links = mergeTwoIndexedObjects(win_db_prj_cus_links,mightyStorage.get('win_prj_cus_links',{}));break;
-        case 'win_contacts':        win_contacts = mergeTwoIndexedObjects(win_db_contacts,mightyStorage.get('win_contacts',{}));break;
-        case 'win_rec_items':       win_rec_items = mergeTwoIndexedObjects(win_db_rec_items,mightyStorage.get('win_rec_items',{}));break;
-        case 'win_records':         record.initObjects();break;
+        case 'project':        allProjects.init();break;
+        case 'customer':       customer.initObjects();break;
+        case 'prj_cus_link':   win_prj_cus_links = mergeTwoIndexedObjects(win_db_prj_cus_links,mightyStorage.get('win_prj_cus_links',{}));break;
+        case 'contact':        win_contacts = mergeTwoIndexedObjects(win_db_contacts,mightyStorage.get('win_contacts',{}));break;
+        case 'rec_item':       win_rec_items = mergeTwoIndexedObjects(win_db_rec_items,mightyStorage.get('win_rec_items',{}));break;
+        case 'record':         record.initObjects();break;
         
         default:console.error(`${winVar} cannot be refreshed, case does not exist in refreshWinVar()`);
     }

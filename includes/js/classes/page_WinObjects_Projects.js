@@ -1,8 +1,27 @@
-class project extends WinObject{
-    
-    static getWinObjectType(){
-        return 'projects';
+class Projects extends WinObjects{
+    constructor(){
+        super()
+        
+        this.winObjectType = 'project';
+        
+        this.init();
     }
+    
+    init(){
+        this.initProjects();
+    }
+    
+    initProjects(){
+        this.initWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new Project2(datarow);
+    }
+    
+    //~ static getWinObjectType(){
+        //~ return 'projects';
+    //~ }
     
     static addFormsInForm(forms,addedObject=''){
         let datarowArray = Array.from(forms).map((form)=>{
@@ -203,4 +222,6 @@ class project extends WinObject{
     static aboveButtonRowFormHtml(){
         return prj_cus_link.getLinkToProjectFormHtml();
     }
+
 }
+

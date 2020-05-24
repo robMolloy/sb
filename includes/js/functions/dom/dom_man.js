@@ -3,6 +3,8 @@ function createElementFromHtmlString(htmlString){
 }
 
 function createElementsFromHtmlString(htmlString){
+    if(devVerbose){console.error('createElementFromHtmlString() & createElementsFromHtmlString() deprecated - use convertHtmlStringToElement()');}
+    
     let div = document.createElement('template');
     div.insertAdjacentHTML('beforeend', htmlString);
     return div.children;
@@ -10,6 +12,8 @@ function createElementsFromHtmlString(htmlString){
 }
 
 function getHtmlStringFromElement(elm){
+    if(devVerbose){console.error('getHtmlStringFromElement() deprecated - use convertElementToHtmlString()');}
+    
     let div = document.createElement('div');
     div.appendChild(elm);
     return div.innerHTML;

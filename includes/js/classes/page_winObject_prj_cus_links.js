@@ -1,4 +1,4 @@
-class prj_cus_link extends winObject{
+class prj_cus_link extends WinObject{
     static getWinObjectType(){
         return 'prj_cus_links';
     }

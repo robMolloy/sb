@@ -1,5 +1,5 @@
 
-class record extends winObject{
+class record extends WinObject{
     static getWinObjectType(){
         return 'records';
     }

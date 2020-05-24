@@ -1,5 +1,5 @@
 
-class customer extends winObject{
+class customer extends WinObject{
     static getWinObjectType(){
         return 'customers';
     }

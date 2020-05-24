@@ -1,4 +1,4 @@
-class rec_item extends winObject{
+class rec_item extends WinObject{
     static getWinObjectType(){
         return 'rec_items';
     }

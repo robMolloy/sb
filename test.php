@@ -23,8 +23,17 @@
     }
     
     
-    
     class win_object2{
+        constructor(){
+            /* constructor not required - put all this.vars = '' for reference */
+            this.blankrow = '';
+            this.datarow = '';
+            this.id = '';
+            this.exists = '';
+            this.formPanel = '';
+            this.displayPanel = '';
+        }
+        
         init(uniqueIdentifier=''){
             this.blankrow = win_info[this.objectType]['blankrow'];
             this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {[this.primaryKey]:uniqueIdentifier};
@@ -52,10 +61,12 @@
         }
         
         renderFormPanel(){
+            this.formPanel.update();
             this.formPanel.show();
         }
-        
+
         renderDisplayPanel(){
+            this.displayPanel.update();
             this.displayPanel.show();
         }
     }
@@ -96,11 +107,9 @@
             this.element.classList.remove('hidden');
         }
         
-
         hide(){
             this.element.classList.add('hidden');
         }
-        
         
         render(position=''){
             if(this.element!==null){this.update();return;}

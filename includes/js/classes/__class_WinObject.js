@@ -1,10 +1,132 @@
-/*
-class win_employeeObject{}
-class winObject2{}
+class WinObject2{
+    constructor(){
+        /* constructor not required - put all this.vars = '' for reference */
+        
+        this.winObjectType = '';    // must be in constructor of extended class
+        this.formPanel = '';        // must be in constructor of extended class
+        this.displayPanel = '';     // must be in constructor of extended class
+        
+        this.primaryKey = '';
+        this.blankrow = '';
+        this.datarow = '';
+        this.id = '';
+        this.exists = '';
+    }
+    
+    init(uniqueIdentifier=''){
+        this.keys = win_info[this.winObjectType]['keys'];
+        this.blankrow = win_info[this.winObjectType]['blankrow'];
+        
+        let tempId = tempIdString();
+        this.defaultValues = {[this.keys['user']]:win_user['usr_id']};
+        this.defaultValuesIfBlank = {[this.keys['primary']]:tempId, [this.keys['temp']]:tempId};
+        
+        this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {[this.keys['primary']]:uniqueIdentifier};
+        this.refresh(uniqueIdentifier);
+        
+        return this;
+    }
+    
+    refresh(){
+        this.populateDatarow();
+        this.id = this.datarow[this.keys['primary']];
+        this.exists = window[`win_${this.winObjectType}s`][this.id] !== undefined;
+        
+        return this;
+    }
+    
+    populateDatarow(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
+        
+        let newDatarow = {};
+        let templateDatarow = this.exists ? window[`win_${this.winObjectType}Rows`][this.id] : this.blankrow;
+        
+        Object.keys(templateDatarow).forEach(key=>{
+            newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
+        });
+        
+        this.datarow = newDatarow;
+        return this.datarow;
+    }
+    
+    renderFormPanel(){
+        this.formPanel.render();
+    }
+
+    renderDisplayPanel(){
+        this.displayPanel.render();
+    }
+    
+    
+    
+    setFromDefaultValues(){
+        Object.keys(this.defaultValues).forEach(key=>this.datarow[key] = this.defaultValues[key]);
+        
+        Object.keys(this.defaultValuesIfBlank).forEach(key=>{
+            this.datarow[key] = this.datarow[key]=='' ? this.defaultValuesIfBlank[key] : this.datarow[key];
+        });
+    }
+    
+    getFromDatarow(datarow=''){
+        let newDatarow = {};
+        Object.keys(this.blankrow).forEach(key => newDatarow[key]=issetReturn(()=>datarow[key],''));
+        return newDatarow;
+    }
+    
+    setFromDatarow(datarow=''){
+        this.datarow = this.getFromDatarow(datarow);
+    }
+
+    getFromForm(form){
+        return this.getFromDatarow(getInputValuesAsObject(form));
+    }
+    
+    setFromForm(form){
+        this.datarow = this.getFromForm(form);
+    }
+
+    beforeAdd(){
+        this.setFromDefaultValues();
+    }
+    
+    afterAdd(){
+        refreshWinVars();
+    }
+    
+    add(){
+        this.beforeAdd();
+        mightyStorage.addObject(`${this.winObjectType}s`,this.datarow,this.keys['primary']);
+        this.afterAdd()
+    }
+    
+    
+    addFormsInForm(){
+        return '';
+    }
+    
+    addFromForm(form){
+        form = initElement(form);
+        if(valid(form)){
+            this.setFromForm(form);
+            this.add();
+            this.addFormsInForm(form.querySelectorAll('.form'),this.datarow);
+            refreshWinVars();
+            window[`all${ucFirst(this.winObjectType)}s`].loadPage();
+        } else {
+            getAllInputs(form).forEach((input)=>input.oninput());
+        }
+    }
+    
+    addFromAnyElementInForm(formChild){
+        formChild = initElement(formChild);
+        let form = getParentElementWithClass(formChild,'form');
+        this.addFromForm(form,this.winObjectType);
+    }
+}
 
 
-*/
-class winObject{
+class WinObject{
     static getWinObjectType(){
         return 'winObjects';
     }

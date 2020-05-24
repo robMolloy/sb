@@ -2,13 +2,21 @@
 <script type="text/javascript" src="includes/js/extend/extend_HTMLElement.js"></script>
 <script type="text/javascript" src="includes/js/extend/extend_String.js"></script>
 
-<script type="text/javascript" src="includes/js/classes/__winObjects_class.js"></script>
+<script type="text/javascript" src="includes/js/classes/__class_Panel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__class_Panel_DisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__class_Panel_FormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__class_WinObject.js"></script>
+<script type="text/javascript" src="includes/js/classes/__class_WinObjects.js"></script>
+<script type="text/javascript" src="includes/js/classes/page_DisplayPanel_ProjectDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/page_FormPanel_ProjectFormPanel.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_contacts.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_customers.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_prj_cus_links.js"></script>
+<script type="text/javascript" src="includes/js/classes/page_WinObject_Project.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_projects.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_records.js"></script>
 <script type="text/javascript" src="includes/js/classes/page_winObject_rec_items.js"></script>
+<script type="text/javascript" src="includes/js/classes/page_WinObjects_Projects.js"></script>
 
 <script type="text/javascript" src="includes/js/functions/aux/aux_ajax.js"></script>
 <script type="text/javascript" src="includes/js/functions/aux/aux_cache.js"></script>
@@ -32,6 +40,7 @@
 <script type="text/javascript" src="includes/js/functions/dom/dom_responseLog.js"></script>
 <script type="text/javascript" src="includes/js/functions/dom/dom_select.js"></script>
 <script type="text/javascript" src="includes/js/functions/man/man_arrays.js"></script>
+<script type="text/javascript" src="includes/js/functions/man/man_convertObjects.js"></script>
 <script type="text/javascript" src="includes/js/functions/man/man_date.js"></script>
 <script type="text/javascript" src="includes/js/functions/man/man_elementClasses.js"></script>
 <script type="text/javascript" src="includes/js/functions/man/man_json.js"></script>

@@ -1,4 +1,4 @@
-class contact extends winObject{
+class contact extends WinObject{
     static getWinObjectType(){
         return 'contacts';
     }

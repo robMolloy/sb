@@ -1,18 +1,21 @@
 function appendToMain(html){
-	document.querySelector('main').insertAdjacentHTML('beforeend',html);
+	//~ appendNthInMain('last',html);
+    html = typeof(html)=='string' ? html : getHtmlStringFromElement(html);
+    document.querySelector('main').insertAdjacentHTML('beforeend',html);
 }
 
 function appendNthInMain(position,html){
-	let itemsInMain = document.querySelectorAll('main > *');
 	position = position=='' || position=='first' ? 0 : position;
-	position = position>=itemsInMain.length ? 'last' : position;
-	
-	if(position=='last'){appendToMain(html);}
-	else{itemsInMain[position].insertAdjacentHTML('beforeBegin',html);}
+    html = typeof(html)=='string' ? html : getHtmlStringFromElement(html);
+    
+    let itemsInMain = document.querySelectorAll('main > *');
+	if(itemsInMain.length==0 || position=='last' || position>=itemsInMain.length){appendToMain(html);return;}
+    
+	itemsInMain[position].insertAdjacentHTML('beforeBegin',html);
 }
 
-function appendPanelInMain(txt){
-    appendToMain(`<div class="panel">${txt}</div>`)
+function appendPanelInMain(html){
+    appendToMain(`<div class="panel">${html}</div>`)
 }
 
 function clearMain(){

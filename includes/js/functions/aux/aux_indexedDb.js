@@ -1,6 +1,16 @@
 function openIndexedDB(){
-    let indexedDBRequest = indexedDB.open(dbName);
+    let indexedDBRequest = indexedDB.open(win_projectName);
     return new Promise((resolve, reject) => {
+        indexedDBRequest.onupgradeneeded = dbEvent => {
+            console.log('updating DB');
+            let idb = dbEvent.target.result;
+            getPrimaryWinVars().forEach(winVar => {
+                let tableName = `${winVar}s`;
+                if(!Array.from(idb.objectStoreNames).includes(tableName)){
+                    idb.createObjectStore(tableName, {keyPath: win_info[winVar]['keys']['temp']});
+                }
+            });
+        }
         indexedDBRequest.onsuccess = dbEvent => {resolve(dbEvent.target.result);}
 		indexedDBRequest.onerror = () => {reject(Error("IndexedDb request error"));}
     });
@@ -48,7 +58,7 @@ async function changeDatarow(tableName,datarow){
 
 
 async function getAllDatarows(tableName){
-    let datarows = [];
+    let datarows = {};
     let idb = await openIndexedDB();
     
     return new Promise((resolve, reject) => {
@@ -56,8 +66,12 @@ async function getAllDatarows(tableName){
 
         iterateRequest.onsuccess = iterateEvent => {
             let cursor = iterateEvent.target.result;
-            if(cursor) {datarows.push(cursor.value);cursor.continue();}
-            else {resolve(datarows);}
+            if(cursor) {
+                datarows[cursor.key] = cursor.value;
+                cursor.continue();
+            } else {
+                resolve(datarows);
+            }
         }
         //~ iterateRequest.onerror = iterateEvent => {resolve(false)}
     });
@@ -77,9 +91,8 @@ async function removeDatarow(tableName,id) {
 
 
 
-
-/* *********** Employee Table Functions *********** */
-
+/* *********** Example Table Functions *********** */
+/*
 async function showEmployee(id=''){
     id = id=='' ? getDatarowFromMyForm().id : id;
     let tableDatarow = await getDatarow('employees',id);
@@ -141,5 +154,6 @@ async function changeEmployee(datarow=''){
     showInMain(message);
 }
 
+*/
 
 
