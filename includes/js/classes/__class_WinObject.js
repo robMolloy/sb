@@ -1,19 +1,14 @@
 class WinObject2{
     constructor(){
-        /* constructor not required - put all this.vars = '' for reference */
+        //~ this.winObjectType = '';
+        //~ this.formPanel = '';    
+        //~ this.displayPanel = ''; 
         
-        this.winObjectType = '';    // must be in constructor of extended class
-        this.formPanel = '';        // must be in constructor of extended class
-        this.displayPanel = '';     // must be in constructor of extended class
-        
-        this.primaryKey = '';
-        this.blankrow = '';
-        this.datarow = '';
-        this.id = '';
-        this.exists = '';
+        //~ this.init()
+        //~ this.refresh()
     }
     
-    init(uniqueIdentifier=''){
+    initWinObject(uniqueIdentifier=''){
         this.keys = win_info[this.winObjectType]['keys'];
         this.blankrow = win_info[this.winObjectType]['blankrow'];
         
@@ -22,12 +17,12 @@ class WinObject2{
         this.defaultValuesIfBlank = {[this.keys['primary']]:tempId, [this.keys['temp']]:tempId};
         
         this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {[this.keys['primary']]:uniqueIdentifier};
-        this.refresh(uniqueIdentifier);
+        this.refreshWinObject();
         
         return this;
     }
     
-    refresh(){
+    refreshWinObject(){
         this.populateDatarow();
         this.id = this.datarow[this.keys['primary']];
         this.exists = window[`win_${this.winObjectType}s`][this.id] !== undefined;
@@ -40,7 +35,9 @@ class WinObject2{
         datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
         
         let newDatarow = {};
-        let templateDatarow = this.exists ? window[`win_${this.winObjectType}Rows`][this.id] : this.blankrow;
+        
+        /* error here!!!!!!!!!!!! */
+        let templateDatarow = this.exists ? window[`win_${this.winObjectType}s`][this.id] : this.blankrow;
         
         Object.keys(templateDatarow).forEach(key=>{
             newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
@@ -57,8 +54,6 @@ class WinObject2{
     renderDisplayPanel(){
         this.displayPanel.render();
     }
-    
-    
     
     setFromDefaultValues(){
         Object.keys(this.defaultValues).forEach(key=>this.datarow[key] = this.defaultValues[key]);
@@ -87,19 +82,18 @@ class WinObject2{
     }
 
     beforeAdd(){
-        this.setFromDefaultValues();
     }
     
     afterAdd(){
-        refreshWinVars();
     }
     
     add(){
         this.beforeAdd();
+        this.setFromDefaultValues();
         mightyStorage.addObject(`${this.winObjectType}s`,this.datarow,this.keys['primary']);
+        refreshWinVars();
         this.afterAdd()
     }
-    
     
     addFormsInForm(){
         return '';
@@ -118,8 +112,7 @@ class WinObject2{
         }
     }
     
-    addFromAnyElementInForm(formChild){
-        formChild = initElement(formChild);
+    addUsingFormChild(formChild){
         let form = getParentElementWithClass(formChild,'form');
         this.addFromForm(form,this.winObjectType);
     }
@@ -138,9 +131,9 @@ class WinObject{
     static initObjects(){
         let objectType = this.getWinObjectType();
         let keys = win_info[objectType][`keys`];
-        let dbObjects = window[`win_db_${objectType}`];
-        let storedObjects = mightyStorage.get(`win_${objectType}`,{});
-        let deletedObjects = mightyStorage.get(`win_delete_${objectType}`,{});
+        let dbObjects = window[`idb_${objectType}`];
+        let storedObjects = mightyStorage.get(`${objectType}s`,{});
+        let deletedObjects = mightyStorage.get(`deleted_${objectType}`,{});
         window[`win_${objectType}`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
         Object.values(deletedObjects).forEach((obj1)=>{
             delete window[`win_${objectType}`][obj1[keys['primary']]];

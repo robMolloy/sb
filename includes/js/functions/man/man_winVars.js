@@ -1,6 +1,5 @@
-//~ fetches data from the server incliudes refreshWinVars
 async function initWinVars(winVar){
-    await initPrimaryWinVars();
+    initPrimaryWinVars();
     initSecondaryWinVars();
 }
 
@@ -11,6 +10,10 @@ function initPrimaryWinVars(){
 
 function initSecondaryWinVars(){
     refreshSecondaryWinVars();
+}
+
+function initwinVars(){
+    refreshWinVars();
 }
 
 //~ manipulates cache(localStorage) and winDbVar data to get refresh winVars

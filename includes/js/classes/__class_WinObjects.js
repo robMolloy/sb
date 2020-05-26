@@ -1,31 +1,30 @@
 
 class WinObjects{
     constructor(){
-        this.winObjectType = '';
-        this.datarows = '';
-        this.objects = '';
-    }
-    
-    init(){
-        this.initWinObjects();
-        this.keys = win_info[objectType][`keys`];
-        return this;
-    }
-    
-    refresh(){
+        //~ this.winObjectType = '';
+        //~ this.datarows = '';
+        //~ this.objects = '';
         
+        //~ this.init()
+        //~ this.refresh()
+        //~ this.getNewObject()
     }
     
     initWinObjects(){
-        //~ initiates and sets this.datarows
-        this.initDatarows();
+        this.refreshWinObjects()
+    }
+
+    refreshWinObjects(){
+        //~ refreshes and sets this.datarows
+        this.refreshDatarows();
         
-        //~ using this.datarows - initiates and sets this.objects
-        this.initObjects();
+        //~ using this.datarows - refreshes and sets this.objects
+        this.refreshObjects();
     }
     
-    initDatarows(){
-        let dbObjects = window[`win_db_${this.winObjectType}s`];
+    
+    refreshDatarows(){
+        let dbObjects = window[`idb_${this.winObjectType}s`];
         let storedObjects = mightyStorage.get(`${this.winObjectType}s`,{});
         let deletedObjects = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
         
@@ -39,7 +38,7 @@ class WinObjects{
         this.datarows = window[`win_${this.winObjectType}s`];
     }
     
-    initObjects(){
+    refreshObjects(){
         this.objects = {};
         Object.entries(this.datarows).forEach(entry =>{
             let key = entry[0];
@@ -50,7 +49,7 @@ class WinObjects{
     
     loadPage(){
         setTitle(ucFirst(this.winObjectType));
-        displayHeaderBar(this.winObjectType);
+        displayHeaderBar(`${this.winObjectType}s`);
         clearMain();
         let tempObject = this.getNewObject();
         tempObject.renderFormPanel();
@@ -81,73 +80,74 @@ class WinObjects{
 
 }
 
+    /*
+    static getDefaultPanelHtml(winObject){
+        let winObjectType = this.getWinObjectType();
+        let labelRow = win_info[winObjectType]['labels'];
+        return `
+            <div class="panel singleColumn">
+                ${Object.keys(winObject).map(key=>{
+                    return `
+                        <div>
+                            <div style="flex:1">${labelRow[key]}</div>
+                            <div style="flex:2">${winObject[key]}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    static getPanelHtml(winObject={}){
+        return this.getDefaultPanelHtml(winObject);
+    }
+    
+    static appendPanelInMain(winObject){
+        appendToMain(this.getPanelHtml(winObject));
+    }
 
-    //~ static getDefaultPanelHtml(winObject){
-        //~ let winObjectType = this.getWinObjectType();
-        //~ let labelRow = win_info[winObjectType]['labels'];
-        //~ return `
-            //~ <div class="panel singleColumn">
-                //~ ${Object.keys(winObject).map(key=>{
-                    //~ return `
-                        //~ <div>
-                            //~ <div style="flex:1">${labelRow[key]}</div>
-                            //~ <div style="flex:2">${winObject[key]}</div>
-                        //~ </div>
-                    //~ `;
-                //~ }).join('')}
-            //~ </div>
-        //~ `;
-    //~ }
-    
-    //~ static getPanelHtml(winObject={}){
-        //~ return this.getDefaultPanelHtml(winObject);
-    //~ }
-    
-    //~ static appendPanelInMain(winObject){
-        //~ appendToMain(this.getPanelHtml(winObject));
-    //~ }
+    static displayPanelsInMain(){
+        Object.values(this.getObjects()).reverse().forEach(winObject=>this.appendPanelInMain(winObject));
+    }
 
-    //~ static displayPanelsInMain(){
-        //~ Object.values(this.getObjects()).reverse().forEach(winObject=>this.appendPanelInMain(winObject));
-    //~ }
-
-    //~ static getFormPanelHtml(){
-        //~ return this.defaultNewFormPanelHtml();
-    //~ }
+    static getFormPanelHtml(){
+        return this.defaultNewFormPanelHtml();
+    }
     
-    //~ static displayFormPanelInMain(){
-        //~ appendNthInMain(0,this.getFormPanelHtml(winObject));
-    //~ }
+    static displayFormPanelInMain(){
+        appendNthInMain(0,this.getFormPanelHtml(winObject));
+    }
     
     
-    //~ static defaultNewFormPanelHtml(){
-        //~ let winObjectType = this.getWinObjectType();
-        //~ let blankRow = win_info[winObjectType]['blank'];
-        //~ let labelRow = win_info[winObjectType]['labels'];
-        //~ return `<div class="panel form">
-                    //~ ${Object.keys(blankRow).map(key=>{
-                        //~ return `
-                            //~ ${input(`
-                                //~ <input 
-                                    //~ type="text" name="${key}" placeholder="${labelRow[key]}" value="${blankRow[key]}" 
+    static defaultNewFormPanelHtml(){
+        let winObjectType = this.getWinObjectType();
+        let blankRow = win_info[winObjectType]['blank'];
+        let labelRow = win_info[winObjectType]['labels'];
+        return `<div class="panel form">
+                    ${Object.keys(blankRow).map(key=>{
+                        return `
+                            ${input(`
+                                <input 
+                                    type="text" name="${key}" placeholder="${labelRow[key]}" value="${blankRow[key]}" 
                                     
-                                //~ >
-                            //~ `)}
-                        //~ `;
-                    //~ }).join('')}
-                    //~ <div class="jr"><span class="button" onclick="${winObjectType.slice(0,-1)}.addObjectFromAnyElementInForm(this);">Save ${winObjectType.slice(0,-1)}</span></div>
-                //~ </div>`;
-    //~ }
+                                >
+                            `)}
+                        `;
+                    }).join('')}
+                    <div class="jr"><span class="button" onclick="${winObjectType.slice(0,-1)}.addObjectFromAnyElementInForm(this);">Save ${winObjectType.slice(0,-1)}</span></div>
+                </div>`;
+    }
     
-    //~ static appendDefaultNewFormPanel(){
-        //~ appendToMain(this.defaultNewFormPanelHtml());
-    //~ }
+    static appendDefaultNewFormPanel(){
+        appendToMain(this.defaultNewFormPanelHtml());
+    }
     
-    //~ static indexOnPrimaryKey(winObject){
-        //~ let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
-        //~ return convertObjectToObjectOfObjects(winObject,primaryKey);
-    //~ }
+    static indexOnPrimaryKey(winObject){
+        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        return convertObjectToObjectOfObjects(winObject,primaryKey);
+    }
     
+    */
     
     /*****   funcs for win_object ********/
     /*

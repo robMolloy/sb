@@ -1,11 +1,21 @@
 async function initPage(page=''){
+    //create idb connection - to be used in get/put actions
     idb = await openIndexedDB();
+    
+    //should only be run on first load - will overwrite edited datarows
     if(dev){await populateIdbWithSampleData();}
+    
+    //stores all datarows from idb in window[`idb_${tableName}`]
     await initDbVars();
     
+    //initialises list objects; allProjects = new Projects() etc.
     initObjects();
-    refreshWinVars();
+    
+    //initialises winVars
+    initWinVars();
     //~ initSecondaryWinVars()
+    
+    //~ load page
     initDom(page);
 }
 
@@ -20,28 +30,17 @@ function initObjects(){
 
 function initDom(page=''){
     page = page=='' ? getPage() : page;
-    if(page=='' && dev){window.location.href = 'index.php';return;}
+    page = page=='' ? page = 'index.php' : page;
     pageName = page.split('.')[0];
     refreshDom(pageName);
 }
 
-function refreshDom(pageName){
-    switch(pageName){
-        case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
-        case 'customers':customer.loadPage();break;
-        case 'contacts':contact.loadPage();break;
-        case 'projects':allProjects.loadPage();break;
-        case 'records':record.loadPage();break;
-        case 'prj_cus_links':prj_cus_link.loadPage();break;
-        case 'rec_items':rec_item.loadPage();break;
-    }
-}
 
 
 async function initDbVars(){
     for(winVar of getPrimaryWinVars()){
         let tableName = `${winVar}s`;
-        window[`win_db_${tableName}`] = await getAllDatarows(tableName);
+        window[`idb_${tableName}`] = await getAllDatarows(tableName);
     }
     return new Promise(resolve=>resolve(true));
 }

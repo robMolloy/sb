@@ -118,12 +118,12 @@
         4:{rci_id:4,rci_temp_id:'4',rci_usr_id:4,rci_rec_id:1,rci_work:'Power Washing',rci_unit:'tile',rci_qty:38,rci_cost_per_unit:2,rci_total:76}
     };
     
-    win_db_projects = {};
-    win_db_customers = {};
-    win_db_prj_cus_links = {};
-    win_db_contacts = {};
-    win_db_records = {};
-    win_db_rec_items = {};
+    idb_projects = {};
+    idb_customers = {};
+    idb_prj_cus_links = {};
+    idb_contacts = {};
+    idb_records = {};
+    idb_rec_items = {};
 /*
     win_db_projects = {
         1:{prj_id:1,prj_temp_id:'',prj_usr_id:4,prj_default_qty:2,prj_default_unit:'hr',prj_default_work:'General Maintenance',prj_rate_per_default_unit:20,prj_default_repeat_every_qty:2,prj_default_repeat_every_unit:'week',prj_acronym:'29CPA',prj_address_1:'29 Chiltern Park Avenue',prj_address_2:'',prj_city:'Berkhamsted',prj_postcode:'HP41EU',prj_primary_cus_id:5,prj_default_duration_unit:'hour',prj_default_duration_qty:'2',prj_default_cost_per_duration_unit:'20'},

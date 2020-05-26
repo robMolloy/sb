@@ -50,6 +50,7 @@
 <script type="text/javascript" src="includes/js/functions/page/page_direct.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_defaultElementFunctions.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_recItems.js"></script>
+<script type="text/javascript" src="includes/js/functions/page/page_refresh.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_init.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_login.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_winObject.js"></script>

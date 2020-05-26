@@ -3,7 +3,6 @@ function getPrimaryWinVars(){
 }
 
 function getSecondaryWinVars(){
-    //~ return ['win_customersGroupedByPrj_id','win_customersIndexedByCus_id','win_contactsIndexedByCon_id','win_contactsGroupedByCus_id','win_recordsGroupedByPrj_id','win_rec_itemsGroupedByRec_id'];
     return ['win_customersGroupedByPrj_id','win_contactsGroupedByCus_id','win_recordsGroupedByPrj_id','win_rec_itemsGroupedByRec_id','win_units','win_work'];
 }
 
@@ -38,9 +37,9 @@ function refreshPrimaryWinVar(winVar){
     switch(winVar){
         case 'project':        allProjects.init();break;
         case 'customer':       customer.initObjects();break;
-        case 'prj_cus_link':   win_prj_cus_links = mergeTwoIndexedObjects(win_db_prj_cus_links,mightyStorage.get('win_prj_cus_links',{}));break;
-        case 'contact':        win_contacts = mergeTwoIndexedObjects(win_db_contacts,mightyStorage.get('win_contacts',{}));break;
-        case 'rec_item':       win_rec_items = mergeTwoIndexedObjects(win_db_rec_items,mightyStorage.get('win_rec_items',{}));break;
+        case 'prj_cus_link':   win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));break;
+        case 'contact':        win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));break;
+        case 'rec_item':       win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));break;
         case 'record':         record.initObjects();break;
         
         default:console.error(`${winVar} cannot be refreshed, case does not exist in refreshWinVar()`);
