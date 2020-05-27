@@ -30,13 +30,210 @@ String.prototype.toggleSuffix = function(suffix){
 }
 
 
-/*
-class win_employeeObject{}
-class winObject2{}
+class Panel{
+    initPanel(datarow=''){
+        this.datarow = datarow=='' ? this.datarow : datarow;
+        this.datarow = this.datarow ? this.datarow : win_info[this.winObjectType]['blankrow'];
+        
+        this.labelrow = win_info[this.winObjectType]['labelrow'];
+        this.primaryKey = win_info[this.winObjectType]['keys']['primary'];
+
+        this.objectId = this.datarow[this.primaryKey];
+        this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${this.datarow[this.primaryKey]}`;
+        //~ this.create();
+        
+        return this;
+    }
+    
+    update(){
+        this.element.innerHTML = this.getHtml();
+    }
+    
+    toggleVisiblity(){
+        let hidden = this.element.classList.toggle('hidden');
+        this.visible = !hidden;
+        return this.visible;
+    }
+    
+    show(){
+        this.element.classList.remove('hidden');
+    }
+    
+    hide(){
+        this.element.classList.add('hidden');
+    }
+    
+    create(){
+        if(!this.element){
+            this.element = convertHtmlStringToElement(`<div id="${this.id}" class="panel ${this.defaultClasses.join(' ')}"></div>`);
+            this.update();
+        }
+    }
+    
+    render(position=''){
+        this.create();
+        position = position=='' ? this.defaultPosition : position;
+        appendNthInMain(position,this.element);
+        
+        this.show();
+        this.visible = true;
+    }
+    
+    getHtml(){}
+}
+
+class DisplayPanel extends Panel{
+    constructor(){
+        super();
+    }
+    
+    initDisplayPanel(datarow=''){
+        this.idPrefix = 'DisplayPanel';
+        this.defaultPosition = 'last';
+
+        this.initPanel(datarow);
+        return this;
+    }
+    
+}
 
 
-*/
-class winObject{
+class FormPanel extends Panel{
+    constructor(){
+        super();
+    }
+    
+    initFormPanel(datarow=''){
+        this.idPrefix = 'FormPanel';
+        this.defaultPosition = 0;
+
+        this.initPanel(datarow);
+        return this;
+    }
+}
+
+class WinObject2{
+    constructor(){
+        //~ this.winObjectType = '';
+        //~ this.formPanel = '';    
+        //~ this.displayPanel = ''; 
+        
+        //~ this.init()
+        //~ this.refresh()
+    }
+    
+    initWinObject(uniqueIdentifier=''){
+        this.keys = win_info[this.winObjectType]['keys'];
+        this.blankrow = win_info[this.winObjectType]['blankrow'];
+        
+        let tempId = tempIdString();
+        this.defaultValues = {[this.keys['user']]:win_user['usr_id']};
+        this.defaultValuesIfBlank = {[this.keys['primary']]:tempId, [this.keys['temp']]:tempId};
+        
+        this.datarow = typeof(uniqueIdentifier)=='object' ? uniqueIdentifier : {[this.keys['primary']]:uniqueIdentifier};
+        this.refreshWinObject();
+        
+        return this;
+    }
+    
+    refreshWinObject(){
+        this.populateDatarow();
+        this.id = this.datarow[this.keys['primary']];
+        this.exists = window[`win_${this.winObjectType}s`][this.id] !== undefined;
+        
+        return this;
+    }
+    
+    populateDatarow(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
+        
+        let newDatarow = {};
+        
+        /* error here!!!!!!!!!!!! */
+        let templateDatarow = this.exists ? window[`win_${this.winObjectType}s`][this.id] : this.blankrow;
+        
+        Object.keys(templateDatarow).forEach(key=>{
+            newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
+        });
+        
+        this.datarow = newDatarow;
+        return this.datarow;
+    }
+    
+    renderFormPanel(){
+        this.formPanel.render();
+    }
+
+    renderDisplayPanel(){
+        this.displayPanel.render();
+    }
+    
+    setFromDefaultValues(){
+        Object.keys(this.defaultValues).forEach(key=>this.datarow[key] = this.defaultValues[key]);
+        
+        Object.keys(this.defaultValuesIfBlank).forEach(key=>{
+            this.datarow[key] = this.datarow[key]=='' ? this.defaultValuesIfBlank[key] : this.datarow[key];
+        });
+    }
+    
+    getFromDatarow(datarow=''){
+        let newDatarow = {};
+        Object.keys(this.blankrow).forEach(key => newDatarow[key]=issetReturn(()=>datarow[key],''));
+        return newDatarow;
+    }
+    
+    setFromDatarow(datarow=''){
+        this.datarow = this.getFromDatarow(datarow);
+    }
+
+    getFromForm(form){
+        return this.getFromDatarow(getInputValuesAsObject(form));
+    }
+    
+    setFromForm(form){
+        this.datarow = this.getFromForm(form);
+    }
+
+    beforeAdd(){
+    }
+    
+    afterAdd(){
+    }
+    
+    add(){
+        this.beforeAdd();
+        this.setFromDefaultValues();
+        mightyStorage.addObject(`${this.winObjectType}s`,this.datarow,this.keys['primary']);
+        refreshWinVars();
+        this.afterAdd()
+    }
+    
+    addFormsInForm(){
+        return '';
+    }
+    
+    addFromForm(form){
+        form = initElement(form);
+        if(valid(form)){
+            this.setFromForm(form);
+            this.add();
+            this.addFormsInForm(form.querySelectorAll('.form'),this.datarow);
+            refreshWinVars();
+            window[`all${ucFirst(this.winObjectType)}s`].loadPage();
+        } else {
+            getAllInputs(form).forEach((input)=>input.oninput());
+        }
+    }
+    
+    addUsingFormChild(formChild){
+        let form = getParentElementWithClass(formChild,'form');
+        this.addFromForm(form,this.winObjectType);
+    }
+}
+
+
+class WinObject{
     static getWinObjectType(){
         return 'winObjects';
     }
@@ -48,9 +245,9 @@ class winObject{
     static initObjects(){
         let objectType = this.getWinObjectType();
         let keys = win_info[objectType][`keys`];
-        let dbObjects = window[`win_db_${objectType}`];
-        let storedObjects = mightyStorage.get(`win_${objectType}`,{});
-        let deletedObjects = mightyStorage.get(`win_delete_${objectType}`,{});
+        let dbObjects = window[`idb_${objectType}`];
+        let storedObjects = mightyStorage.get(`${objectType}s`,{});
+        let deletedObjects = mightyStorage.get(`deleted_${objectType}`,{});
         window[`win_${objectType}`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
         Object.values(deletedObjects).forEach((obj1)=>{
             delete window[`win_${objectType}`][obj1[keys['primary']]];
@@ -91,7 +288,7 @@ class winObject{
         return this.defaultNewFormPanelHtml();
     }
     
-    static displayFormPanelInMain(){
+    static displayFormPanelInMain(winObject){
         appendNthInMain(0,this.getFormPanelHtml(winObject));
     }
     
@@ -234,7 +431,300 @@ class winObject{
 }
 
 
-class contact extends winObject{
+
+class WinObjects{
+    constructor(){
+        //~ this.winObjectType = '';
+        //~ this.datarows = '';
+        //~ this.objects = '';
+        
+        //~ this.init()
+        //~ this.refresh()
+        //~ this.getNewObject()
+    }
+    
+    initWinObjects(){
+        this.refreshWinObjects()
+    }
+
+    refreshWinObjects(){
+        //~ refreshes and sets this.datarows
+        this.refreshDatarows();
+        
+        //~ using this.datarows - refreshes and sets this.objects
+        this.refreshObjects();
+    }
+    
+    
+    refreshDatarows(){
+        let dbObjects = window[`idb_${this.winObjectType}s`];
+        let storedObjects = mightyStorage.get(`${this.winObjectType}s`,{});
+        let deletedObjects = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
+        
+        window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
+        
+        Object.values(deletedObjects).forEach((obj1)=>{
+            delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
+            delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
+        });
+        
+        this.datarows = window[`win_${this.winObjectType}s`];
+    }
+    
+    refreshObjects(){
+        this.objects = {};
+        Object.entries(this.datarows).forEach(entry =>{
+            let key = entry[0];
+            let datarow = entry[1];
+            this.objects[key] = this.getNewObject(datarow);
+        });
+    }
+    
+    loadPage(){
+        setTitle(ucFirst(this.winObjectType));
+        displayHeaderBar(`${this.winObjectType}s`);
+        clearMain();
+        let tempObject = this.getNewObject();
+        tempObject.renderFormPanel();
+        Object.values(this.objects).forEach(object=>object.renderDisplayPanel());
+    }
+    
+    getDatarowFromMixedDatarow(mixedDatarow){
+        let newDatarow = {};
+        Object.keys(win_info[this.getWinObjectType()]['blank']).forEach(key=>{
+            newDatarow[key] = issetReturn(()=>mixedDatarow[key],'');
+        });
+        return winObject;
+    }
+    
+    getSelect(selected='',attributesString=''){
+        let allObjectRows = this.getObjects();
+        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        return `
+            <select ${attributesString}>
+                <option value="">None</option>
+                ${Object.values(allObjectRows).map(objRow=>{
+                    let optionAttributes = `value="${objRow[primaryKey]}"${objRow[this.keys['primary']]==selected ? ` selected="selected"` : ``}`;
+                    return `<option ${optionAttributes}>${this.getSummaryLine(objRow)}</option>`;
+                }).join('')}
+            </select>
+        `;
+    }
+
+}
+
+    /*
+    static getDefaultPanelHtml(winObject){
+        let winObjectType = this.getWinObjectType();
+        let labelRow = win_info[winObjectType]['labels'];
+        return `
+            <div class="panel singleColumn">
+                ${Object.keys(winObject).map(key=>{
+                    return `
+                        <div>
+                            <div style="flex:1">${labelRow[key]}</div>
+                            <div style="flex:2">${winObject[key]}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    static getPanelHtml(winObject={}){
+        return this.getDefaultPanelHtml(winObject);
+    }
+    
+    static appendPanelInMain(winObject){
+        appendToMain(this.getPanelHtml(winObject));
+    }
+
+    static displayPanelsInMain(){
+        Object.values(this.getObjects()).reverse().forEach(winObject=>this.appendPanelInMain(winObject));
+    }
+
+    static getFormPanelHtml(){
+        return this.defaultNewFormPanelHtml();
+    }
+    
+    static displayFormPanelInMain(){
+        appendNthInMain(0,this.getFormPanelHtml(winObject));
+    }
+    
+    
+    static defaultNewFormPanelHtml(){
+        let winObjectType = this.getWinObjectType();
+        let blankRow = win_info[winObjectType]['blank'];
+        let labelRow = win_info[winObjectType]['labels'];
+        return `<div class="panel form">
+                    ${Object.keys(blankRow).map(key=>{
+                        return `
+                            ${input(`
+                                <input 
+                                    type="text" name="${key}" placeholder="${labelRow[key]}" value="${blankRow[key]}" 
+                                    
+                                >
+                            `)}
+                        `;
+                    }).join('')}
+                    <div class="jr"><span class="button" onclick="${winObjectType.slice(0,-1)}.addObjectFromAnyElementInForm(this);">Save ${winObjectType.slice(0,-1)}</span></div>
+                </div>`;
+    }
+    
+    static appendDefaultNewFormPanel(){
+        appendToMain(this.defaultNewFormPanelHtml());
+    }
+    
+    static indexOnPrimaryKey(winObject){
+        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        return convertObjectToObjectOfObjects(winObject,primaryKey);
+    }
+    
+    */
+    
+    /*****   funcs for win_object ********/
+    /*
+    //~ returns only the key-value pairs and extends to include blank values not in mixedDatarow
+    static getDatarowFromForm(form){
+        form = initElement(form);
+        let inputValues = getInputValuesAsObject(form);
+        return this.getDatarowFromMixedDatarow(inputValues);
+    }
+    
+    static getDefaultValues(){
+        let defaultValues = {};
+        let keys = win_info[this.getWinObjectType()]['keys'];
+        defaultValues[`${keys['user']}`] = win_user['usr_id'];
+        return defaultValues;
+    }
+    
+    static getDefaultValuesIfBlank(){
+        let defaultValues = {};
+        let keys = win_info[this.getWinObjectType()]['keys'];
+        
+        let tempId = tempIdString();
+        defaultValues[`${keys['primary']}`] = tempId;
+        defaultValues[`${keys['temp_id']}`] = tempId;
+        return defaultValues;
+    }
+    
+    static setDefaultValues(winObject){
+        let defaultValues = this.getDefaultValues();
+        let defaultValuesIfBlank = this.getDefaultValuesIfBlank();
+        Object.keys(defaultValues).forEach(key=>winObject[key] = defaultValues[key]);
+        Object.keys(defaultValuesIfBlank).forEach(key=>{
+            winObject[key] = winObject[key]=='' ? defaultValuesIfBlank[key] : winObject[key];
+        });
+        return winObject;
+    }
+    
+    static addObject(winObject){
+        winObject = this.setDefaultValues(winObject);
+        
+        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
+    }
+    
+    static addFormsInForm(){
+        return '';
+    } only the key-value pairs and extends to include blank values not in mixedDatarow
+    
+
+    static getDatarowFromForm(form){
+        form = initElement(form);
+        let inputValues = getInputValuesAsObject(form);
+        return this.getDatarowFromMixedDatarow(inputValues);
+    }
+    
+    static getDefaultValues(){
+        let defaultValues = {};
+        let keys = win_info[this.getWinObjectType()]['keys'];
+        defaultValues[`${keys['user']}`] = win_user['usr_id'];
+        return defaultValues;
+    }
+    
+    static getDefaultValuesIfBlank(){
+        let defaultValues = {};
+        let keys = win_info[this.getWinObjectType()]['keys'];
+        
+        let tempId = tempIdString();
+        defaultValues[`${keys['primary']}`] = tempId;
+        defaultValues[`${keys['temp_id']}`] = tempId;
+        return defaultValues;
+    }
+    
+    static addObjectFromForm(form){
+        form = initElement(form);
+        if(valid(form)){
+            let object = this.getFromForm(form);
+            this.addObject(object);
+            this.addFormsInForm(form.querySelectorAll('.form'),object);
+            refreshWinVars();
+            this.loadPage();
+        } else {
+            getAllInputs(form).forEach((input)=>input.oninput());
+        }
+    }
+
+    static addObjectFromAnyElementInForm(formChild){
+        formChild = initElement(formChild);
+        let form = getParentElementWithClass(formChild,'form');
+        this.addObjectFromForm(form,this.getWinObjectType());
+    }
+    
+    static getSummaryLine(winObject){
+        return Object.values(winObject).join(', ');
+    }
+    
+    static appendFormAboveButtonRow(buttonRowChild,objectDatarow=''){
+        let buttonRow = buttonRowChild.classList.contains('buttonRow') 
+            ? formChild 
+            : getParentElementWithClass(buttonRowChild,'buttonRow');
+        
+        buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml(objectDatarow));
+    }
+    
+    static getLinkFormHtml(objectDatarow=''){
+        return `<div>${this.getFormPanelHtml(objectDatarow)}</div>`;
+    }
+    */
+
+class Projects extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'project';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new Project2(datarow);
+    }
+    
+    acronymExists(acronym){
+        let acronyms = Object.keys(indexAnObjectOfObjects(win_projects,'prj_acronym'));
+        return acronyms.some(acr=>acr.toLowerCase()==acronym.toLowerCase());
+    }
+    
+    ifInputValueIsSameAsProjectAcronymAddError(input){
+        if(this.acronymExists(input.value)){input.parentElement.classList.add('inputError');}
+    }
+    
+    aboveButtonRowFormHtml(){
+        return prj_cus_link.getLinkToProjectFormHtml();
+    }
+
+}
+
+
+class contact extends WinObject{
     static getWinObjectType(){
         return 'contacts';
     }
@@ -311,7 +801,7 @@ class contact extends winObject{
 
 
 
-class customer extends winObject{
+class customer extends WinObject{
     static getWinObjectType(){
         return 'customers';
     }
@@ -392,7 +882,7 @@ class customer extends winObject{
 
 
 
-class prj_cus_link extends winObject{
+class prj_cus_link extends WinObject{
     static getWinObjectType(){
         return 'prj_cus_links';
     }
@@ -426,8 +916,8 @@ class prj_cus_link extends winObject{
 
 
 
-
-class project extends winObject{
+class project extends WinObject{
+    
     static getWinObjectType(){
         return 'projects';
     }
@@ -633,7 +1123,7 @@ class project extends winObject{
     }
 }
 
-class rec_item extends winObject{
+class rec_item extends WinObject{
     static getWinObjectType(){
         return 'rec_items';
     }
@@ -786,7 +1276,7 @@ class rec_item extends winObject{
 }
 
 
-class record extends winObject{
+class record extends WinObject{
     static getWinObjectType(){
         return 'records';
     }
@@ -897,618 +1387,699 @@ class record extends winObject{
 
 
 
-//~ *********** Ajax Functions ************* //
-function ajax(params={}) {
-	let file = issetReturn(()=>params.file); //~ !essential parameter!
-	let f = issetReturn(() => params.f,new FormData);
-	let nav = issetReturn(()=>params.nav); //~ !pass in file or essential parameter!
-	
-	if(nav!=''){f.append('nav',nav);}
-	
-	return new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest();
-		request.open("POST", file);
-		request.onload = (()=>{
-			if (request.status == 200){
-				//~ ONLY TRUE IN DEV ////////////////////////////////////////////////////////////
-				if(true){showInResponseLogContent(request.response);}
-				resolve(request.response);
-			} 
-			else {reject(Error(request.statusText));}
-		});
-		request.onerror = (()=>{reject(Error("Network Error"));});
-		request.send(f);
-	});
+class Project2 extends WinObject2{
+    constructor(uniqueIdentifier=''){
+        super();
+        this.init(uniqueIdentifier);
+    }
+    
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'project';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new ProjectFormPanel(this.datarow);
+        this.displayPanel = new ProjectDisplayPanel(this.datarow);; 
+        this.refresh();
+    }
+    
+    refresh(){
+        this.refreshWinObject();
+    }
 }
 
-async function ajaxTarget(params={}){
-	let file = issetReturn(()=>params.file); //~ !essential parameter!
-	let f = issetReturn(()=>params.f,new FormData);
-	let getValuesFrom = issetReturn(()=>params.getValuesFrom); //~ getValuesFrom can pass idString or elm 
+
+class ProjectDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'project';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    getHtml(datarow=''){
+        //~ let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[project.prj_id],{});
+        //~ let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[project.prj_id],{});
+        
+        //~ let primaryCustomer = issetReturn(()=>win_customers[project.prj_primary_cus_id],{});
+        //~ let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
+        
+        datarow = datarow=='' ? this.datarow : datarow;
+        
+        let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[datarow.prj_id],{});
+        let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[datarow.prj_id],{});
+        
+        let primaryCustomer = issetReturn(()=>win_customers[datarow.prj_primary_cus_id],{});
+        let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
+        
+        return `
+            <div class="fw600">
+                <div>${this.getSummaryLine()}</div>
+                <div class="flex1 jr">${price(datarow.prj_rate_per_default_unit)}/${datarow.prj_default_unit}</div>
+            </div>
+            <span>
+                <span>
+                    ${datarow.prj_default_qty} ${datarow.prj_default_unit}s
+                    every
+                    ${datarow.prj_default_repeat_every_qty} ${datarow.prj_default_repeat_every_unit}s
+                </span>
+            </span>
+            ${Object.values(customersOnProject).map(customer=>`
+                <div class="grid12 ${primaryCustomer.cus_id==customer.cus_id ? `lightBg` : ``}">
+                    <span class="gs4 borderRight">${customer.cus_first_name} ${customer.cus_last_name}</span>
+                    <div class="gs8 singleColumn">
+                        ${Object.values(issetReturn(()=>win_contactsGroupedByCus_id[customer.cus_id],{})).map(contact=>`
+                            <a class="jc" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
+                                ${customer.cus_primary_con_id == contact.con_id ? `<span class="accentText">&#9673;</span>` : ``}
+                                ${contact.con_address} 
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+            <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
+                <div>Records (${Object.keys(recordsOnProject).length} on project) &#9660;</div>
+            </span>
+            <div class="singleColumn hidden flex1">
+                <span><button><span>Add Record</span></button></span>
+                ${Object.values(recordsOnProject).map(record=>`
+                    <div class="grid12">
+                        <div class="gs4 borderRight">${formatTimestampToDate(record.rec_timestamp_planned_start)}</div>
+                        <div class="gs8">${record.rec_description}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler"></i></span></button></div>
+        `;
+    }
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `${datarow.prj_acronym}: ${[datarow.prj_address_1,datarow.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
+    }
+}
+
+
+class ProjectFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.initProjectFormPanel(datarow);
+    }
+    
+    initProjectFormPanel(datarow=''){
+        this.winObjectType = 'project';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        let primaryKey = win_info[this.winObjectType]['keys']['primary']
+        let temporaryKey = win_info[this.winObjectType]['keys']['temp']
+        
+        return `
+            <div>Pick a unique reference for this project</div>
+            ${wrapInputElement(`<input 
+                type="text" value="${issetReturn(()=>this.datarow.prj_acronym,'')}" name="prj_acronym" 
+                checks="isNotBlank minChars_3" placeholder="${labelrow.prj_acronym}" 
+                oninput="allProjects.ifInputValueIsSameAsProjectAcronymAddError(this);"
+            >`)}
+            <div>What is the address of this project?</div>
+            ${wrapInputElement(`<input type="text" value="${issetReturn(()=>this.datarow.prj_address_1,'')}" 
+                name="prj_address_1" placeholder="${labelrow.prj_address_1}" checks="isNotBlank" 
+            >`)}
+            ${wrapInputElement(`<input type="text" value="${issetReturn(()=>this.datarow.prj_address_2,'')}" 
+                name="prj_address_2" placeholder="${labelrow.prj_address_2}" 
+            >`)}
+            <div class="flexGap flexl2r1">
+                ${wrapInputElement(`<input type="text" value="${issetReturn(()=>this.datarow.prj_city,'')}" 
+                    name="prj_city" placeholder="${labelrow.prj_city}" checks="isNotBlank" 
+                >`)}
+                ${wrapInputElement(`<input type="text" value="${issetReturn(()=>this.datarow.prj_postcode,'')}" 
+                    name="prj_postcode" placeholder="${labelrow.prj_postcode}" checks="isNotBlank" 
+                >`)}
+            </div>
+            <div>What work is usually done on this project?</div>
+            ${inputSelect(
+                `<input 
+                    type="text" value="${issetReturn(()=>this.datarow.prj_default_work,'')}"
+                    placeholder="${labelrow.prj_default_work}" name="prj_default_work" checks="isNotBlank" 
+                >`
+                ,win_work
+            )}
+            <div>What is the default unit of work?</div>
+            ${inputSelect(
+                `<input 
+                    type="text" value="${issetReturn(()=>this.datarow.prj_default_unit,'')}"
+                    placeholder="${labelrow.prj_default_unit}" name="prj_default_unit" checks="isNotBlank" 
+                >`
+                ,win_units
+            )}
+            <div>How many units of work will usually take place?</div>
+            <div class="flexGap">
+                ${wrapInputElement(`<input type="number" value="${issetReturn(()=>this.datarow.prj_default_qty,'')}" 
+                    name="prj_default_qty" placeholder="${labelrow.prj_default_qty}" checks="isFloat" 
+                >`)}
+                <div class="formLabel">Units</div>
+            </div>
+            <div>What is the rate charged per unit of work?</div>
+            <div class="flexGap">
+                <span class="formLabel">£</span>
+                ${wrapInputElement(`<input type="text" value="${issetReturn(()=>this.datarow.prj_rate_per_default_unit,'')}" 
+                    name="prj_rate_per_default_unit" placeholder="${labelrow.prj_rate_per_default_unit}" 
+                    checks="isFloat"
+                >`)}
+                <div class="formLabel">Per Unit</div>
+            </div>
+            <div>How often will the work take place?</div>
+            <div class="flexGap">
+                <div class="formLabel">Every</div>
+                ${wrapInputElement(`<input type="number" value="${issetReturn(()=>this.datarow.prj_default_repeat_every_qty,'1')}" 
+                    name="prj_default_repeat_every_qty" placeholder="${labelrow.prj_default_repeat_every_qty}" 
+                    checks="isInt_positive" class="width2Lh"
+                >`)}
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" value="${issetReturn(()=>this.datarow.prj_default_repeat_every_unit,'')}"
+                        placeholder="${labelrow.prj_default_repeat_every_unit}" name="prj_default_repeat_every_unit" checks="isNotBlank" 
+                    >
+                        ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                    </select>`
+                )}
+            </div>
+            <div class="singleColumn gridGap0">
+                <div>What is the usual duration of this work?</div>
+                <div class="fs70 jr">(May be the same as the default unit and quantity)</div>
+            </div>
+            <div class="flexGap">
+                ${wrapInputElement(`<input type="number" value="${issetReturn(()=>this.datarow.prj_default_duration_qty,'1')}" 
+                    name="prj_default_duration_qty" placeholder="${labelrow.prj_default_duration_qty}" 
+                    checks="isInt_positive" class="width2Lh"
+                >`)}
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" value="${issetReturn(()=>this.datarow.prj_default_duration_unit,'hour')}"
+                        placeholder="${labelrow.prj_default_duration_unit}" name="prj_default_duration_unit" 
+                        checks="isNotBlank" 
+                    >
+                        ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                    </select>`
+                )}
+            </div>
+            <div class="singleColumn gridGap0">
+                <div>What is the rate charged per unit of time worked?</div>
+                <div class="fs70 jr">(Leave as 0 if not paid per unit of time)</div>
+            </div>
+            <div class="flexGap">                                                     
+                <span class="formLabel">£</span>
+                ${wrapInputElement(`<input type="number" value="${issetReturn(()=>this.datarow.prj_default_cost_per_duration_unit,'0.00')}" 
+                    name="prj_default_cost_per_duration_unit" placeholder="${labelrow.prj_default_cost_per_duration_unit}" 
+                    checks="isInt_positive"
+                >`)}
+                <div class="formLabel">Per Unit</div>
+            </div>
+            <div class="buttonRow">
+                <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
+                <span class="flex1"></span>
+                <button onclick="new Project2().addUsingFormChild(this);">Save Project</button>
+            </div>
+        `;
+    }
+}
+
+function defaultInputWithWrapperFunction(input){
+    inputWrapperUpdate(input);
+}
+
+function defaultDateInputWithWrapperFunction(input){
+    dateInputWrapperUpdate(input);
+}
+
+function defaultSelectWithWrapperFunction(input){
+    inputWrapperUpdate(input);
+}
+
+function loadIndexPage(){
+	displayHeaderBarContents();
+	if(win_loggedIn){
+        //~ 
+    }else {
+        loadLoginHtml();
+    }
+}
+
+async function initPage(page=''){
+    //create idb connection - to be used in get/put actions
+    idb = await openIndexedDB();
+    
+    //should only be run on first load - will overwrite edited datarows
+    if(dev){await populateIdbWithSampleData();}
+    
+    //stores all datarows from idb in window[`idb_${tableName}`]
+    await initDbVars();
+    
+    //initialises list objects; allProjects = new Projects() etc.
+    initWinObjects();
+    
+    //initialises winVars
+    initWinVars();
+    //~ initSecondaryWinVars()
+    
+    //~ load page
+    initDom(page);
+}
+
+
+//~ openIndexedDB() is in aux_indexedDb.js
+
+
+async function populateIdbWithSampleData(){
+    for(winVar of primaryWinVars){
+        let tableName = `${winVar}s`;
+        for(datarow of Object.values(window[`win_${tableName}_sampleData`])){
+            await addDatarow(tableName,datarow);
+        }
+    }
+
+    return new Promise(resolve=>resolve(true));
+}
+
+
+async function initDbVars(){
+    for(winVar of primaryWinVars){
+        let tableName = `${winVar}s`;
+        window[`idb_${tableName}`] = await getAllDatarows(tableName);
+    }
+    return new Promise(resolve=>resolve(true));
+}
+
+
+//~ initWinObjects() is in page_winObjects.js
+//~ initWinVars() is in page_winVars.js
+
+
+function initDom(page=''){
+    page = page=='' ? getPage() : page;
+    page = page=='' ? page = 'index.php' : page;
+    pageName = page.split('.')[0];
+    refreshDom(pageName);
+}
+
+function getLoginHtml(params={}){
+	let container = issetReturn(()=> params.container, true);
+	let useGet = issetReturn(()=> params.useGet, false);
 	
-	f = getElementValues({'f':f,'getValuesFrom':getValuesFrom});
+	let json = issetReturn(()=>params.json,{});
+	json = useGet ? getJsonFromGetArray() : json;
+	json = initJson(json);
+	
+	return `${container 
+				? `<div class="panel singlePanel singleColumn" id="loginForm">`
+				: ``
+			}
+				<h1 class="alignCenter">Log In</h1>
+				${isset(()=>json.errors['0']) ? json.errors[0].map((error)=>`<p>${error}</p>`).join('') : ``}
+				${isset(()=>json.errors['usr_email']) ? json.errors.usr_email.map((error)=>`<p>${error}</p>`).join('') : ``}
+				<input type="text" name="usr_email" placeholder="Email" value="${isset(()=>json.datarow.usr_email) ? json.datarow.usr_email : ''}">
+				
+				${isset(()=>json.errors.usr_password)? json.errors.usr_password.map((error)=>`<p>${error}</p>`).join(''): ``}
+				<input type="password" name="usr_password" placeholder="Password" value="${isset(()=>json.datarow.usr_password) ? json.datarow.usr_password : ''}">
+				
+				<div class="alignCenter"><button name="submitLogin" onclick="submitLogin();">Log In!</button></div>
+			${container ? '</div>' : ''}`;
+}
+
+function loadLoginHtml(params={}){
+    clearMain();
+	appendToMain(getLoginHtml(params));
+}
+
+async function submitLogin(){
+	let currentFile = getCurrentFilename();
+	
+	let file = 'nav/login.nav.php?nav=submitLogin';
+	let f = getElementValues({'getValuesFrom':'loginForm'});
+	
 	let response = await ajax({'file':file,'f':f});
-	return response;
+	json = initJson(response);
+	
+	let datarow = json.datarow;
+	let success = (!json.valid || !json.exists ? false : true);
+	let printTo = initElement('loginForm');
+	
+	if(success){goto('index.php');}
+	else{printTo.innerHTML = getLoginHtml({'json':json,'container':false});}
+	
+}
+
+async function logout(){
+    if(dev){console.error('logout function not written yet');}
+    let response = initJson(await ajax({'file':'nav/login.nav.php?nav=logout'}));
+    if(response==true){window.location.href='index.php';}
+}
+
+async function userIsLoggedIn(){
+    return true;
+}
+
+function updateInputOnFormWithNameRci_total(formChild){
+    let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
+    
+    let totalElm = form.querySelector('input[name="rci_total"]')
+    let qtyElm = form.querySelector('input[name="rci_qty"]')
+    let costPerUnitElm = form.querySelector('input[name="rci_cost_per_unit"]')
+    
+    totalElm.value = price(parseFloat(qtyElm.value) * parseFloat(costPerUnitElm.value));
+}
+function changeValueOfInputWithNameRciWorkOnFormToThisValue(elmChild){
+    let form = getParentElementWithClass(elmChild,'form')
+    form.querySelector('input[name="rci_work"]').value = elmChild.value;
+}
+
+function changeValueOfInputWithNameOnFormToThisValue(name,elmChild){
+    let form = getParentElementWithClass(elmChild,'form')
+    form.querySelector(`input[name="${name}"]`).value = elmChild.value;
 }
 
 
+function refreshDom(pageName=''){
+    pageName = pageName=='' ? currentPageName : pageName;
+    currentPageName = pageName;
+    switch(pageName){
+        case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
+        case 'customers':customer.loadPage();break;
+        case 'contacts':contact.loadPage();break;
+        case 'projects':allProjects.loadPage();break;
+        case 'records':record.loadPage();break;
+        case 'prj_cus_links':prj_cus_link.loadPage();break;
+        case 'rec_items':rec_item.loadPage();break;
+    }
+}
 
-    //~ static get(key,ifnull=null){
-    //~ static getAll(){
-    //~ static set(key,item){
-    //~ static remove(key){
-    //~ static addItems(key,items){
-    //~ static addItem(key,item){
+function initWinObjects(){
+    //~ allCustomers   = new Customers();
+    //~ allContacts    = new Contacts();
+    //~ allPrjCusLinks = new PrjCusLinks();
+    allProjects    = new Projects();
+    //~ allRecords     = new Records();
+    //~ allRecItems    = new RecItems();
+}
 
-class mightyStorage {
-    static get(key,ifnull=null){
-        let lsItem = localStorage.getItem(key);
-        return lsItem===null ? ifnull : JSON.parse(lsItem);
-    }
-    
-    static getWithKey(key){
-        let rtn = {};
-        rtn[key] = this.get(key);
-        return rtn;
-        
-    }
-    
-    static getAll(){
-        let newCache = {};
-        Object.keys(localStorage).forEach(key=>newCache[key] = this.get(key));
-        return newCache;
-    }
-    
-    static removeAll(){
-        Object.keys(localStorage).forEach(key=>this.remove(key));
-    }
-    
-    static after(key=''){
-        return key=='' ? this.getAll() : this.getWithKey(key);
-    }
-    
-    static set(key,item){
-        localStorage.setItem(key,JSON.stringify(item));
-        return this.after(key);
-    }
-    
-    static remove(key){
-        localStorage.removeItem(key);
-        return this.after(key);
-    }
 
-    static addItems(key,items){
-        let cacheArray = this.get(key,[]);
-        return this.set(key,[...items,...cacheArray]);
-    }
+function refreshWinObjects(){
+    allProjects.refresh();
+}
+
+const primaryWinVars = ['project','customer','prj_cus_link','contact','record','rec_item'];
+const secondaryWinVars = ['win_customersGroupedByPrj_id','win_contactsGroupedByCus_id','win_recordsGroupedByPrj_id','win_rec_itemsGroupedByRec_id','win_units','win_work'];
+
+
+function initWinVars(){
+    refreshWinVars();
+}
+
+
+function refreshWinVars(){
+    refreshPrimaryWinVars();
+    refreshSecondaryWinVars();
+}
+
+
+function refreshPrimaryWinVars(){
+    allProjects.init();
+    customer.initObjects();
+    win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
+    win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
+    win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
+    record.initObjects();
+}
+
+
+function refreshSecondaryWinVars(){
+    win_customersGroupedByPrj_id = indexObjectsUsingLinkObjects('prj_cus_link','project','customer');
+    win_contactsGroupedByCus_id = groupAnObjectOfObjectsByIndex(win_contacts,'con_cus_id'); 
+    win_recordsGroupedByPrj_id = groupAnObjectOfObjectsByIndex(win_records,'rec_prj_id'); 
+    win_rec_itemsGroupedByRec_id = groupAnObjectOfObjectsByIndex(win_rec_items,'rci_rec_id'); 
+    win_units = [...win_time_units,...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_unit'))];
+    win_work = [...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_work'))];
+}
+
+function searchArrayOfObjects(arr,index,value){
+    let arr2 = [];
+    arr.forEach((item)=>{
+        if(item[index]==value){
+            arr2.push(item);
+        }
+    });
+    return arr2;
+}
+
+//~ function only used if index is unique, returns {1:{...},2:{...},3:{...}}
+function indexAnArrayOfObjects(arr,index){
+    let obj = {};
+    arr.forEach((item)=>obj[item[index]] = item);
+    return obj;
+}
+
+//~ group in arrays - used where index is not unique - returns {1:[4:{},5:{}...],2:[...],3:[...]}
+function groupAnArrayOfObjectsByIndex(arr,index){
+    let obj = {};
+    arr.forEach((item)=>obj[item[index]] = []);
+    arr.forEach((item)=>obj[item[index]].push(item));
+    return obj;
+}
+
+function convertHtmlStringToElements(htmlString){
+    let div = document.createElement('template');
+    div.insertAdjacentHTML('beforeend', htmlString);
+    return div.children;
+}
+
+function convertHtmlStringToElement(htmlString){
+    return convertHtmlStringToElements(htmlString)[0];
+}
+
+function convertElementToHtmlString(elm){
+    let div = document.createElement('div');
+    div.appendChild(elm);
+    return div.innerHTML;
+}
+
+//~ ************ Date Functions ***************/
+
+
+
+function convertDateStringAndTimeStringToDateObject(dateString,timeString){
+    timeString = timeString=='' ? '00' : timeString;
     
-    static addItem(key,item){
-        item = [item];
-        return this.addItems(key,item);
-    }
+    let timeArray = timeString.split(':');
+    while(timeArray.length<3){timeArray.push('00');}
+    timeString = timeArray.join(':')
     
-    static addObjectsToObjectOfObjects(key,objects){
-        //~ must be in format {5:{'cus_id':5,'cus_usr_id':4,...},18:{...},28:{...},...}
-        if(!isObjectOfObjects(objects)){console.error(`This is not an object of objects: ${JSON.stringify(objects)}`);return false;}
-        
-        let cacheObjects = getFromCache(key,{});
-        return this.set(key,mergeTwoIndexedObjects(cacheObjects,objects))
-    }
+    return new Date(`${dateString}T${timeString}Z`);
+}
+
+function convertDateStringAndTimeStringToTimestamp(dateString,timeString){
+    let dt = convertDateStringAndTimeStringToDateObject(dateString,timeString);
+    return dt.getTime();
+}
+
+function getDateFromDateObject(dt){
+    return `
+        ${dt.getFullYear()}-${dt.getMonth().toString().padStart(2,`0`)}-${dt.getDate().toString().padStart(2,`0`)}
+    `;
+}
+
+function getTimeFromDateObject(dt){
+    return `${dt.getHours()}:${dt.getMinutes()}:${dt.getSeconds()}`;
+}
+
+function getTimestampFromDateObject(dt){
+    return dt.getTime();
+}
+
+function getCurrentTime(){
+	return Math.floor(Date.now() / 1000);
+}
+
+function formatTimestampToDate(timestamp){
+	return new Date(parseInt(timestamp)).toLocaleDateString();
+}
+
+
+/*
+
+function toFormattedDateTime(timestamp){
+    timestamp = parseInt(timeStamp)
+	let today = new Date(timeStamp).setHours(0,0,0,0) == new Date().setHours(0,0,0,0);
+	let t = new Date(timeStamp);
+	
+	return today ? t.toLocaleTimeString() : t.toLocaleDateString();
     
-    static addObjectToObjectOfObjects(key,object,index){
-        //~ must be in format {'cus_id':5,'cus_usr_id':4,...}
+	//~ var t = new Date(0);
+	//~ var t1 = new Date(0);
+	//~ t.setSeconds(timestamp);
+	//~ t1.setSeconds(timestamp);
+	
+	//~ var todaysDate = new Date();
+	//~ var today = t1.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0);
+	
+	//~ return today ? t.toLocaleTimeString() : t.toLocaleDateString();
+}
+
+function toShortDateTime(timestamp){
+	var t = new Date(0);
+	t.setSeconds(timestamp);
+	return `${t.toLocaleDateString()}  ${t.toLocaleTimeString()}`;
+}
+
+function formatTimestampToDateTime(timestamp){
+	var t = new Date(0);
+	t.setSeconds(timestamp);
+	return `${t.toLocaleDateString()}  ${t.toLocaleTimeString()}`;
+}
+
+*/
+
+function removeClassOnElements(class1,elements){
+    elements = isElement(elements) ? [elements] : elements;
+    elements.forEach(element=>element.classList.remove(class1));
+}
+
+function addClassOnElements(class1,elements){
+    elements = isElement(elements) ? [elements] : elements;
+    elements.forEach(element=>element.classList.add(class1));
+}
+
+function toggleClassOnNextElement(elm,class1){
+    elm.nextElementSibling.classList.toggle(class1);
+}
+
+function toggleClassOnElementsInsideElement(class1,qsString,parentElement){
+    parentElement.querySelectorAll(qsString).forEach(elm=>elm.classList.toggle(class1));
+}
+
+function toggleClassOnElementsInsideElementAndFocusChildIfClassRemoved(class1,qsString,parentElement){
+    parentElement.querySelectorAll(qsString).forEach(elm=>{
+        if(elm.classList.contains(class1)){
+            elm.classList.remove(class1);
+            getAllInputs(elm).forEach(input=>{input.focus();input.disabled="";});
+        }
+        else{
+            elm.classList.add(class1);
+            getAllInputs(elm).forEach(input=>{input.disabled="disabled";});
+        }
+    });
+}
+
+
+//~ ************ Json Functions *************** //
+function initJson(json){
+	return (isJsonString(json) ? JSON.parse(json) : json);
+}
+
+function isJsonString(str) {
+	try {JSON.parse(str);return true;} catch(e) {return false;}
+}
+
+function prettifyJson(json={}){
+	json = isJsonString(json) ? JSON.parse(json) : json;
+	return '<pre>' + JSON.stringify(json,null,4) + '</pre>';
+}
+
+
+function mergeTwoIndexedObjects(obj1,obj2){
+    let newObject = obj1;
+    Object.keys(obj2).forEach(key=>newObject[key] = obj2[key]);
+    return newObject;
+}
+
+
+function convertObjectToObjectOfObjects(object,index){
+    let newObject = {};
+    newObject[object[index]] = object;
+    return newObject;
+}
+
+
+function indexAnObjectOfObjects(objectOfObjects,index){
+    let newObject = {};
+    Object.keys(objectOfObjects).forEach(key=>{
+        let object = objectOfObjects[key];
         let indexValue = object[index];
-        let newObject = {};
         newObject[indexValue] = object;
-        return this.addObjectsToObjectOfObjects(key,newObject);
-    }
-    
-    static addObject(key,object,index=''){
-        if(index==''){return this.addItem(key,object);}
-        else{return this.addObjectToObjectOfObjects(key,object,index);}
-    }
-    
-    static addObjects(key,objects){
-        if(isArrayOfObjects(objects)){return this.addItems(key,objects);}
-        else{return this.addObjectsToObjectOfObjects(key,objects);}
-    }
-}
-
-
-function getFromCache(key,ifnull=null){
-    let lsItem = localStorage.getItem(key);
-    lsItem = isJson(lsItem) ? JSON.parse(lsItem) : lsItem;
-    return lsItem===null ? ifnull : lsItem;
-}
-
-function setToCache(key,value){
-    localStorage.setItem(key,typeof(value)=='string' ? value : JSON.stringify(value));
-}
-
-function removeFromCache(key){
-    localStorage.removeItem(key);
-}
-
-function addObjectsToArrayInCache(key,objects){
-    objects = Array.isArray(objects) ? objects : [objects];
-    
-    let cacheArray = getFromCache(key,[]);
-    setToCache(key,[...objects,...cacheArray]);
-}
-
-function addObjectsToObjectsInCache(key,objects){
-    //~ must be in format {1:{},7:{},312:{}}
-    
-    objects = isWinObject(objects) ? convertObjectToObjectOfObjects(objects,key) : objects;
-    
-    let cacheObjects = getFromCache(key,{});
-    setToCache(key,mergeTwoIndexedObjects(cacheObjects,objects));
-}
-
-function addObjectToObjectsInCache(key,object){
-    //~ must be in format {'cus_id':5,'cus_usr_id':4...}
-    
-    let primaryKey = win_keys[key]['primary'];
-    let primaryKeyValue = object[primaryKey];
-    object = {primaryKeyValue:object};
-    addObjectsToObjectsInCache(key,object);
-}
-
-
-
-//~ ********** Generic functions - used on all pages ************* //
-function initFormData(f=''){
-	return f=='' ? new FormData: f;
-}
-
-function initElement(element=''){
-    if(isElement(element)){return element;}
-    if(isElementId(element)){return document.getElementById(element);}
-    console.error(`Is not an element`)
-}
-
-function online(){
-    if(dev){console.error('online() is not set up to check if online [ping google? better to ping server but could be slower]');}
-    return true;
-}
-
-function getHrefContactPrefix(method){
-    return {sms:'sms:',email:'mailto:',whatsapp:'whatsapp://send?phone='}[method];
-}
-
-function getHrefContactTextWord(method){
-    return {sms:'?body=',email:'?body=',whatsapp:'&text='}[method];
-}
-
-function getHrefContactText(text){
-    return encodeURI(text);
-}
-
-function getHrefContactString(method,address,text=''){
-    return getHrefContactPrefix(method) + address + getHrefContactTextWord(method) + getHrefContactText(text);
-}
-
-function getUrl(){
-    return window.location.href;
-}
-
-function getPage(){
-    
-    return getUrl().split('/').slice(-1)[0];
-}
-
-function getElementValues(params={}){
-	let f = issetReturn(() => params.f,new FormData);
-	let getValuesFrom = initElement(issetReturn(()=>params.getValuesFrom));
-	
-	if(getValuesFrom!=='' && getValuesFrom!==undefined && getValuesFrom!==null){
-		let all = getValuesFrom.querySelectorAll('input,select,textarea');
-		let valid;
-		for(let i=0; i<all.length; i++){
-			valid = true;
-			if(all[i].name==''){valid=false;}
-			if(all[i].type=='checkbox' && all[i].checked==false){valid=false;}
-			if(valid){f.append(all[i].name,all[i].value);}
-		}
-	}
-	return f;
-}
-
-function getInputValuesAsObject(form){
-	form = initElement(form);
-    let object = {};
-    let valid = true;
-	
-	if(form=='' || form==undefined || form==null){return object;}
-	
-    getAllInputs(form).forEach((input)=>{
-        valid = true;
-        if(input.name==''){valid=false;}
-        if(input.type=='checkbox' && input.checked==false){valid=false;}
-        if(valid){object[input.name] = getInputValue(input);}
     });
-	return object;
+    return newObject;
 }
 
-function getJsonFromGetArray(){
-	var getArray = getGetArray();
-	var json = issetReturn(()=>getArray.json,{});
-	return decodeURI(json);
-}
 
-function getCurrentFilename(){
-	return window.location.href.split('/').pop().split('?')[0];
-}
-
-function getGetArray(){
-	var getString = window.location.search.substring(1);
-	var getArray = {};
-	
-	if(getString.length>0){
-		var getPairs = getString.split('&');
-		for(key in getPairs){getArray[getPairs[key].split('=')[0]] = getPairs[key].split('=')[1];}
-	}
-	
-	return getArray;
-}
-
-function getInputValue(input){
-    input = initElement(input);
-    switch(input.tagName){
-        case 'INPUT':
-            if(input.type=='checkbox' && input.value==''){return input.checked;}
-            return input.value;
-        break;
-        
-        case 'SELECT':
-            return input.value;
-        break;
-        
-        case 'TEXTAREA':
-            return input.innerHTML;
-        break;
-    }
-}
-
-function changeInputValue(input,value){
-    input = initElement(input);
-    switch(input.tagName){
-        case 'INPUT':
-            input.value = value;
-        break;
-        
-        case 'SELECT':
-            input.value = value;
-        break;
-        
-        case 'TEXTAREA':
-            input.innerHTML = value;
-        break;
-    }
-}
-
-function openIndexedDB(){
-    let indexedDBRequest = indexedDB.open(dbName);
-    return new Promise((resolve, reject) => {
-        indexedDBRequest.onsuccess = dbEvent => {resolve(dbEvent.target.result);}
-		indexedDBRequest.onerror = () => {reject(Error("IndexedDb request error"));}
+function groupAnObjectOfObjectsByIndex(objectOfObjects,index){
+    let newObject = {};
+    Object.keys(objectOfObjects).forEach(key=>{
+        let object = objectOfObjects[key];
+        let indexValue = object[index];
+        if(!isset(()=>newObject[indexValue])){newObject[indexValue] = {}};
+        newObject[indexValue][key] = object;
     });
+    return newObject;
 }
 
 
-/* *********  Generic Table Functions  ************** */
-
-async function getDatarow(tableName,id){
-    let idb = await openIndexedDB();
+function indexObjectsUsingLinkObjects(linkWinObjectType,indexWinObjectType,objectWinObjectType){
+    let newObject = {};
+    let indexPrimaryKey = win_info[indexWinObjectType][`keys`][`primary`];
+    let objectPrimaryKey = win_info[objectWinObjectType][`keys`][`primary`];
     
-    return new Promise((resolve, reject) => {
-        let getRequest = idb.transaction([tableName]).objectStore(tableName).get(id);
-        
-        getRequest.onsuccess = getEvent => {
-            tableDatarow = getEvent.target.result;
-            resolve(tableDatarow);
-        }
+    Object.keys(window[`win_${indexWinObjectType}s`]).forEach(indexId => newObject[indexId] = {});
+    
+    Object.values(window[`win_${linkWinObjectType}s`]).forEach(link =>{
+        let indexId = link[`${linkWinObjectType}_${indexPrimaryKey}`];
+        let objectId = link[`${linkWinObjectType}_${objectPrimaryKey}`];
+        newObject[indexId][objectId] = window[`win_${objectWinObjectType}s`][objectId];
     });
-}
-
-
-async function addDatarow(tableName,datarow){
-    let idb = await openIndexedDB();
     
-    return new Promise((resolve, reject) => {
-        let addRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).add(datarow);
-        
-        addRequest.onsuccess = addEvent => {resolve(datarow);}
-        addRequest.onerror = addEvent => {resolve(false);}
-    });
+    return newObject;
 }
 
-
-async function changeDatarow(tableName,datarow){
-    let idb = await openIndexedDB();
-    
-    return new Promise((resolve, reject) => {
-        let putRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).put(datarow);
-        
-        putRequest.onsuccess = putEvent => {resolve(datarow);}
-        putRequest.onerror = putEvent => {resolve(false);}
-    });
+function ucFirst(str1){
+	return str1.charAt(0).toUpperCase() + str1.slice(1);
 }
 
-
-async function getAllDatarows(tableName){
-    let datarows = [];
-    let idb = await openIndexedDB();
-    
-    return new Promise((resolve, reject) => {
-        let iterateRequest = idb.transaction([tableName]).objectStore(tableName).openCursor()
-
-        iterateRequest.onsuccess = iterateEvent => {
-            let cursor = iterateEvent.target.result;
-            if(cursor) {datarows.push(cursor.value);cursor.continue();}
-            else {resolve(datarows);}
-        }
-        //~ iterateRequest.onerror = iterateEvent => {resolve(false)}
-    });
+function ucFirstOfEachWord(str){
+	return str.split(' ').map((val)=>ucFirst(val)).join(' ');
 }
 
+function formatStringForTitle(str){
+	return ucFirstOfEachWord(str.replace(/-/g, " "));
+}
 
-async function removeDatarow(tableName,id) {
-    let idb = await openIndexedDB();
-    
-    return new Promise((resolve, reject) => {
-        let deleteRequest = idb.transaction([tableName],'readwrite').objectStore(tableName).delete(id);
-        
-        deleteRequest.onsuccess = deleteEvent => {resolve(true);}
-        deleteRequest.onerror = deleteEvent => {resolve(true);}
-    });
+function formatString(str){
+	return `${str.replace(/-/g, " ")}`;
+}
+
+function escapeHtmlTags(str){
+	return str.replace(new RegExp('<', 'g'), '&lt');
+}
+
+function price(num,currency='£'){
+    num = num=='' ? 0 : num;
+    return `${currency}${parseFloat(num).toFixed(2)}`;
+}
+
+function randomString(length=5){
+    return Math.random().toString(36).substr(2,length);
+}
+
+function tempIdString(){
+    return `temp_${win_user['usr_id']}_${getCurrentTime()}_${randomString(5)}`;
 }
 
 
 
-
-/* *********** Employee Table Functions *********** */
-
-async function showEmployee(id=''){
-    id = id=='' ? getDatarowFromMyForm().id : id;
-    let tableDatarow = await getDatarow('employees',id);
-    
-    let message = tableDatarow!==undefined ? tableDatarow : `No employee exists with id: ${id}`;
-    showInMain(message);
-}
-
-
-async function showAllEmployees(){
-    let tableDatarows = await getAllDatarows('employees');
-    showInMain(tableDatarows.map(datarow=>`<div>${datarow.id}: ${JSON.stringify(datarow)}</div>`).join(''));
-}
-
-
-async function addEmployee(datarow=''){
-    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
-    
-    //~ let tableDatarow = await getDatarow('employees',datarow.id);
-    //~ if(tableDatarow!==undefined){
-        //~ showInMain(`An employee already exists with that id: ${JSON.stringify(tableDatarow)}`);
-        //~ return;
-    //~ }
-    
-    let addResponse = await addDatarow('employees',datarow);
-    //~ tableDatarow = await getDatarow('employees',datarow.id);
-    
-    //~ appendToMain(employeePanel(datarow));
-    //~ resetMyForm();
-}
-
-
-async function removeEmployee(id=''){
-    id = id=='' ? getDatarowFromMyForm().id : id;
-    
-    let tableDatarow = await getDatarow('employees',id);
-    if(tableDatarow===undefined){
-        showInMain(`An employee does not exist with that id: ${id}`);
-        return;
-    }
-    
-    let removeResponse = await removeDatarow('employees',id);
-    let message = `employee removed ${removeResponse ? `successfully` : `unsuccessfully`}`
-    showInMain(message);
-}
-
-
-async function changeEmployee(datarow=''){
-    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
-    
-    let tableDatarow = await getDatarow('employees',datarow.id);
-    if(tableDatarow===undefined){
-        showInMain(`An employee does not exist with that id: ${datarow.id}`);
-        return;
-    }
-    
-    let changeResponse = await changeDatarow('employees',datarow);
-    let message = `employee changed ${changeResponse ? `successfully` : `unsuccessfully`}`
-    showInMain(message);
-}
-
-
-
-
-function isset(array){
-	//~ TO USE: isset(() => arr1.json.datarow.wobble.blah) ? 'true' : 'false';
-	try{return typeof array() !== 'undefined'}
-	catch (e){return false;}
-}
-
-function issetReturn(array,value=''){
-	//~ TO USE: issetReturn(() => arr1.json.datarow.wobble.blah,value);
-	//~ CANNOT USE isset as a replacement for the next 3 lines of code - WHY??? WHO CARES!!!
-	var istrue;
-	try {istrue = typeof array() !== 'undefined';}
-	catch (e){istrue = false;}
-	
-	return istrue ? array() : value;
-}
-
-function roughSizeOfObjectInBytes(object) {
-    var objectList = [];
-    var stack = [ object ];
-    var bytes = 0;
-    while (stack.length) {
-        var value = stack.pop();
-        if (typeof(value) === 'boolean' ) {bytes += 4;}
-        else if(typeof value === 'string' ) {bytes += value.length * 2;}
-        else if(typeof value === 'number' ) {bytes += 8;}
-        else if(typeof value === 'object' && objectList.indexOf( value ) === -1){
-            objectList.push( value );
-            for( var i in value ) {
-                stack.push( value[ i ] );
-            }
-        }
-    }
-    return bytes;
-}
-
-function roughSizeOfObject(object,unit='b'){
-    let bytes = roughSizeOfObjectInBytes(object);
-    switch(unit.toLowerCase()){
-        case 'b':return `${bytes} bytes`;
-        case 'kb':return `${bytes/1000} kilobytes`;
-        case 'mb':return `${bytes/1000000} megabytes`;
-        case 'gb':return `${bytes/1000000000} gigabytes`;
-    }
-    if(bytes>1000000){return `${bytes/1000000} megabytes`;}
-    if(bytes>1000){return `${bytes/1000} kilobytes`;}
-    return `${bytes} bytes`;
-}
-
-function valid(elm){
-    elm = initJson(elm);
-    let valid = true;
-    getAllInputs(elm).forEach(input=>{
-        if(!input.disabled && !input.readOnly){
-            input.oninput();
-            //~ if(input.name=='prj_acronym'){console.log(input.parentElement);}
-            if(input.parentElement.classList.contains('inputError') && !input.parentElement.classList.contains('inputDisabled'))
-                {valid = false;}
-            if(!checkInput(input)){valid = false;}
-        }
-    });
-    return valid;
-}
-
-
-function checkValue(check,value){
-    let checkArray = check.split('_');
-    switch(checkArray[0]){
-        case '':
-        return true;
-        
-        case 'moreThan':
-        return parseFloat(value) > parseFloat(checkArray[1]);
-        
-        case 'lessThan':
-        return parseFloat(value) < parseFloat(checkArray[1]);
-        
-        case 'maxChars':
-        return value.length <= checkArray[1];
-        
-        case 'minChars':
-        return value.length >= checkArray[1];
-        
-        case 'doesNotEqual':
-        return value!=checkArray[1];
-        
-        case 'isTimestamp':
-        return value == parseInt(value);
-        
-        case 'isTimeString':
-        return new Date(`1970-01-01 ${value}`)!='Invalid Date';
-        
-        case 'isTimeString':
-        return new Date(`${value}`)!='Invalid Date'
-        
-        case 'isNotBlank':
-        return value!='';
-
-        case 'isNumber':
-        return value == parseFloat(value);
-
-        case 'isInt':
-            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<=0){return false;}
-            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>=0){return false;}
-        return value == parseInt(value);
-        
-
-        case 'isFloat':
-        return value == parseFloat(value);
-        
-        case 'isPrice':
-        return value == parseFloat(value);
-    }
-    console.error(`The function checkValue() does not have a test for ${check}`);
-}
-
-function checkInput(input){
-    if(input.disabled){return true;}
-    let checks = input.getAttribute('checks');
-    checks = checks==null || checks.trim()=='' ? [] : input.getAttribute('checks').split(' ');
-    return checks.every((check)=>checkValue(check,getInputValue(input)));
-}
-
-function checkInputWrapper(input){
-    let inputWrapper = input.classList.contains('inputWrapper') ? input : getParentElementWithClass(input,'inputWrapper');
-}
-
-
-function getInvalidInputs(elm){
-    elm = initElement(elm);
-    let invalidInputs = [];
-
-    getAllInputs(elm).forEach(input=>{
-        if(!checkInput(input)){invalidInputs.push(input);}
-    });
-    return invalidInputs;
-}
-
-
-function isJson(str){
-    try {JSON.parse(str);}
-    catch(e) {return false;}
-    return true;
-}
-
-function isObject(object){
-    if(!object instanceof Array){return false;}
-    if(typeof(object)=='object'){return true;}
-}
-
-function isObjectOfObjects(objectOfObjects){
-    if(!isObject(objectOfObjects)){return false;}
-    return Object.values(objectOfObjects).every(object=>isObject(object));
-}
-
-function isArray(array){
-    return array instanceof Array;
-}
-
-function isArrayOfObjects(arrayOfObjects){
-    if(!isArray(arrayOfObjects)){return false;}
-    return arrayOfObjects.every(object=>isObject(object));
-}
-
-function isElement(element){
-    if(element==null){return false;}
-    return element.nodeName!=undefined;
-}
-
-function isElementId(elementId){
-    return document.getElementById(elementId)==null;
-}
-
-function isEditableElement(element){
-    if(!isElement(element)){return false;}
-    return element.tagName=='INPUT' || element.tagName=='TEXTAREA' ||element.tagName=='SELECT';
-}
 
 function showInfoBar(text='',seconds=30){
 	let id = `infoBar${new Date().getMilliseconds()}`;
@@ -1828,20 +2399,23 @@ function defaultToggleInputSelectBehaviour(element){
 
 
 function appendToMain(html){
-	document.querySelector('main').insertAdjacentHTML('beforeend',html);
+	//~ appendNthInMain('last',html);
+    html = typeof(html)=='string' ? html : getHtmlStringFromElement(html);
+    document.querySelector('main').insertAdjacentHTML('beforeend',html);
 }
 
 function appendNthInMain(position,html){
-	let itemsInMain = document.querySelectorAll('main > *');
 	position = position=='' || position=='first' ? 0 : position;
-	position = position>=itemsInMain.length ? 'last' : position;
-	
-	if(position=='last'){appendToMain(html);}
-	else{itemsInMain[position].insertAdjacentHTML('beforeBegin',html);}
+    html = typeof(html)=='string' ? html : getHtmlStringFromElement(html);
+    
+    let itemsInMain = document.querySelectorAll('main > *');
+	if(itemsInMain.length==0 || position=='last' || position>=itemsInMain.length){appendToMain(html);return;}
+    
+	itemsInMain[position].insertAdjacentHTML('beforeBegin',html);
 }
 
-function appendPanelInMain(txt){
-    appendToMain(`<div class="panel">${txt}</div>`)
+function appendPanelInMain(html){
+    appendToMain(`<div class="panel">${html}</div>`)
 }
 
 function clearMain(){
@@ -1853,6 +2427,8 @@ function createElementFromHtmlString(htmlString){
 }
 
 function createElementsFromHtmlString(htmlString){
+    if(devVerbose){console.error('createElementFromHtmlString() & createElementsFromHtmlString() deprecated - use convertHtmlStringToElement()');}
+    
     let div = document.createElement('template');
     div.insertAdjacentHTML('beforeend', htmlString);
     return div.children;
@@ -1860,6 +2436,8 @@ function createElementsFromHtmlString(htmlString){
 }
 
 function getHtmlStringFromElement(elm){
+    if(devVerbose){console.error('getHtmlStringFromElement() deprecated - use convertElementToHtmlString()');}
+    
     let div = document.createElement('div');
     div.appendChild(elm);
     return div.innerHTML;
@@ -1970,456 +2548,629 @@ function changeValueOfSelect(select,value=''){
     return select;
 }
 
-function searchArrayOfObjects(arr,index,value){
-    let arr2 = [];
-    arr.forEach((item)=>{
-        if(item[index]==value){
-            arr2.push(item);
+function isset(array){
+	//~ TO USE: isset(() => arr1.json.datarow.wobble.blah) ? 'true' : 'false';
+	try{return typeof array() !== 'undefined'}
+	catch (e){return false;}
+}
+
+function issetReturn(array,value=''){
+	//~ TO USE: issetReturn(() => arr1.json.datarow.wobble.blah,value);
+	//~ CANNOT USE isset as a replacement for the next 3 lines of code - WHY??? WHO CARES!!!
+	var istrue;
+	try {istrue = typeof array() !== 'undefined';}
+	catch (e){istrue = false;}
+	
+	return istrue ? array() : value;
+}
+
+function roughSizeOfObjectInBytes(object) {
+    var objectList = [];
+    var stack = [ object ];
+    var bytes = 0;
+    while (stack.length) {
+        var value = stack.pop();
+        if (typeof(value) === 'boolean' ) {bytes += 4;}
+        else if(typeof value === 'string' ) {bytes += value.length * 2;}
+        else if(typeof value === 'number' ) {bytes += 8;}
+        else if(typeof value === 'object' && objectList.indexOf( value ) === -1){
+            objectList.push( value );
+            for( var i in value ) {
+                stack.push( value[ i ] );
+            }
+        }
+    }
+    return bytes;
+}
+
+function roughSizeOfObject(object,unit='b'){
+    let bytes = roughSizeOfObjectInBytes(object);
+    switch(unit.toLowerCase()){
+        case 'b':return `${bytes} bytes`;
+        case 'kb':return `${bytes/1000} kilobytes`;
+        case 'mb':return `${bytes/1000000} megabytes`;
+        case 'gb':return `${bytes/1000000000} gigabytes`;
+    }
+    if(bytes>1000000){return `${bytes/1000000} megabytes`;}
+    if(bytes>1000){return `${bytes/1000} kilobytes`;}
+    return `${bytes} bytes`;
+}
+
+function valid(elm){
+    elm = initJson(elm);
+    let valid = true;
+    getAllInputs(elm).forEach(input=>{
+        if(!input.disabled && !input.readOnly){
+            input.oninput();
+            //~ if(input.name=='prj_acronym'){console.log(input.parentElement);}
+            if(input.parentElement.classList.contains('inputError') && !input.parentElement.classList.contains('inputDisabled'))
+                {valid = false;}
+            if(!checkInput(input)){valid = false;}
         }
     });
-    return arr2;
+    return valid;
 }
 
-//~ function only used if index is unique, returns {1:{...},2:{...},3:{...}}
-function indexAnArrayOfObjects(arr,index){
-    let obj = {};
-    arr.forEach((item)=>obj[item[index]] = item);
-    return obj;
+
+function checkValue(check,value){
+    let checkArray = check.split('_');
+    switch(checkArray[0]){
+        case '':
+        return true;
+        
+        case 'moreThan':
+        return parseFloat(value) > parseFloat(checkArray[1]);
+        
+        case 'lessThan':
+        return parseFloat(value) < parseFloat(checkArray[1]);
+        
+        case 'maxChars':
+        return value.length <= checkArray[1];
+        
+        case 'minChars':
+        return value.length >= checkArray[1];
+        
+        case 'doesNotEqual':
+        return value!=checkArray[1];
+        
+        case 'isTimestamp':
+        return value == parseInt(value);
+        
+        case 'isTimeString':
+        return new Date(`1970-01-01 ${value}`)!='Invalid Date';
+        
+        case 'isTimeString':
+        return new Date(`${value}`)!='Invalid Date'
+        
+        case 'isNotBlank':
+        return value!='';
+
+        case 'isNumber':
+        return value == parseFloat(value);
+
+        case 'isInt':
+            if(issetReturn(()=>checkArray[1],'')=='positive' && parseInt(value)<=0){return false;}
+            if(issetReturn(()=>checkArray[1],'')=='negative' && parseInt(value)>=0){return false;}
+        return value == parseInt(value);
+        
+
+        case 'isFloat':
+        return value == parseFloat(value);
+        
+        case 'isPrice':
+        return value == parseFloat(value);
+    }
+    console.error(`The function checkValue() does not have a test for ${check}`);
 }
 
-//~ group in arrays - used where index is not unique - returns {1:[4:{},5:{}...],2:[...],3:[...]}
-function groupAnArrayOfObjectsByIndex(arr,index){
-    let obj = {};
-    arr.forEach((item)=>obj[item[index]] = []);
-    arr.forEach((item)=>obj[item[index]].push(item));
-    return obj;
+function checkInput(input){
+    if(input.disabled){return true;}
+    let checks = input.getAttribute('checks');
+    checks = checks==null || checks.trim()=='' ? [] : input.getAttribute('checks').split(' ');
+    return checks.every((check)=>checkValue(check,getInputValue(input)));
 }
 
-//~ ************ Date Functions ***************/
+function checkInputWrapper(input){
+    let inputWrapper = input.classList.contains('inputWrapper') ? input : getParentElementWithClass(input,'inputWrapper');
+}
+
+
+function getInvalidInputs(elm){
+    elm = initElement(elm);
+    let invalidInputs = [];
+
+    getAllInputs(elm).forEach(input=>{
+        if(!checkInput(input)){invalidInputs.push(input);}
+    });
+    return invalidInputs;
+}
+
+
+function isJson(str){
+    try {JSON.parse(str);}
+    catch(e) {return false;}
+    return true;
+}
+
+function isObject(object){
+    if(!object instanceof Array){return false;}
+    if(typeof(object)=='object'){return true;}
+}
+
+function isObjectOfObjects(objectOfObjects){
+    if(!isObject(objectOfObjects)){return false;}
+    return Object.values(objectOfObjects).every(object=>isObject(object));
+}
+
+function isArray(array){
+    return array instanceof Array;
+}
+
+function isArrayOfObjects(arrayOfObjects){
+    if(!isArray(arrayOfObjects)){return false;}
+    return arrayOfObjects.every(object=>isObject(object));
+}
+
+function isElement(element){
+    if(element==null){return false;}
+    return element.nodeName!=undefined;
+}
+
+function isElementId(elementId){
+    return document.getElementById(elementId)==null;
+}
+
+function isEditableElement(element){
+    if(!isElement(element)){return false;}
+    return element.tagName=='INPUT' || element.tagName=='TEXTAREA' ||element.tagName=='SELECT';
+}
+
+//~ *********** Ajax Functions ************* //
+function ajax(params={}) {
+	let file = issetReturn(()=>params.file); //~ !essential parameter!
+	let f = issetReturn(() => params.f,new FormData);
+	let nav = issetReturn(()=>params.nav); //~ !pass in file or essential parameter!
+	
+	if(nav!=''){f.append('nav',nav);}
+	
+	return new Promise((resolve, reject) => {
+		const request = new XMLHttpRequest();
+		request.open("POST", file);
+		request.onload = (()=>{
+			if (request.status == 200){
+				//~ ONLY TRUE IN DEV ////////////////////////////////////////////////////////////
+				if(true){showInResponseLogContent(request.response);}
+				resolve(request.response);
+			} 
+			else {reject(Error(request.statusText));}
+		});
+		request.onerror = (()=>{reject(Error("Network Error"));});
+		request.send(f);
+	});
+}
+
+async function ajaxTarget(params={}){
+	let file = issetReturn(()=>params.file); //~ !essential parameter!
+	let f = issetReturn(()=>params.f,new FormData);
+	let getValuesFrom = issetReturn(()=>params.getValuesFrom); //~ getValuesFrom can pass idString or elm 
+	
+	f = getElementValues({'f':f,'getValuesFrom':getValuesFrom});
+	let response = await ajax({'file':file,'f':f});
+	return response;
+}
 
 
 
-function convertDateStringAndTimeStringToDateObject(dateString,timeString){
-    timeString = timeString=='' ? '00' : timeString;
+    //~ static get(key,ifnull=null){
+    //~ static getAll(){
+    //~ static set(key,item){
+    //~ static remove(key){
+    //~ static addItems(key,items){
+    //~ static addItem(key,item){
+
+class mightyStorage {
+    static get(key,ifnull=null){
+        let lsItem = localStorage.getItem(key);
+        return lsItem===null ? ifnull : JSON.parse(lsItem);
+    }
     
-    let timeArray = timeString.split(':');
-    while(timeArray.length<3){timeArray.push('00');}
-    timeString = timeArray.join(':')
+    static getWithKey(key){
+        let rtn = {};
+        rtn[key] = this.get(key);
+        return rtn;
+        
+    }
     
-    return new Date(`${dateString}T${timeString}Z`);
+    static getAll(){
+        let newCache = {};
+        Object.keys(localStorage).forEach(key=>newCache[key] = this.get(key));
+        return newCache;
+    }
+    
+    static removeAll(){
+        Object.keys(localStorage).forEach(key=>this.remove(key));
+    }
+    
+    static after(key=''){
+        return key=='' ? this.getAll() : this.getWithKey(key);
+    }
+    
+    static set(key,item){
+        localStorage.setItem(key,JSON.stringify(item));
+        return this.after(key);
+    }
+    
+    static remove(key){
+        localStorage.removeItem(key);
+        return this.after(key);
+    }
+
+    static addItems(key,items){
+        let cacheArray = this.get(key,[]);
+        return this.set(key,[...items,...cacheArray]);
+    }
+    
+    static addItem(key,item){
+        item = [item];
+        return this.addItems(key,item);
+    }
+    
+    static addObjectsToObjectOfObjects(key,objects){
+        //~ must be in format {5:{'cus_id':5,'cus_usr_id':4,...},18:{...},28:{...},...}
+        if(!isObjectOfObjects(objects)){console.error(`This is not an object of objects: ${JSON.stringify(objects)}`);return false;}
+        
+        let cacheObjects = getFromCache(key,{});
+        return this.set(key,mergeTwoIndexedObjects(cacheObjects,objects))
+    }
+    
+    static addObjectToObjectOfObjects(key,object,index){
+        //~ must be in format {'cus_id':5,'cus_usr_id':4,...}
+        let indexValue = object[index];
+        let newObject = {};
+        newObject[indexValue] = object;
+        return this.addObjectsToObjectOfObjects(key,newObject);
+    }
+    
+    static addObject(key,object,index=''){
+        if(index==''){return this.addItem(key,object);}
+        else{return this.addObjectToObjectOfObjects(key,object,index);}
+    }
+    
+    static addObjects(key,objects){
+        if(isArrayOfObjects(objects)){return this.addItems(key,objects);}
+        else{return this.addObjectsToObjectOfObjects(key,objects);}
+    }
 }
 
-function convertDateStringAndTimeStringToTimestamp(dateString,timeString){
-    let dt = convertDateStringAndTimeStringToDateObject(dateString,timeString);
-    return dt.getTime();
+
+function getFromCache(key,ifnull=null){
+    let lsItem = localStorage.getItem(key);
+    lsItem = isJson(lsItem) ? JSON.parse(lsItem) : lsItem;
+    return lsItem===null ? ifnull : lsItem;
 }
 
-function getDateFromDateObject(dt){
-    return `
-        ${dt.getFullYear()}-${dt.getMonth().toString().padStart(2,`0`)}-${dt.getDate().toString().padStart(2,`0`)}
-    `;
+function setToCache(key,value){
+    localStorage.setItem(key,typeof(value)=='string' ? value : JSON.stringify(value));
 }
 
-function getTimeFromDateObject(dt){
-    return `${dt.getHours()}:${dt.getMinutes()}:${dt.getSeconds()}`;
+function removeFromCache(key){
+    localStorage.removeItem(key);
 }
 
-function getTimestampFromDateObject(dt){
-    return dt.getTime();
+function addObjectsToArrayInCache(key,objects){
+    objects = Array.isArray(objects) ? objects : [objects];
+    
+    let cacheArray = getFromCache(key,[]);
+    setToCache(key,[...objects,...cacheArray]);
 }
 
-function getCurrentTime(){
-	return Math.floor(Date.now() / 1000);
+function addObjectsToObjectsInCache(key,objects){
+    //~ must be in format {1:{},7:{},312:{}}
+    
+    objects = isWinObject(objects) ? convertObjectToObjectOfObjects(objects,key) : objects;
+    
+    let cacheObjects = getFromCache(key,{});
+    setToCache(key,mergeTwoIndexedObjects(cacheObjects,objects));
 }
 
-function formatTimestampToDate(timestamp){
-	return new Date(parseInt(timestamp)).toLocaleDateString();
+function addObjectToObjectsInCache(key,object){
+    //~ must be in format {'cus_id':5,'cus_usr_id':4...}
+    
+    let primaryKey = win_keys[key]['primary'];
+    let primaryKeyValue = object[primaryKey];
+    object = {primaryKeyValue:object};
+    addObjectsToObjectsInCache(key,object);
 }
 
 
+
+//~ ********** Generic functions - used on all pages ************* //
+function initFormData(f=''){
+	return f=='' ? new FormData: f;
+}
+
+function initElement(element=''){
+    if(isElement(element)){return element;}
+    if(isElementId(element)){return document.getElementById(element);}
+    console.error(`Is not an element`)
+}
+
+function online(){
+    if(dev){console.error('online() is not set up to check if online [ping google? better to ping server but could be slower]');}
+    return true;
+}
+
+function getHrefContactPrefix(method){
+    return {sms:'sms:',email:'mailto:',whatsapp:'whatsapp://send?phone='}[method];
+}
+
+function getHrefContactTextWord(method){
+    return {sms:'?body=',email:'?body=',whatsapp:'&text='}[method];
+}
+
+function getHrefContactText(text){
+    return encodeURI(text);
+}
+
+function getHrefContactString(method,address,text=''){
+    return getHrefContactPrefix(method) + address + getHrefContactTextWord(method) + getHrefContactText(text);
+}
+
+function getUrl(){
+    return window.location.href;
+}
+
+function getPage(){
+    
+    return getUrl().split('/').slice(-1)[0];
+}
+
+function getElementValues(params={}){
+	let f = issetReturn(() => params.f,new FormData);
+	let getValuesFrom = initElement(issetReturn(()=>params.getValuesFrom));
+	
+	if(getValuesFrom!=='' && getValuesFrom!==undefined && getValuesFrom!==null){
+		let all = getValuesFrom.querySelectorAll('input,select,textarea');
+		let valid;
+		for(let i=0; i<all.length; i++){
+			valid = true;
+			if(all[i].name==''){valid=false;}
+			if(all[i].type=='checkbox' && all[i].checked==false){valid=false;}
+			if(valid){f.append(all[i].name,all[i].value);}
+		}
+	}
+	return f;
+}
+
+function getInputValuesAsObject(form){
+	form = initElement(form);
+    let object = {};
+    let valid = true;
+	
+	if(form=='' || form==undefined || form==null){return object;}
+	
+    getAllInputs(form).forEach((input)=>{
+        valid = true;
+        if(input.name==''){valid=false;}
+        if(input.type=='checkbox' && input.checked==false){valid=false;}
+        if(valid){object[input.name] = getInputValue(input);}
+    });
+	return object;
+}
+
+function getJsonFromGetArray(){
+	var getArray = getGetArray();
+	var json = issetReturn(()=>getArray.json,{});
+	return decodeURI(json);
+}
+
+function getCurrentFilename(){
+	return window.location.href.split('/').pop().split('?')[0];
+}
+
+function getGetArray(){
+	var getString = window.location.search.substring(1);
+	var getArray = {};
+	
+	if(getString.length>0){
+		var getPairs = getString.split('&');
+		for(key in getPairs){getArray[getPairs[key].split('=')[0]] = getPairs[key].split('=')[1];}
+	}
+	
+	return getArray;
+}
+
+function getInputValue(input){
+    input = initElement(input);
+    switch(input.tagName){
+        case 'INPUT':
+            if(input.type=='checkbox' && input.value==''){return input.checked;}
+            return input.value;
+        break;
+        
+        case 'SELECT':
+            return input.value;
+        break;
+        
+        case 'TEXTAREA':
+            return input.innerHTML;
+        break;
+    }
+}
+
+function changeInputValue(input,value){
+    input = initElement(input);
+    switch(input.tagName){
+        case 'INPUT':
+            input.value = value;
+        break;
+        
+        case 'SELECT':
+            input.value = value;
+        break;
+        
+        case 'TEXTAREA':
+            input.innerHTML = value;
+        break;
+    }
+}
+
+function openIndexedDB(){
+    let indexedDBRequest = indexedDB.open(win_projectName);
+    return new Promise((resolve, reject) => {
+        indexedDBRequest.onupgradeneeded = dbEvent => {
+            console.log('updating DB');
+            let idb = dbEvent.target.result;
+            primaryWinVars.forEach(winVar => {
+                let tableName = `${winVar}s`;
+                if(!Array.from(idb.objectStoreNames).includes(tableName)){
+                    idb.createObjectStore(tableName, {keyPath: win_info[winVar]['keys']['temp']});
+                }
+            });
+        }
+        indexedDBRequest.onsuccess = dbEvent => {resolve(dbEvent.target.result);}
+		indexedDBRequest.onerror = () => {reject(Error("IndexedDb request error"));}
+    });
+}
+
+
+/* *********  Generic Table Functions  ************** */
+
+async function getDatarow(tableName,id){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let getRequest = idb.transaction([tableName]).objectStore(tableName).get(id);
+        
+        getRequest.onsuccess = getEvent => {
+            tableDatarow = getEvent.target.result;
+            resolve(tableDatarow);
+        }
+    });
+}
+
+
+async function addDatarow(tableName,datarow){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let addRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).add(datarow);
+        
+        addRequest.onsuccess = addEvent => {resolve(datarow);}
+        addRequest.onerror = addEvent => {resolve(false);}
+    });
+}
+
+
+async function changeDatarow(tableName,datarow){
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let putRequest = idb.transaction([tableName], "readwrite").objectStore(tableName).put(datarow);
+        
+        putRequest.onsuccess = putEvent => {resolve(datarow);}
+        putRequest.onerror = putEvent => {resolve(false);}
+    });
+}
+
+
+async function getAllDatarows(tableName){
+    let datarows = {};
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let iterateRequest = idb.transaction([tableName]).objectStore(tableName).openCursor()
+
+        iterateRequest.onsuccess = iterateEvent => {
+            let cursor = iterateEvent.target.result;
+            if(cursor) {
+                datarows[cursor.key] = cursor.value;
+                cursor.continue();
+            } else {
+                resolve(datarows);
+            }
+        }
+        //~ iterateRequest.onerror = iterateEvent => {resolve(false)}
+    });
+}
+
+
+async function removeDatarow(tableName,id) {
+    let idb = await openIndexedDB();
+    
+    return new Promise((resolve, reject) => {
+        let deleteRequest = idb.transaction([tableName],'readwrite').objectStore(tableName).delete(id);
+        
+        deleteRequest.onsuccess = deleteEvent => {resolve(true);}
+        deleteRequest.onerror = deleteEvent => {resolve(true);}
+    });
+}
+
+
+
+/* *********** Example Table Functions *********** */
 /*
-
-function toFormattedDateTime(timestamp){
-    timestamp = parseInt(timeStamp)
-	let today = new Date(timeStamp).setHours(0,0,0,0) == new Date().setHours(0,0,0,0);
-	let t = new Date(timeStamp);
-	
-	return today ? t.toLocaleTimeString() : t.toLocaleDateString();
+async function showEmployee(id=''){
+    id = id=='' ? getDatarowFromMyForm().id : id;
+    let tableDatarow = await getDatarow('employees',id);
     
-	//~ var t = new Date(0);
-	//~ var t1 = new Date(0);
-	//~ t.setSeconds(timestamp);
-	//~ t1.setSeconds(timestamp);
-	
-	//~ var todaysDate = new Date();
-	//~ var today = t1.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0);
-	
-	//~ return today ? t.toLocaleTimeString() : t.toLocaleDateString();
+    let message = tableDatarow!==undefined ? tableDatarow : `No employee exists with id: ${id}`;
+    showInMain(message);
 }
 
-function toShortDateTime(timestamp){
-	var t = new Date(0);
-	t.setSeconds(timestamp);
-	return `${t.toLocaleDateString()}  ${t.toLocaleTimeString()}`;
+
+async function showAllEmployees(){
+    let tableDatarows = await getAllDatarows('employees');
+    showInMain(tableDatarows.map(datarow=>`<div>${datarow.id}: ${JSON.stringify(datarow)}</div>`).join(''));
 }
 
-function formatTimestampToDateTime(timestamp){
-	var t = new Date(0);
-	t.setSeconds(timestamp);
-	return `${t.toLocaleDateString()}  ${t.toLocaleTimeString()}`;
+
+async function addEmployee(datarow=''){
+    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
+    
+    //~ let tableDatarow = await getDatarow('employees',datarow.id);
+    //~ if(tableDatarow!==undefined){
+        //~ showInMain(`An employee already exists with that id: ${JSON.stringify(tableDatarow)}`);
+        //~ return;
+    //~ }
+    
+    let addResponse = await addDatarow('employees',datarow);
+    //~ tableDatarow = await getDatarow('employees',datarow.id);
+    
+    //~ appendToMain(employeePanel(datarow));
+    //~ resetMyForm();
+}
+
+
+async function removeEmployee(id=''){
+    id = id=='' ? getDatarowFromMyForm().id : id;
+    
+    let tableDatarow = await getDatarow('employees',id);
+    if(tableDatarow===undefined){
+        showInMain(`An employee does not exist with that id: ${id}`);
+        return;
+    }
+    
+    let removeResponse = await removeDatarow('employees',id);
+    let message = `employee removed ${removeResponse ? `successfully` : `unsuccessfully`}`
+    showInMain(message);
+}
+
+
+async function changeEmployee(datarow=''){
+    datarow = datarow=='' ? getDatarowFromMyForm() : datarow;
+    
+    let tableDatarow = await getDatarow('employees',datarow.id);
+    if(tableDatarow===undefined){
+        showInMain(`An employee does not exist with that id: ${datarow.id}`);
+        return;
+    }
+    
+    let changeResponse = await changeDatarow('employees',datarow);
+    let message = `employee changed ${changeResponse ? `successfully` : `unsuccessfully`}`
+    showInMain(message);
 }
 
 */
 
-function removeClassOnElements(class1,elements){
-    elements = isElement(elements) ? [elements] : elements;
-    elements.forEach(element=>element.classList.remove(class1));
-}
 
-function addClassOnElements(class1,elements){
-    elements = isElement(elements) ? [elements] : elements;
-    elements.forEach(element=>element.classList.add(class1));
-}
-
-function toggleClassOnNextElement(elm,class1){
-    elm.nextElementSibling.classList.toggle(class1);
-}
-
-function toggleClassOnElementsInsideElement(class1,qsString,parentElement){
-    parentElement.querySelectorAll(qsString).forEach(elm=>elm.classList.toggle(class1));
-}
-
-function toggleClassOnElementsInsideElementAndFocusChildIfClassRemoved(class1,qsString,parentElement){
-    parentElement.querySelectorAll(qsString).forEach(elm=>{
-        if(elm.classList.contains(class1)){
-            elm.classList.remove(class1);
-            getAllInputs(elm).forEach(input=>{input.focus();input.disabled="";});
-        }
-        else{
-            elm.classList.add(class1);
-            getAllInputs(elm).forEach(input=>{input.disabled="disabled";});
-        }
-    });
-}
-
-
-//~ ************ Json Functions *************** //
-function initJson(json){
-	return (isJsonString(json) ? JSON.parse(json) : json);
-}
-
-function isJsonString(str) {
-	try {JSON.parse(str);return true;} catch(e) {return false;}
-}
-
-function prettifyJson(json={}){
-	json = isJsonString(json) ? JSON.parse(json) : json;
-	return '<pre>' + JSON.stringify(json,null,4) + '</pre>';
-}
-
-
-function mergeTwoIndexedObjects(obj1,obj2){
-    let newObject = obj1;
-    Object.keys(obj2).forEach(key=>newObject[key] = obj2[key]);
-    return newObject;
-}
-
-function convertObjectToObjectOfObjects(object,index){
-    let newObject = {};
-    newObject[object[index]] = object;
-    return newObject;
-}
-
-function indexAnObjectOfObjects(objectOfObjects,index){
-    let newObject = {};
-    Object.keys(objectOfObjects).forEach(key=>{
-        let object = objectOfObjects[key];
-        let indexValue = object[index];
-        newObject[indexValue] = object;
-    });
-    return newObject;
-}
-
-function groupAnObjectOfObjectsByIndex(objectOfObjects,index){
-    let newObject = {};
-    Object.keys(objectOfObjects).forEach(key=>{
-        let object = objectOfObjects[key];
-        let indexValue = object[index];
-        if(!isset(()=>newObject[indexValue])){newObject[indexValue] = {}};
-        newObject[indexValue][key] = object;
-    });
-    return newObject;
-}
-
-function ucFirst(str1){
-	return str1.charAt(0).toUpperCase() + str1.slice(1);
-}
-
-function ucFirstOfEachWord(str){
-	return str.split(' ').map((val)=>ucFirst(val)).join(' ');
-}
-
-function formatStringForTitle(str){
-	return ucFirstOfEachWord(str.replace(/-/g, " "));
-}
-
-function formatString(str){
-	return `${str.replace(/-/g, " ")}`;
-}
-
-function escapeHtmlTags(str){
-	return str.replace(new RegExp('<', 'g'), '&lt');
-}
-
-function price(num,currency='£'){
-    num = num=='' ? 0 : num;
-    return `${currency}${parseFloat(num).toFixed(2)}`;
-}
-
-function randomString(length=5){
-    return Math.random().toString(36).substr(2,length);
-}
-
-function tempIdString(){
-    return `temp_${win_user['usr_id']}_${getCurrentTime()}_${randomString(5)}`;
-}
-
-
-//~ fetches data from the server incliudes refreshWinVars
-async function initWinVars(winVar){
-    await initPrimaryWinVars();
-    initSecondaryWinVars();
-}
-
-function initPrimaryWinVars(){
-    getPrimaryWinVars().forEach(async (winVar)=>await initPrimaryWinVar(winVar));
-    refreshPrimaryWinVars();
-}
-
-function initSecondaryWinVars(){
-    refreshSecondaryWinVars();
-}
-
-//~ manipulates cache(localStorage) and winDbVar data to get refresh winVars
-function refreshWinVars(){
-    refreshPrimaryWinVars();
-    refreshSecondaryWinVars();
-}
-
-function refreshPrimaryWinVars(){
-    getPrimaryWinVars().forEach(winVar=>refreshPrimaryWinVar(winVar));
-}
-
-function refreshSecondaryWinVars(){
-    getSecondaryWinVars().forEach(winVar=>initSecondaryWinVar(winVar));
-}
-
-function defaultInputWithWrapperFunction(input){
-    inputWrapperUpdate(input);
-}
-
-function defaultDateInputWithWrapperFunction(input){
-    dateInputWrapperUpdate(input);
-}
-
-function defaultSelectWithWrapperFunction(input){
-    inputWrapperUpdate(input);
-}
-
-function loadIndexPage(){
-	displayHeaderBarContents();
-	if(win_loggedIn){
-        //~ 
-    }else {
-        loadLoginHtml();
-    }
-}
-
-function initPage(page=''){
-    page = page=='' ? getPage() : page;
-    if(page=='' && dev){window.location.href = 'index.php';return;}
-    
-    refreshWinVars();
-    pageName = page.split('.')[0];
-    switch(pageName){
-        case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
-        case 'customers':customer.loadPage();break;
-        case 'contacts':contact.loadPage();break;
-        case 'projects':project.loadPage();break;
-        case 'records':record.loadPage();break;
-        case 'prj_cus_links':prj_cus_link.loadPage();break;
-        case 'rec_items':rec_item.loadPage();break;
-    }
-}
-
-
-
-function getLoginHtml(params={}){
-	let container = issetReturn(()=> params.container, true);
-	let useGet = issetReturn(()=> params.useGet, false);
-	
-	let json = issetReturn(()=>params.json,{});
-	json = useGet ? getJsonFromGetArray() : json;
-	json = initJson(json);
-	
-	return `${container 
-				? `<div class="panel singlePanel singleColumn" id="loginForm">`
-				: ``
-			}
-				<h1 class="alignCenter">Log In</h1>
-				${isset(()=>json.errors['0']) ? json.errors[0].map((error)=>`<p>${error}</p>`).join('') : ``}
-				${isset(()=>json.errors['usr_email']) ? json.errors.usr_email.map((error)=>`<p>${error}</p>`).join('') : ``}
-				<input type="text" name="usr_email" placeholder="Email" value="${isset(()=>json.datarow.usr_email) ? json.datarow.usr_email : ''}">
-				
-				${isset(()=>json.errors.usr_password)? json.errors.usr_password.map((error)=>`<p>${error}</p>`).join(''): ``}
-				<input type="password" name="usr_password" placeholder="Password" value="${isset(()=>json.datarow.usr_password) ? json.datarow.usr_password : ''}">
-				
-				<div class="alignCenter"><button name="submitLogin" onclick="submitLogin();">Log In!</button></div>
-			${container ? '</div>' : ''}`;
-}
-
-function loadLoginHtml(params={}){
-    clearMain();
-	appendToMain(getLoginHtml(params));
-}
-
-async function submitLogin(){
-	let currentFile = getCurrentFilename();
-	
-	let file = 'nav/login.nav.php?nav=submitLogin';
-	let f = getElementValues({'getValuesFrom':'loginForm'});
-	
-	let response = await ajax({'file':file,'f':f});
-	json = initJson(response);
-	
-	let datarow = json.datarow;
-	let success = (!json.valid || !json.exists ? false : true);
-	let printTo = initElement('loginForm');
-	
-	if(success){goto('index.php');}
-	else{printTo.innerHTML = getLoginHtml({'json':json,'container':false});}
-	
-}
-
-async function logout(){
-    if(dev){console.error('logout function not written yet');}
-    let response = initJson(await ajax({'file':'nav/login.nav.php?nav=logout'}));
-    if(response==true){window.location.href='index.php';}
-}
-
-async function userIsLoggedIn(){
-    return true;
-}
-
-function updateInputOnFormWithNameRci_total(formChild){
-    let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
-    
-    let totalElm = form.querySelector('input[name="rci_total"]')
-    let qtyElm = form.querySelector('input[name="rci_qty"]')
-    let costPerUnitElm = form.querySelector('input[name="rci_cost_per_unit"]')
-    
-    totalElm.value = price(parseFloat(qtyElm.value) * parseFloat(costPerUnitElm.value));
-}
-function changeValueOfInputWithNameRciWorkOnFormToThisValue(elmChild){
-    let form = getParentElementWithClass(elmChild,'form')
-    form.querySelector('input[name="rci_work"]').value = elmChild.value;
-}
-
-function changeValueOfInputWithNameOnFormToThisValue(name,elmChild){
-    let form = getParentElementWithClass(elmChild,'form')
-    form.querySelector(`input[name="${name}"]`).value = elmChild.value;
-}
-
-
-function addUnknownWinObjectForm(){
-    
-}
-
-
-function getPrimaryWinVars(){
-    return ['win_projects','win_customers','win_prj_cus_links','win_contacts','win_records','win_rec_items'];
-}
-
-function getSecondaryWinVars(){
-    //~ return ['win_customersGroupedByPrj_id','win_customersIndexedByCus_id','win_contactsIndexedByCon_id','win_contactsGroupedByCus_id','win_recordsGroupedByPrj_id','win_rec_itemsGroupedByRec_id'];
-    return ['win_customersGroupedByPrj_id','win_contactsGroupedByCus_id','win_recordsGroupedByPrj_id','win_rec_itemsGroupedByRec_id','win_units','win_work'];
-}
-
-async function initPrimaryWinVar(winVar){
-    if(devVerbose && online()){
-        switch(winVar){
-            case 'win_loggedIn': win_loggedIn = await userIsLoggedIn(); break;
-            case 'win_pages': break;
-            case 'win_projects': win_projects = await fetchProjects(); break;
-            case 'win_customers': win_customers = await fetchCustomers(); break;
-            case 'win_prj_cus_links': win_prj_cus_links = await fetchPrjCusLinks(); break;
-            case 'win_contacts': win_contacts = await fetchContacts(); break;
-            default:console.error(`${winVar} cannot be initiated, case does not exist in initWinVar()`);
-        }
-    }
-}
-
-async function initSecondaryWinVar(winVar){
-    switch(winVar){
-        case 'win_customersGroupedByPrj_id': win_customersGroupedByPrj_id = getCustomersGroupedByPrj_id(); break;
-        case 'win_contactsGroupedByCus_id': win_contactsGroupedByCus_id = groupAnObjectOfObjectsByIndex(win_contacts,'con_cus_id'); break;
-        case 'win_recordsGroupedByPrj_id': win_recordsGroupedByPrj_id = groupAnObjectOfObjectsByIndex(win_records,'rec_prj_id'); break;
-        case 'win_rec_itemsGroupedByRec_id': win_rec_itemsGroupedByRec_id = groupAnObjectOfObjectsByIndex(win_rec_items,'rci_rec_id'); break;
-        case 'win_units': win_units = [...win_time_units,...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_unit'))];break;
-        case 'win_work': win_work = [...Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work')),...Object.keys(indexAnObjectOfObjects(win_projects,'prj_default_work'))];break;
-        
-        default:console.error(`${winVar} cannot be initiated, case does not exist in initWinVar()`);
-    }
-}
-
-function refreshPrimaryWinVar(winVar){
-    switch(winVar){
-        case 'win_projects':        project.initObjects();break;
-        case 'win_customers':       customer.initObjects();break;
-        case 'win_prj_cus_links':   win_prj_cus_links = mergeTwoIndexedObjects(win_db_prj_cus_links,mightyStorage.get('win_prj_cus_links',{}));break;
-        case 'win_contacts':        win_contacts = mergeTwoIndexedObjects(win_db_contacts,mightyStorage.get('win_contacts',{}));break;
-        case 'win_rec_items':       win_rec_items = mergeTwoIndexedObjects(win_db_rec_items,mightyStorage.get('win_rec_items',{}));break;
-        case 'win_records':         record.initObjects();break;
-        
-        default:console.error(`${winVar} cannot be refreshed, case does not exist in refreshWinVar()`);
-    }
-}
-
-function getCustomersGroupedByPrj_id(){
-    let customer = {};let cus_id = 0;
-    let project = {};let prj_id = 0;
-    let prj_idIndexedCustomers= {};
-    let cusLinksOnProject = {};
-    
-    let cusLinksOnProjects = groupAnObjectOfObjectsByIndex(win_prj_cus_links,'prj_cus_link_prj_id');
-    
-    Object.keys(win_projects).forEach((prjKey)=>{
-        project = win_projects[prjKey];
-        prj_id = project.prj_id;
-        prj_idIndexedCustomers[prj_id] = {};
-        
-        cusLinksOnProject = issetReturn(()=>cusLinksOnProjects[prj_id],{});
-        Object.keys(cusLinksOnProject).forEach((cusLinkKey)=>{
-            cus_id = cusLinksOnProject[cusLinkKey].prj_cus_link_cus_id;
-            customer = win_customers[cus_id];
-            prj_idIndexedCustomers[prj_id][cus_id] = customer;
-        });
-    });
-    return prj_idIndexedCustomers;
-}
-
-//~ async function fetchWinObjects(winObjectType){
-    //~ if(devVerbose){console.error('fetchWinObjects() is currently not set up to fetch data from server-side');}
-    //~ return getWinDbObjects(winObjectType);
-    //~ return win_db_projects;
-//~ }
-async function fetchWinObjects(winObjectType){
-    if(devVerbose){console.error('fetchWinObjects() is currently not set up to fetch data from server-side');}
-    return window[`win_db_${winObjectType}`];
-}
-
-
-async function updateWinDbObjects(winObjectType){
-    winDbObjects = await fetchWinObjects(winObjectType);
-    window[`win_db_${winObjectType}`] = fetchWinObjects(winObjectType);
-}

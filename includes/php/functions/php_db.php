@@ -12,6 +12,7 @@ function openDb(){
 	}
 }
 
+
 function dbCreds($case='local'){
     //~ Is this a safe approach?
     //~ It depends on your definition of safe.
@@ -43,7 +44,6 @@ function getEmptyTableRow($tableName,$tablePrimaryKey){
 }
 
 
-
 function getTableRowUsingId($tableName,$tablePrimaryKey,$id){
 	$db = openDb();
 	$stmt = $db->prepare("SELECT * FROM ".$tableName." WHERE ".$tablePrimaryKey."=? LIMIT 1;");
@@ -59,7 +59,6 @@ function getTableRowUsingId($tableName,$tablePrimaryKey,$id){
 		return False;
 	}
 }
-
 
 
 function bindParameters($stmt,$originalArray=[]){
@@ -98,6 +97,7 @@ function bindParameters($stmt,$originalArray=[]){
 	return $stmt;
 }
 
+
 function prepareAndBind($db,$sql,$datarow){
     $stmt = $db->prepare($sql);
     if(substr_count($sql,'?')==count($datarow)){
@@ -108,6 +108,7 @@ function prepareAndBind($db,$sql,$datarow){
     global $debug; if($debug){logResolveStatement($sql, $datarow);}
     return $stmt;
 }
+
 
 function logResolveStatement($sql, $datarow){
 	$resstmt = [];

@@ -9,6 +9,7 @@ return '
 ';
 }
 
+
 function getBodyHtml(){
 return '
 <body onload="initPage();">
@@ -27,6 +28,7 @@ return '
 </body>
 ';
 }
+
 
 function getHeadHtml($page=''){
 return '

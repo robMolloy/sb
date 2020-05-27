@@ -4,7 +4,7 @@ function openIndexedDB(){
         indexedDBRequest.onupgradeneeded = dbEvent => {
             console.log('updating DB');
             let idb = dbEvent.target.result;
-            getPrimaryWinVars().forEach(winVar => {
+            primaryWinVars.forEach(winVar => {
                 let tableName = `${winVar}s`;
                 if(!Array.from(idb.objectStoreNames).includes(tableName)){
                     idb.createObjectStore(tableName, {keyPath: win_info[winVar]['keys']['temp']});

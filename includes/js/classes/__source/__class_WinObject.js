@@ -174,7 +174,7 @@ class WinObject{
         return this.defaultNewFormPanelHtml();
     }
     
-    static displayFormPanelInMain(){
+    static displayFormPanelInMain(winObject){
         appendNthInMain(0,this.getFormPanelHtml(winObject));
     }
     

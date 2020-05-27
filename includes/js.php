@@ -2,21 +2,23 @@
 <script type="text/javascript" src="includes/js/extend/extend_HTMLElement.js"></script>
 <script type="text/javascript" src="includes/js/extend/extend_String.js"></script>
 
-<script type="text/javascript" src="includes/js/classes/__class_Panel.js"></script>
-<script type="text/javascript" src="includes/js/classes/__class_Panel_DisplayPanel.js"></script>
-<script type="text/javascript" src="includes/js/classes/__class_Panel_FormPanel.js"></script>
-<script type="text/javascript" src="includes/js/classes/__class_WinObject.js"></script>
-<script type="text/javascript" src="includes/js/classes/__class_WinObjects.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_DisplayPanel_ProjectDisplayPanel.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_FormPanel_ProjectFormPanel.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_contacts.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_customers.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_prj_cus_links.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_WinObject_Project.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_projects.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_records.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_winObject_rec_items.js"></script>
-<script type="text/javascript" src="includes/js/classes/page_WinObjects_Projects.js"></script>
+
+<script type="text/javascript" src="includes/js/classes/__source/__class_Panel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__source/__class_Panel_DisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__source/__class_Panel_FormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/__source/__class_WinObject.js"></script>
+<script type="text/javascript" src="includes/js/classes/__source/__class_WinObjects.js"></script>
+<script type="text/javascript" src="includes/js/classes/panel/page_DisplayPanel_ProjectDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/panel/page_FormPanel_ProjectFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_contacts.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_customers.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_prj_cus_links.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_projects.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_records.js"></script>
+<script type="text/javascript" src="includes/js/classes/winObject/page_winObject_rec_items.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_Project.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_Projects.js"></script>
+
 
 <script type="text/javascript" src="includes/js/functions/aux/aux_ajax.js"></script>
 <script type="text/javascript" src="includes/js/functions/aux/aux_cache.js"></script>
@@ -53,5 +55,5 @@
 <script type="text/javascript" src="includes/js/functions/page/page_refresh.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_init.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_login.js"></script>
-<script type="text/javascript" src="includes/js/functions/page/page_winObject.js"></script>
+<script type="text/javascript" src="includes/js/functions/page/page_winObjects.js"></script>
 <script type="text/javascript" src="includes/js/functions/page/page_winVars.js"></script>

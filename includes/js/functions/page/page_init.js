@@ -9,7 +9,7 @@ async function initPage(page=''){
     await initDbVars();
     
     //initialises list objects; allProjects = new Projects() etc.
-    initObjects();
+    initWinObjects();
     
     //initialises winVars
     initWinVars();
@@ -19,35 +19,12 @@ async function initPage(page=''){
     initDom(page);
 }
 
-function initObjects(){
-    allCustomers   = '';
-    allContacts    = '';
-    allProjects    = new Projects();
-    allRecords     = '';
-    allPrjCusLinks = '';
-    allRecItems    = '';
-}
 
-function initDom(page=''){
-    page = page=='' ? getPage() : page;
-    page = page=='' ? page = 'index.php' : page;
-    pageName = page.split('.')[0];
-    refreshDom(pageName);
-}
-
-
-
-async function initDbVars(){
-    for(winVar of getPrimaryWinVars()){
-        let tableName = `${winVar}s`;
-        window[`idb_${tableName}`] = await getAllDatarows(tableName);
-    }
-    return new Promise(resolve=>resolve(true));
-}
+//~ openIndexedDB() is in aux_indexedDb.js
 
 
 async function populateIdbWithSampleData(){
-    for(winVar of getPrimaryWinVars()){
+    for(winVar of primaryWinVars){
         let tableName = `${winVar}s`;
         for(datarow of Object.values(window[`win_${tableName}_sampleData`])){
             await addDatarow(tableName,datarow);
@@ -55,4 +32,25 @@ async function populateIdbWithSampleData(){
     }
 
     return new Promise(resolve=>resolve(true));
+}
+
+
+async function initDbVars(){
+    for(winVar of primaryWinVars){
+        let tableName = `${winVar}s`;
+        window[`idb_${tableName}`] = await getAllDatarows(tableName);
+    }
+    return new Promise(resolve=>resolve(true));
+}
+
+
+//~ initWinObjects() is in page_winObjects.js
+//~ initWinVars() is in page_winVars.js
+
+
+function initDom(page=''){
+    page = page=='' ? getPage() : page;
+    page = page=='' ? page = 'index.php' : page;
+    pageName = page.split('.')[0];
+    refreshDom(pageName);
 }
