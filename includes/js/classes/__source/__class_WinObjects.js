@@ -28,18 +28,21 @@ class WinObjects{
     
     
     refreshDatarows(){
-        let dbObjects = window[`idb_${this.winObjectType}s`];
-        let storedObjects = mightyStorage.get(`${this.winObjectType}s`,{});
-        let deletedObjects = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
+        let idbDatarows = window[`idb_${this.winObjectType}s`];
+        let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
+        let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
         
-        window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
+        this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
+        //~ window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
         
-        Object.values(deletedObjects).forEach((obj1)=>{
-            delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
-            delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
+        Object.values(deletedDatarows).forEach((datarow)=>{
+            delete this.datarows[datarow[this.keys.primary]];
+            delete this.datarows[datarow[this.keys.temp]];
+            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
+            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
         });
         
-        this.datarows = window[`win_${this.winObjectType}s`];
+        window[`win_${this.winObjectType}s`] = this.datarows;
     }
     
     
@@ -73,14 +76,14 @@ class WinObjects{
     
     
     getSelect(selected='',attributesString=''){
-        let allObjectRows = this.getObjects();
-        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        let allObjects = this.objects
+        let primaryKey = win_info[this.winObjectType].keys.primary;
         return `
             <select ${attributesString}>
                 <option value="">None</option>
-                ${Object.values(allObjectRows).map(objRow=>{
-                    let optionAttributes = `value="${objRow[primaryKey]}"${objRow[this.keys['primary']]==selected ? ` selected="selected"` : ``}`;
-                    return `<option ${optionAttributes}>${this.getSummaryLine(objRow)}</option>`;
+                ${Object.values(allObjects).map(obj1=>{
+                    let optionAttributes = `value="${obj1.datarow[primaryKey]}"${obj1.datarow[primaryKey]==selected ? ` selected="selected"` : ``}`;
+                    return `<option ${optionAttributes}>${obj1.displayPanel.getSummaryLine()}</option>`;
                 }).join('')}
             </select>
         `;

@@ -67,7 +67,7 @@ class RecItemFormPanel extends FormPanel{
                     </span>
                 </span>
                 <span class="flex1"></span>
-                <button onclick="new RecItem.addUsingFormChild(this);">Save rec_item</button>
+                <button onclick="new RecItem().addUsingFormChild(this);">Save rec_item</button>
             </div>
         `;
     }

@@ -11,6 +11,7 @@ class RecItems extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){

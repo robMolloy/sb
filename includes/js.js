@@ -241,6 +241,8 @@ class WinObject2{
     
     addFromForm(form){
         form = initElement(form);
+        console.log(`${formatStringForLabel(this.winObjectType)}`);
+        console.log(`all${formatStringForLabel(this.winObjectType)}s`);
         if(valid(form)){
             this.setFromForm(form);
             this.add();
@@ -517,18 +519,21 @@ class WinObjects{
     
     
     refreshDatarows(){
-        let dbObjects = window[`idb_${this.winObjectType}s`];
-        let storedObjects = mightyStorage.get(`${this.winObjectType}s`,{});
-        let deletedObjects = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
+        let idbDatarows = window[`idb_${this.winObjectType}s`];
+        let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
+        let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
         
-        window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
+        this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
+        //~ window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
         
-        Object.values(deletedObjects).forEach((obj1)=>{
-            delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
-            delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
+        Object.values(deletedDatarows).forEach((datarow)=>{
+            delete this.datarows[datarow[this.keys.primary]];
+            delete this.datarows[datarow[this.keys.temp]];
+            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
+            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
         });
         
-        this.datarows = window[`win_${this.winObjectType}s`];
+        window[`win_${this.winObjectType}s`] = this.datarows;
     }
     
     
@@ -562,14 +567,14 @@ class WinObjects{
     
     
     getSelect(selected='',attributesString=''){
-        let allObjectRows = this.getObjects();
-        let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
+        let allObjects = this.objects
+        let primaryKey = win_info[this.winObjectType].keys.primary;
         return `
             <select ${attributesString}>
                 <option value="">None</option>
-                ${Object.values(allObjectRows).map(objRow=>{
-                    let optionAttributes = `value="${objRow[primaryKey]}"${objRow[this.keys['primary']]==selected ? ` selected="selected"` : ``}`;
-                    return `<option ${optionAttributes}>${this.getSummaryLine(objRow)}</option>`;
+                ${Object.values(allObjects).map(obj1=>{
+                    let optionAttributes = `value="${obj1.datarow[primaryKey]}"${obj1.datarow[primaryKey]==selected ? ` selected="selected"` : ``}`;
+                    return `<option ${optionAttributes}>${obj1.displayPanel.getSummaryLine()}</option>`;
                 }).join('')}
             </select>
         `;
@@ -767,6 +772,7 @@ class Contacts extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -788,6 +794,7 @@ class Customers extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -809,6 +816,7 @@ class PrjCusLinks extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -830,6 +838,7 @@ class Projects extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -865,6 +874,7 @@ class RecItems extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -886,6 +896,7 @@ class Records extends WinObjects{
     
     refresh(){
         this.refreshWinObjects();
+        return this;
     }
     
     getNewObject(datarow=''){
@@ -2000,7 +2011,7 @@ class RecItemFormPanel extends FormPanel{
                     </span>
                 </span>
                 <span class="flex1"></span>
-                <button onclick="new RecItem.addUsingFormChild(this);">Save rec_item</button>
+                <button onclick="new RecItem().addUsingFormChild(this);">Save rec_item</button>
             </div>
         `;
     }
@@ -2023,57 +2034,55 @@ class RecordFormPanel extends FormPanel{
     getHtml(){
         let labelrow = this.labelrow;
         return `
-            <div class="panel form">
-                ${wrapSelectElement(`
-                    ${project.getSelect('',`
-                        placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank" 
-                        oninput="record.updateFormWithProjectDetails(this,this.value);"
-                    `)}
+            ${wrapSelectElement(`
+                ${allProjects.getSelect('',`
+                    placeholder="${labelrow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank" 
+                    oninput="record.updateFormWithProjectDetails(this,this.value);"
                 `)}
-                
-                ${inputSelect(
-                    `<input 
-                        type="text" value="${issetReturn(()=>record.rec_description,'')}"
-                        placeholder="${labelRow.rec_description}" name="rec_description" checks="isNotBlank" 
-                    >`
-                    ,Object.keys(indexAnObjectOfObjects(win_records,'rec_description'))
-                    ,''
-                )}
-                
-                ${dateInput(`<input 
-                    value="${issetReturn(()=>record.rec_timestamp_planned_start,'')}" checks="isNotBlank" 
-                    placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
+            `)}
+            
+            ${inputSelect(
+                `<input 
+                    type="text" value="${issetReturn(()=>record.rec_description,'')}"
+                    placeholder="${labelrow.rec_description}" name="rec_description" checks="isNotBlank" 
+                >`
+                ,Object.keys(indexAnObjectOfObjects(win_records,'rec_description'))
+                ,''
+            )}
+            
+            ${dateInput(`<input 
+                value="${issetReturn(()=>record.rec_timestamp_planned_start,'')}" checks="isNotBlank" 
+                placeholder="${labelrow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
+            >`)}
+            <div class="flexGap">
+                ${wrapInputElement(`<input type="number" value="${issetReturn(()=>record.rec_duration_qty,'1')}" 
+                    name="rec_duration_qty" placeholder="${labelrow.rec_duration_qty}" 
+                    checks="isInt_positive" class="width2Lh"
                 >`)}
-                <div class="flexGap">
-                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>record.rec_duration_qty,'1')}" 
-                        name="rec_duration_qty" placeholder="${labelRow.rec_duration_qty}" 
-                        checks="isInt_positive" class="width2Lh"
-                    >`)}
-                    ${wrapSelectElement(
-                        `<select 
-                            type="text" value="${issetReturn(()=>record.rec_duration_unit,'hour')}"
-                            placeholder="${labelRow.rec_duration_unit}" name="rec_duration_unit" 
-                            checks="isNotBlank" 
-                        >
-                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
-                        </select>`
-                    )}
-                </div>
-                <div>
-                    <span class="borderBottom borderTop lh padSmall flexGap">
-                        <span class="lightText">Total</span>
-                        <span class="lightText">|</span>
-                        <span class="jr" name="rec_price">
-                            <input class="tar width3Lh" type="text" name="rec_total" value="${price('')}" readonly>
-                        </span>
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" value="${issetReturn(()=>record.rec_duration_unit,'hour')}"
+                        placeholder="${labelrow.rec_duration_unit}" name="rec_duration_unit" 
+                        checks="isNotBlank" 
+                    >
+                        ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                    </select>`
+                )}
+            </div>
+            <div>
+                <span class="borderBottom borderTop lh padSmall flexGap">
+                    <span class="lightText">Total</span>
+                    <span class="lightText">|</span>
+                    <span class="jr" name="rec_price">
+                        <input class="tar width3Lh" type="text" name="rec_total" value="${price('')}" readonly>
                     </span>
-                </div>                
-                <div class="buttonRow flexGap">
-                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDefaultDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
-                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDurationDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span><i class="far fa-clock"></i></span><div>Add Duration</div></span></button>
-                    <div class="flex1"></div>
-                    <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
-                </div>
+                </span>
+            </div>                
+            <div class="buttonRow flexGap">
+                <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDefaultDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDurationDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span><i class="far fa-clock"></i></span><div>Add Duration</div></span></button>
+                <div class="flex1"></div>
+                <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
             </div>
         `;
     }
@@ -2237,9 +2246,19 @@ class RecItemDisplayPanel extends DisplayPanel{
     }
     
     
-    getSummaryLine(datarow=''){
+    static getSummaryLine(datarow=''){
+        console.log(datarow);
+        
         datarow = datarow=='' ? this.datarow : datarow;
-        return `[summary line]`;
+        
+        console.log(datarow);
+        return `
+            ${datarow.rci_work}: 
+            ${datarow.rci_qty}
+            ${datarow.rci_unit} x 
+            ${price(datarow.rci_cost_per_unit)} = 
+            ${price(datarow.rci_total)}
+        `;
     }
 }
 
@@ -2255,20 +2274,22 @@ class RecordDisplayPanel extends DisplayPanel{
     
     getHtml(datarow=''){
         datarow = datarow=='' ? this.datarow : datarow;
-        let itemsOnRecord = issetReturn(()=>win_rec_itemsGroupedByRec_id[record.rec_id],{});
+        let itemDatarowsOnRecord = issetReturn(()=>win_rec_itemsGroupedByRec_id[datarow.rec_id],{});
+        
         return `
-            <div class="panel singleColumn">
-                <div class="fw600 grid12">
-                    <div class="fw600 gs8">${record.rec_description}</div>
-                    <div class="fw600 gs4 jr">${price(record.rec_total)}</div>
-                </div>
-                <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
-                    <div>Items (${Object.keys(itemsOnRecord).length} on project) &#9660;</div>
-                </span>
-                <div class="singleColumn gridGapSmall hidden">
-                    <span class="button">Add New Item +</span>
-                    ${Object.values(itemsOnRecord).map((item)=>`${rec_item.getSummaryLine(item)}`).join('')}
-                </div>
+            <div class="fw600 grid12">
+                <div class="fw600 gs8">${datarow.rec_description}</div>
+                <div class="fw600 gs4 jr">${price(datarow.rec_total)}</div>
+            </div>
+            <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
+                <div>Items (${Object.keys(itemDatarowsOnRecord).length} on project) &#9660;</div>
+            </span>
+            <div class="singleColumn gridGapSmall hidden">
+                <span class="button">Add New Item +</span>
+                ${Object.values(itemDatarowsOnRecord).map((recItemDatarow)=>{
+                    console.log(recItemDatarow);
+                    return `<div>${RecItemDisplayPanel.getSummaryLine(recItemDatarow)}</div>`;
+                }).join('')}
             </div>
         `;
     }
@@ -2440,15 +2461,12 @@ function refreshDom(pageName=''){
     currentPageName = pageName;
     switch(pageName){
         case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
-        case 'contacts':allContacts.loadPage();break;
-        case 'customers':allCustomers.loadPage();break;
+        case 'contacts':    allContacts.loadPage();break;
+        case 'customers':   allCustomers.loadPage();break;
         case 'prj_cus_links':allPrjCusLinks.loadPage();break;
-        case 'projects':allProjects.loadPage();break;
-        //~ case 'prj_cus_links':prj_cus_link.loadPage();break;
-        //~ case 'records':record.loadPage();break;
-        //~ case 'rec_items':rec_item.loadPage();break;
-        case 'records':allRecords.loadPage();break;
-        case 'rec_items':allRecItems.loadPage();break;
+        case 'projects':    allProjects.loadPage();break;
+        case 'records':     allRecords.loadPage();break;
+        case 'rec_items':   allRecItems.loadPage();break;
     }
 }
 

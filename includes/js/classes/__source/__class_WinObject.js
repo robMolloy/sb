@@ -100,6 +100,8 @@ class WinObject2{
     
     addFromForm(form){
         form = initElement(form);
+        console.log(`${formatStringForLabel(this.winObjectType)}`);
+        console.log(`all${formatStringForLabel(this.winObjectType)}s`);
         if(valid(form)){
             this.setFromForm(form);
             this.add();
