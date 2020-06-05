@@ -1,4 +1,4 @@
-
+/*
 class customer extends WinObject{
     static getWinObjectType(){
         return 'customers';
@@ -79,3 +79,4 @@ class customer extends WinObject{
 
 
 
+*/

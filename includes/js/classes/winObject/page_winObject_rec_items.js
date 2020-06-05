@@ -1,3 +1,4 @@
+/*
 class rec_item extends WinObject{
     static getWinObjectType(){
         return 'rec_items';
@@ -149,3 +150,4 @@ class rec_item extends WinObject{
     }
     
 }
+*/

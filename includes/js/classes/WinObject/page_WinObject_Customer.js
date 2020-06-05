@@ -1,14 +1,14 @@
-class Project extends WinObject2{
+class Customer extends WinObject2{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
     }
     
     init(uniqueIdentifier=''){
-        this.winObjectType = 'project';
+        this.winObjectType = 'customer';
         this.initWinObject(uniqueIdentifier);
-        this.formPanel = new ProjectFormPanel(this.datarow);
-        this.displayPanel = new ProjectDisplayPanel(this.datarow);; 
+        this.formPanel = new CustomerFormPanel(this.datarow);
+        this.displayPanel = new CustomerDisplayPanel(this.datarow);; 
         this.refresh();
     }
     

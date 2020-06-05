@@ -1,4 +1,5 @@
 class WinObject2{
+    
     constructor(){
         //~ this.winObjectType = '';
         //~ this.formPanel = '';    
@@ -23,9 +24,9 @@ class WinObject2{
     }
     
     refreshWinObject(){
-        this.populateDatarow();
         this.id = this.datarow[this.keys['primary']];
         this.exists = window[`win_${this.winObjectType}s`][this.id] !== undefined;
+        this.populateDatarow();
         
         return this;
     }
@@ -35,10 +36,7 @@ class WinObject2{
         datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
         
         let newDatarow = {};
-        
-        /* error here!!!!!!!!!!!! */
         let templateDatarow = this.exists ? window[`win_${this.winObjectType}s`][this.id] : this.blankrow;
-        
         Object.keys(templateDatarow).forEach(key=>{
             newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
         });
@@ -92,6 +90,7 @@ class WinObject2{
         this.setFromDefaultValues();
         mightyStorage.addObject(`${this.winObjectType}s`,this.datarow,this.keys['primary']);
         refreshWinVars();
+        //~ window[`all${ucFirst(this.winObjectType)}`]
         this.afterAdd()
     }
     
@@ -106,7 +105,9 @@ class WinObject2{
             this.add();
             this.addFormsInForm(form.querySelectorAll('.form'),this.datarow);
             refreshWinVars();
-            window[`all${ucFirst(this.winObjectType)}s`].loadPage();
+            //~ deal with refresh in the add? 
+            //~ window[`all${formatStringForLabel(this.winObjectType)}s`].refresh().loadPage();
+            window[`all${formatStringForLabel(this.winObjectType)}s`].refresh().loadPage();
         } else {
             getAllInputs(form).forEach((input)=>input.oninput());
         }
@@ -118,15 +119,18 @@ class WinObject2{
     }
 }
 
-
+/*
 class WinObject{
+    
     static getWinObjectType(){
         return 'winObjects';
     }
     
+    
     static getObjects(){
         return window[`win_${this.getWinObjectType()}`]
     }
+    
     
     static initObjects(){
         let objectType = this.getWinObjectType();
@@ -140,6 +144,7 @@ class WinObject{
             delete window[`win_${objectType}`][obj1[keys['temp']]];
         });
     }
+    
     
     static getDefaultPanelHtml(winObject){
         let winObjectType = this.getWinObjectType();
@@ -158,25 +163,31 @@ class WinObject{
         `;
     }
     
+    
     static getPanelHtml(winObject={}){
         return this.getDefaultPanelHtml(winObject);
     }
     
+    
     static appendPanelInMain(winObject){
         appendToMain(this.getPanelHtml(winObject));
     }
-
+    
+    
     static displayPanelsInMain(){
         Object.values(this.getObjects()).reverse().forEach(winObject=>this.appendPanelInMain(winObject));
     }
-
+    
+    
     static getFormPanelHtml(){
         return this.defaultNewFormPanelHtml();
     }
     
+    
     static displayFormPanelInMain(winObject){
         appendNthInMain(0,this.getFormPanelHtml(winObject));
     }
+    
     
     static loadPage(){
         setTitle(ucFirst(this.getWinObjectType()));
@@ -185,6 +196,7 @@ class WinObject{
         this.displayFormPanelInMain();
         this.displayPanelsInMain();
     }
+    
     
     static defaultNewFormPanelHtml(){
         let winObjectType = this.getWinObjectType();
@@ -205,14 +217,17 @@ class WinObject{
                 </div>`;
     }
     
+    
     static appendDefaultNewFormPanel(){
         appendToMain(this.defaultNewFormPanelHtml());
     }
+    
     
     static indexOnPrimaryKey(winObject){
         let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
         return convertObjectToObjectOfObjects(winObject,primaryKey);
     }
+    
     
     static getFromObject(object){
         let winObject = {};
@@ -221,12 +236,14 @@ class WinObject{
         });
         return winObject;
     }
-
+    
+    
     static getFromForm(form){
         form = initElement(form);
         let inputValues = getInputValuesAsObject(form);
         return this.getFromObject(inputValues);
     }
+    
     
     static getDefaultValues(){
         let defaultValues = {};
@@ -234,6 +251,7 @@ class WinObject{
         defaultValues[`${keys['user']}`] = win_user['usr_id'];
         return defaultValues;
     }
+    
     
     static getDefaultValuesIfBlank(){
         let defaultValues = {};
@@ -245,6 +263,7 @@ class WinObject{
         return defaultValues;
     }
     
+    
     static setDefaultValues(winObject){
         let defaultValues = this.getDefaultValues();
         let defaultValuesIfBlank = this.getDefaultValuesIfBlank();
@@ -255,6 +274,7 @@ class WinObject{
         return winObject;
     }
     
+    
     static addObject(winObject){
         winObject = this.setDefaultValues(winObject);
         
@@ -262,9 +282,11 @@ class WinObject{
         mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
     }
     
+    
     static addFormsInForm(){
         return '';
     }
+    
     
     static addObjectFromForm(form){
         form = initElement(form);
@@ -278,16 +300,19 @@ class WinObject{
             getAllInputs(form).forEach((input)=>input.oninput());
         }
     }
-
+    
+    
     static addObjectFromAnyElementInForm(formChild){
         formChild = initElement(formChild);
         let form = getParentElementWithClass(formChild,'form');
         this.addObjectFromForm(form,this.getWinObjectType());
     }
     
+    
     static getSummaryLine(winObject){
         return Object.values(winObject).join(', ');
     }
+    
     
     static getSelect(selected='',attributesString=''){
         let allObjectRows = this.getObjects();
@@ -303,6 +328,7 @@ class WinObject{
         `;
     }
     
+    
     static appendFormAboveButtonRow(buttonRowChild,objectDatarow=''){
         let buttonRow = buttonRowChild.classList.contains('buttonRow') 
             ? formChild 
@@ -311,8 +337,11 @@ class WinObject{
         buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml(objectDatarow));
     }
     
+    
     static getLinkFormHtml(objectDatarow=''){
         return `<div>${this.getFormPanelHtml(objectDatarow)}</div>`;
     }
+
 }
 
+*/

@@ -8,16 +8,46 @@
 <script type="text/javascript" src="includes/js/classes/__source/__class_Panel_FormPanel.js"></script>
 <script type="text/javascript" src="includes/js/classes/__source/__class_WinObject.js"></script>
 <script type="text/javascript" src="includes/js/classes/__source/__class_WinObjects.js"></script>
-<script type="text/javascript" src="includes/js/classes/panel/page_DisplayPanel_ProjectDisplayPanel.js"></script>
-<script type="text/javascript" src="includes/js/classes/panel/page_FormPanel_ProjectFormPanel.js"></script>
+
+
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_ContactDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_CustomerDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_PrjCusLinkDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_ProjectDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_RecItemDisplayPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/DisplayPanel/page_DisplayPanel_RecordDisplayPanel.js"></script>
+
+
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_ContactFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_CustomerFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_PrjCusLinkFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_ProjectFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_RecItemFormPanel.js"></script>
+<script type="text/javascript" src="includes/js/classes/FormPanel/page_FormPanel_RecordFormPanel.js"></script>
+
+
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_contacts.js"></script>
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_customers.js"></script>
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_prj_cus_links.js"></script>
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_projects.js"></script>
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_records.js"></script>
 <script type="text/javascript" src="includes/js/classes/winObject/page_winObject_rec_items.js"></script>
+
+
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_Contact.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_Customer.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_PrjCusLink.js"></script>
 <script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_Project.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_RecItem.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObject/page_WinObject_Record.js"></script>
+
+
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_Contacts.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_Customers.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_PrjCusLinks.js"></script>
 <script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_Projects.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_RecItems.js"></script>
+<script type="text/javascript" src="includes/js/classes/WinObjects/page_WinObjects_Records.js"></script>
 
 
 <script type="text/javascript" src="includes/js/functions/aux/aux_ajax.js"></script>

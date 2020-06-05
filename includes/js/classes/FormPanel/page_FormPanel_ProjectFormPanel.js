@@ -124,7 +124,7 @@ class ProjectFormPanel extends FormPanel{
             <div class="buttonRow">
                 <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                 <span class="flex1"></span>
-                <button onclick="new Project2().addUsingFormChild(this);">Save Project</button>
+                <button onclick="new Project().addUsingFormChild(this);">Save Project</button>
             </div>
         `;
     }

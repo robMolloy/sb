@@ -7,7 +7,10 @@ function ucFirstOfEachWord(str){
 }
 
 function formatStringForTitle(str){
-	return ucFirstOfEachWord(str.replace(/-/g, " "));
+    return ucFirstOfEachWord(str.replace(/-/g, " ").replace(/_/g, " "));
+}
+function formatStringForLabel(str){
+    return formatStringForTitle(str).replace(/ /g, "");
 }
 
 function formatString(str){

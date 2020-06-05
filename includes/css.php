@@ -23,8 +23,8 @@ $brs=$bigRadiusSize; $srs=$smallRadiusSize;
 $sbw=$smallBorderWidth; $tbw=$thickBorderWidth;
 $tca=$themeColorsArray; $aca=$accentColorsArray; $eca=$errorColorsArray;
 
-$g=$gap;
-$rs=$radiusSize;
+$g = $gap;
+$rs = $radiusSize;
 $bw = $borderWidth;
 $lh = $lineHeight;
 ?>
@@ -332,5 +332,8 @@ main > *:nth-last-child(1) {margin-bottom:<?php echo $sg; ?>px;}
 @media(max-width:768px){
 	button:active {background-color:<?php echo $tca[3];?>;color:<?php echo $tca[2];?>;}
     #wrapperMain {padding-top:<?php echo $sg; ?>px;}
-	main {min-width:100vw;max-width:100vw;border-left:<?php echo $sg; ?>px solid <?php echo $tca[3]; ?>;border-right:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;}
+	main {
+        min-width:100vw;max-width:100vw;border-left:<?php echo $sg; ?>px solid <?php echo $tca[3]; ?>;
+        border-right:<?php echo 1*$sg; ?>px solid <?php echo $tca[3]; ?>;grid-row-gap:<?php echo $sg; ?>px;
+    }
 }

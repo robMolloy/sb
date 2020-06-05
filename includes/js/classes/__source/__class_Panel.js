@@ -1,13 +1,23 @@
 class Panel{
     initPanel(datarow=''){
-        this.datarow = datarow=='' ? this.datarow : datarow;
-        this.datarow = this.datarow ? this.datarow : win_info[this.winObjectType]['blankrow'];
+        this.datarow = datarow;
         
-        this.labelrow = win_info[this.winObjectType]['labelrow'];
-        this.primaryKey = win_info[this.winObjectType]['keys']['primary'];
+        this.inforow = win_info[this.winObjectType];
+        
+        /* should not need these - assume datarow is correct ??? */
+        /*
+        this.datarow = datarow=='' ? this.datarow : datarow;
+        this.datarow = this.datarow ? this.datarow : this.inforow['blankrow'];
+        */ 
+        /* should not need these - assume datarow is correct ??? */
 
-        this.objectId = this.datarow[this.primaryKey];
-        this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${this.datarow[this.primaryKey]}`;
+        
+        this.labelrow = this.inforow['labelrow'];
+        this.blankrow = this.inforow['blankrow'];
+        this.keys = this.inforow['keys'];
+        
+        this.objectId = this.datarow[this.keys['primary']];
+        this.id = this.objectId=='' ? this.idPrefix : `${this.idPrefix}_${this.objectId}`;
         //~ this.create();
         
         return this;

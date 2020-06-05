@@ -1,5 +1,5 @@
-
 class WinObjects{
+    
     constructor(){
         //~ this.winObjectType = '';
         //~ this.datarows = '';
@@ -10,16 +10,20 @@ class WinObjects{
         //~ this.getNewObject()
     }
     
+    
     initWinObjects(){
         this.refreshWinObjects()
+        return this;
     }
-
+    
+    
     refreshWinObjects(){
         //~ refreshes and sets this.datarows
         this.refreshDatarows();
         
         //~ using this.datarows - refreshes and sets this.objects
         this.refreshObjects();
+        
     }
     
     
@@ -38,6 +42,7 @@ class WinObjects{
         this.datarows = window[`win_${this.winObjectType}s`];
     }
     
+    
     refreshObjects(){
         this.objects = {};
         Object.entries(this.datarows).forEach(entry =>{
@@ -46,6 +51,7 @@ class WinObjects{
             this.objects[key] = this.getNewObject(datarow);
         });
     }
+    
     
     loadPage(){
         setTitle(ucFirst(this.winObjectType));
@@ -56,6 +62,7 @@ class WinObjects{
         Object.values(this.objects).forEach(object=>object.renderDisplayPanel());
     }
     
+    
     getDatarowFromMixedDatarow(mixedDatarow){
         let newDatarow = {};
         Object.keys(win_info[this.getWinObjectType()]['blank']).forEach(key=>{
@@ -63,6 +70,7 @@ class WinObjects{
         });
         return winObject;
     }
+    
     
     getSelect(selected='',attributesString=''){
         let allObjectRows = this.getObjects();
@@ -79,6 +87,7 @@ class WinObjects{
     }
 
 }
+
 
     /*
     static getDefaultPanelHtml(winObject){

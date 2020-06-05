@@ -14,12 +14,20 @@ function refreshWinVars(){
 
 
 function refreshPrimaryWinVars(){
-    allProjects.init();
-    customer.initObjects();
-    win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
-    win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
-    win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
-    record.initObjects();
+    allContacts.refresh();
+    allCustomers.refresh();
+    allPrjCusLinks.refresh();
+    allProjects.refresh();
+    allRecItems.refresh();
+    allRecords.refresh();
+
+    //~ allProjects.init();
+    
+    //~ customer.initObjects();
+    //~ win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
+    //~ win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
+    //~ win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
+    //~ record.initObjects();
 }
 
 

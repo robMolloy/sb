@@ -1,30 +1,19 @@
-/*
-class record extends WinObject{
-    static getWinObjectType(){
-        return 'records';
+class RecordFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
     }
     
-    static getPanelHtml(record){
-        let itemsOnRecord = issetReturn(()=>win_rec_itemsGroupedByRec_id[record.rec_id],{});
-        return `
-            <div class="panel singleColumn">
-                <div class="fw600 grid12">
-                    <div class="fw600 gs8">${record.rec_description}</div>
-                    <div class="fw600 gs4 jr">${price(record.rec_total)}</div>
-                </div>
-                <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
-                    <div>Items (${Object.keys(itemsOnRecord).length} on project) &#9660;</div>
-                </span>
-                <div class="singleColumn gridGapSmall hidden">
-                    <span class="button">Add New Item +</span>
-                    ${Object.values(itemsOnRecord).map((item)=>`${rec_item.getSummaryLine(item)}`).join('')}
-                </div>
-            </div>
-        `;
+    init(datarow=''){
+        this.winObjectType = 'record';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
     }
     
-    static getFormPanelHtml(record){
-        let labelRow = win_info['records']['labels'];
+    
+    getHtml(){
+        let labelrow = this.labelrow;
         return `
             <div class="panel form">
                 ${wrapSelectElement(`
@@ -80,33 +69,4 @@ class record extends WinObject{
             </div>
         `;
     }
-    
-    static addFormsInForm(forms,addedObject=''){
-        let datarowArray = Array.from(forms).map((form)=>{
-            let datarow = rec_item.getFromForm(form);
-            datarow['rci_rec_id'] = issetReturn(()=>addedObject['rec_id'],'');
-            return datarow;
-        });
-        datarowArray.forEach(datarow=>rec_item.addObject(datarow));
-    }
-    
-    static getSummaryLine(record){
-        let prjRow = win_projects[record.rec_prj_id];
-        return `${prjRow.prj_acronym}: ${formatTimestampToDate(record.rec_timestamp_planned_start)}: ${record.rec_description}`;
-    }
-    
-    static updateFormWithProjectDetails(formChild,projectId){
-        let form = formChild.classList.contains('form') ? formChild : getParentElementWithClass(formChild,'form');
-        let project = win_projects[projectId];
-        form.querySelector(`[name=rec_duration_qty]`).value = project['prj_default_duration_qty'];
-        form.querySelector(`[name=rec_duration_unit]`).value = project['prj_default_duration_unit'];
-    }
 }
-
-
-
-
-
-
-
-*/

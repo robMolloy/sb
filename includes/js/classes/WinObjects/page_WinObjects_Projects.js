@@ -14,7 +14,7 @@ class Projects extends WinObjects{
     }
     
     getNewObject(datarow=''){
-        return new Project2(datarow);
+        return new Project(datarow);
     }
     
     acronymExists(acronym){

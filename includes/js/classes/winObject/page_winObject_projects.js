@@ -1,3 +1,4 @@
+/*
 class project extends WinObject{
     
     static getWinObjectType(){
@@ -204,3 +205,4 @@ class project extends WinObject{
         return prj_cus_link.getLinkToProjectFormHtml();
     }
 }
+*/

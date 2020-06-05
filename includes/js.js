@@ -32,14 +32,24 @@ String.prototype.toggleSuffix = function(suffix){
 
 class Panel{
     initPanel(datarow=''){
-        this.datarow = datarow=='' ? this.datarow : datarow;
-        this.datarow = this.datarow ? this.datarow : win_info[this.winObjectType]['blankrow'];
+        this.datarow = datarow;
         
-        this.labelrow = win_info[this.winObjectType]['labelrow'];
-        this.primaryKey = win_info[this.winObjectType]['keys']['primary'];
+        this.inforow = win_info[this.winObjectType];
+        
+        /* should not need these - assume datarow is correct ??? */
+        /*
+        this.datarow = datarow=='' ? this.datarow : datarow;
+        this.datarow = this.datarow ? this.datarow : this.inforow['blankrow'];
+        */ 
+        /* should not need these - assume datarow is correct ??? */
 
-        this.objectId = this.datarow[this.primaryKey];
-        this.id = datarow[this.primaryKey]=='' ? this.idPrefix : `${this.idPrefix}_${this.datarow[this.primaryKey]}`;
+        
+        this.labelrow = this.inforow['labelrow'];
+        this.blankrow = this.inforow['blankrow'];
+        this.keys = this.inforow['keys'];
+        
+        this.objectId = this.datarow[this.keys['primary']];
+        this.id = this.objectId=='' ? this.idPrefix : `${this.idPrefix}_${this.objectId}`;
         //~ this.create();
         
         return this;
@@ -95,6 +105,23 @@ class DisplayPanel extends Panel{
         return this;
     }
     
+    getHtml(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        let labelrow = this.labelrow;
+        
+        return `
+            <div class="panel singleColumn">
+                ${Object.keys(datarow).map(key=>{
+                    return `
+                        <div>
+                            <div style="flex:1">${labelrow[key]}</div>
+                            <div style="flex:2">${datarow[key]}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
 }
 
 
@@ -113,6 +140,7 @@ class FormPanel extends Panel{
 }
 
 class WinObject2{
+    
     constructor(){
         //~ this.winObjectType = '';
         //~ this.formPanel = '';    
@@ -137,9 +165,9 @@ class WinObject2{
     }
     
     refreshWinObject(){
-        this.populateDatarow();
         this.id = this.datarow[this.keys['primary']];
         this.exists = window[`win_${this.winObjectType}s`][this.id] !== undefined;
+        this.populateDatarow();
         
         return this;
     }
@@ -149,10 +177,7 @@ class WinObject2{
         datarow = typeof(datarow)=='object' ? datarow : this.blankrow;
         
         let newDatarow = {};
-        
-        /* error here!!!!!!!!!!!! */
         let templateDatarow = this.exists ? window[`win_${this.winObjectType}s`][this.id] : this.blankrow;
-        
         Object.keys(templateDatarow).forEach(key=>{
             newDatarow[key] = datarow[key]===undefined ? templateDatarow[key] : datarow[key];
         });
@@ -206,6 +231,7 @@ class WinObject2{
         this.setFromDefaultValues();
         mightyStorage.addObject(`${this.winObjectType}s`,this.datarow,this.keys['primary']);
         refreshWinVars();
+        //~ window[`all${ucFirst(this.winObjectType)}`]
         this.afterAdd()
     }
     
@@ -220,7 +246,9 @@ class WinObject2{
             this.add();
             this.addFormsInForm(form.querySelectorAll('.form'),this.datarow);
             refreshWinVars();
-            window[`all${ucFirst(this.winObjectType)}s`].loadPage();
+            //~ deal with refresh in the add? 
+            //~ window[`all${formatStringForLabel(this.winObjectType)}s`].refresh().loadPage();
+            window[`all${formatStringForLabel(this.winObjectType)}s`].refresh().loadPage();
         } else {
             getAllInputs(form).forEach((input)=>input.oninput());
         }
@@ -232,15 +260,18 @@ class WinObject2{
     }
 }
 
-
+/*
 class WinObject{
+    
     static getWinObjectType(){
         return 'winObjects';
     }
     
+    
     static getObjects(){
         return window[`win_${this.getWinObjectType()}`]
     }
+    
     
     static initObjects(){
         let objectType = this.getWinObjectType();
@@ -254,6 +285,7 @@ class WinObject{
             delete window[`win_${objectType}`][obj1[keys['temp']]];
         });
     }
+    
     
     static getDefaultPanelHtml(winObject){
         let winObjectType = this.getWinObjectType();
@@ -272,25 +304,31 @@ class WinObject{
         `;
     }
     
+    
     static getPanelHtml(winObject={}){
         return this.getDefaultPanelHtml(winObject);
     }
     
+    
     static appendPanelInMain(winObject){
         appendToMain(this.getPanelHtml(winObject));
     }
-
+    
+    
     static displayPanelsInMain(){
         Object.values(this.getObjects()).reverse().forEach(winObject=>this.appendPanelInMain(winObject));
     }
-
+    
+    
     static getFormPanelHtml(){
         return this.defaultNewFormPanelHtml();
     }
     
+    
     static displayFormPanelInMain(winObject){
         appendNthInMain(0,this.getFormPanelHtml(winObject));
     }
+    
     
     static loadPage(){
         setTitle(ucFirst(this.getWinObjectType()));
@@ -299,6 +337,7 @@ class WinObject{
         this.displayFormPanelInMain();
         this.displayPanelsInMain();
     }
+    
     
     static defaultNewFormPanelHtml(){
         let winObjectType = this.getWinObjectType();
@@ -319,14 +358,17 @@ class WinObject{
                 </div>`;
     }
     
+    
     static appendDefaultNewFormPanel(){
         appendToMain(this.defaultNewFormPanelHtml());
     }
+    
     
     static indexOnPrimaryKey(winObject){
         let primaryKey = win_info[this.getWinObjectType()]['keys']['primary'];
         return convertObjectToObjectOfObjects(winObject,primaryKey);
     }
+    
     
     static getFromObject(object){
         let winObject = {};
@@ -335,12 +377,14 @@ class WinObject{
         });
         return winObject;
     }
-
+    
+    
     static getFromForm(form){
         form = initElement(form);
         let inputValues = getInputValuesAsObject(form);
         return this.getFromObject(inputValues);
     }
+    
     
     static getDefaultValues(){
         let defaultValues = {};
@@ -348,6 +392,7 @@ class WinObject{
         defaultValues[`${keys['user']}`] = win_user['usr_id'];
         return defaultValues;
     }
+    
     
     static getDefaultValuesIfBlank(){
         let defaultValues = {};
@@ -359,6 +404,7 @@ class WinObject{
         return defaultValues;
     }
     
+    
     static setDefaultValues(winObject){
         let defaultValues = this.getDefaultValues();
         let defaultValuesIfBlank = this.getDefaultValuesIfBlank();
@@ -369,6 +415,7 @@ class WinObject{
         return winObject;
     }
     
+    
     static addObject(winObject){
         winObject = this.setDefaultValues(winObject);
         
@@ -376,9 +423,11 @@ class WinObject{
         mightyStorage.addObject(`win_${this.getWinObjectType()}`,winObject,primaryKey);
     }
     
+    
     static addFormsInForm(){
         return '';
     }
+    
     
     static addObjectFromForm(form){
         form = initElement(form);
@@ -392,16 +441,19 @@ class WinObject{
             getAllInputs(form).forEach((input)=>input.oninput());
         }
     }
-
+    
+    
     static addObjectFromAnyElementInForm(formChild){
         formChild = initElement(formChild);
         let form = getParentElementWithClass(formChild,'form');
         this.addObjectFromForm(form,this.getWinObjectType());
     }
     
+    
     static getSummaryLine(winObject){
         return Object.values(winObject).join(', ');
     }
+    
     
     static getSelect(selected='',attributesString=''){
         let allObjectRows = this.getObjects();
@@ -417,6 +469,7 @@ class WinObject{
         `;
     }
     
+    
     static appendFormAboveButtonRow(buttonRowChild,objectDatarow=''){
         let buttonRow = buttonRowChild.classList.contains('buttonRow') 
             ? formChild 
@@ -425,14 +478,17 @@ class WinObject{
         buttonRow.insertAdjacentHTML('beforeBegin',this.getLinkFormHtml(objectDatarow));
     }
     
+    
     static getLinkFormHtml(objectDatarow=''){
         return `<div>${this.getFormPanelHtml(objectDatarow)}</div>`;
     }
+
 }
 
-
+*/
 
 class WinObjects{
+    
     constructor(){
         //~ this.winObjectType = '';
         //~ this.datarows = '';
@@ -443,16 +499,20 @@ class WinObjects{
         //~ this.getNewObject()
     }
     
+    
     initWinObjects(){
         this.refreshWinObjects()
+        return this;
     }
-
+    
+    
     refreshWinObjects(){
         //~ refreshes and sets this.datarows
         this.refreshDatarows();
         
         //~ using this.datarows - refreshes and sets this.objects
         this.refreshObjects();
+        
     }
     
     
@@ -471,6 +531,7 @@ class WinObjects{
         this.datarows = window[`win_${this.winObjectType}s`];
     }
     
+    
     refreshObjects(){
         this.objects = {};
         Object.entries(this.datarows).forEach(entry =>{
@@ -479,6 +540,7 @@ class WinObjects{
             this.objects[key] = this.getNewObject(datarow);
         });
     }
+    
     
     loadPage(){
         setTitle(ucFirst(this.winObjectType));
@@ -489,6 +551,7 @@ class WinObjects{
         Object.values(this.objects).forEach(object=>object.renderDisplayPanel());
     }
     
+    
     getDatarowFromMixedDatarow(mixedDatarow){
         let newDatarow = {};
         Object.keys(win_info[this.getWinObjectType()]['blank']).forEach(key=>{
@@ -496,6 +559,7 @@ class WinObjects{
         });
         return winObject;
     }
+    
     
     getSelect(selected='',attributesString=''){
         let allObjectRows = this.getObjects();
@@ -512,6 +576,7 @@ class WinObjects{
     }
 
 }
+
 
     /*
     static getDefaultPanelHtml(winObject){
@@ -689,6 +754,69 @@ class WinObjects{
     }
     */
 
+class Contacts extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'contact';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new Contact(datarow);
+    }
+}
+
+
+class Customers extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'customer';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new Customer(datarow);
+    }
+}
+
+
+class PrjCusLinks extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'prj_cus_link';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new PrjCusLink(datarow);
+    }
+}
+
+
 class Projects extends WinObjects{
     constructor(){
         super()
@@ -705,7 +833,7 @@ class Projects extends WinObjects{
     }
     
     getNewObject(datarow=''){
-        return new Project2(datarow);
+        return new Project(datarow);
     }
     
     acronymExists(acronym){
@@ -724,6 +852,49 @@ class Projects extends WinObjects{
 }
 
 
+class RecItems extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'rec_item';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new RecItem(datarow);
+    }
+}
+
+
+class Records extends WinObjects{
+    constructor(){
+        super()
+        this.init();
+    }
+    
+    init(){
+        this.winObjectType = 'record';
+        this.initWinObjects();
+    }
+    
+    refresh(){
+        this.refreshWinObjects();
+    }
+    
+    getNewObject(datarow=''){
+        return new Record(datarow);
+    }
+}
+
+
+/*
 class contact extends WinObject{
     static getWinObjectType(){
         return 'contacts';
@@ -799,8 +970,9 @@ class contact extends WinObject{
     }
 }
 
+*/
 
-
+/*
 class customer extends WinObject{
     static getWinObjectType(){
         return 'customers';
@@ -881,7 +1053,9 @@ class customer extends WinObject{
 
 
 
+*/
 
+/*
 class prj_cus_link extends WinObject{
     static getWinObjectType(){
         return 'prj_cus_links';
@@ -915,7 +1089,9 @@ class prj_cus_link extends WinObject{
 }
 
 
+*/
 
+/*
 class project extends WinObject{
     
     static getWinObjectType(){
@@ -1122,7 +1298,9 @@ class project extends WinObject{
         return prj_cus_link.getLinkToProjectFormHtml();
     }
 }
+*/
 
+/*
 class rec_item extends WinObject{
     static getWinObjectType(){
         return 'rec_items';
@@ -1274,8 +1452,9 @@ class rec_item extends WinObject{
     }
     
 }
+*/
 
-
+/*
 class record extends WinObject{
     static getWinObjectType(){
         return 'records';
@@ -1386,8 +1565,69 @@ class record extends WinObject{
 
 
 
+*/
 
-class Project2 extends WinObject2{
+class Contact extends WinObject2{
+    constructor(uniqueIdentifier=''){
+        super();
+        this.init(uniqueIdentifier);
+    }
+    
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'contact';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new ContactFormPanel(this.datarow);
+        this.displayPanel = new ContactDisplayPanel(this.datarow);; 
+        this.refresh();
+    }
+    
+    refresh(){
+        this.refreshWinObject();
+    }
+}
+
+
+class Customer extends WinObject2{
+    constructor(uniqueIdentifier=''){
+        super();
+        this.init(uniqueIdentifier);
+    }
+    
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'customer';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new CustomerFormPanel(this.datarow);
+        this.displayPanel = new CustomerDisplayPanel(this.datarow);; 
+        this.refresh();
+    }
+    
+    refresh(){
+        this.refreshWinObject();
+    }
+}
+
+
+class PrjCusLink extends WinObject2{
+    constructor(uniqueIdentifier=''){
+        super();
+        this.init(uniqueIdentifier);
+    }
+    
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'prj_cus_link';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new PrjCusLinkFormPanel(this.datarow);
+        this.displayPanel = new PrjCusLinkDisplayPanel(this.datarow);; 
+        this.refresh();
+    }
+    
+    refresh(){
+        this.refreshWinObject();
+    }
+}
+
+
+class Project extends WinObject2{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1407,77 +1647,157 @@ class Project2 extends WinObject2{
 }
 
 
-class ProjectDisplayPanel extends DisplayPanel{
-    constructor(datarow=''){
+class RecItem extends WinObject2{
+    constructor(uniqueIdentifier=''){
         super();
-        
-        this.winObjectType = 'project';
-        this.defaultClasses = [];
-        this.initDisplayPanel(datarow);
+        this.init(uniqueIdentifier);
     }
     
-    getHtml(datarow=''){
-        //~ let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[project.prj_id],{});
-        //~ let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[project.prj_id],{});
-        
-        //~ let primaryCustomer = issetReturn(()=>win_customers[project.prj_primary_cus_id],{});
-        //~ let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
-        
-        datarow = datarow=='' ? this.datarow : datarow;
-        
-        let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[datarow.prj_id],{});
-        let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[datarow.prj_id],{});
-        
-        let primaryCustomer = issetReturn(()=>win_customers[datarow.prj_primary_cus_id],{});
-        let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
-        
-        return `
-            <div class="fw600">
-                <div>${this.getSummaryLine()}</div>
-                <div class="flex1 jr">${price(datarow.prj_rate_per_default_unit)}/${datarow.prj_default_unit}</div>
-            </div>
-            <span>
-                <span>
-                    ${datarow.prj_default_qty} ${datarow.prj_default_unit}s
-                    every
-                    ${datarow.prj_default_repeat_every_qty} ${datarow.prj_default_repeat_every_unit}s
-                </span>
-            </span>
-            ${Object.values(customersOnProject).map(customer=>`
-                <div class="grid12 ${primaryCustomer.cus_id==customer.cus_id ? `lightBg` : ``}">
-                    <span class="gs4 borderRight">${customer.cus_first_name} ${customer.cus_last_name}</span>
-                    <div class="gs8 singleColumn">
-                        ${Object.values(issetReturn(()=>win_contactsGroupedByCus_id[customer.cus_id],{})).map(contact=>`
-                            <a class="jc" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
-                                ${customer.cus_primary_con_id == contact.con_id ? `<span class="accentText">&#9673;</span>` : ``}
-                                ${contact.con_address} 
-                            </a>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('')}
-            <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
-                <div>Records (${Object.keys(recordsOnProject).length} on project) &#9660;</div>
-            </span>
-            <div class="singleColumn hidden flex1">
-                <span><button><span>Add Record</span></button></span>
-                ${Object.values(recordsOnProject).map(record=>`
-                    <div class="grid12">
-                        <div class="gs4 borderRight">${formatTimestampToDate(record.rec_timestamp_planned_start)}</div>
-                        <div class="gs8">${record.rec_description}</div>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler"></i></span></button></div>
-        `;
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'rec_item';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new RecItemFormPanel(this.datarow);
+        this.displayPanel = new RecItemDisplayPanel(this.datarow);; 
+        this.refresh();
     }
     
-    getSummaryLine(datarow=''){
-        datarow = datarow=='' ? this.datarow : datarow;
-        return `${datarow.prj_acronym}: ${[datarow.prj_address_1,datarow.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
+    refresh(){
+        this.refreshWinObject();
     }
 }
 
+
+class Record extends WinObject2{
+    constructor(uniqueIdentifier=''){
+        super();
+        this.init(uniqueIdentifier);
+    }
+    
+    init(uniqueIdentifier=''){
+        this.winObjectType = 'record';
+        this.initWinObject(uniqueIdentifier);
+        this.formPanel = new RecordFormPanel(this.datarow);
+        this.displayPanel = new RecordDisplayPanel(this.datarow);; 
+        this.refresh();
+    }
+    
+    refresh(){
+        this.refreshWinObject();
+    }
+}
+
+
+class ContactFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.winObjectType = 'contact';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        return `
+                ${wrapSelectElement(`
+                    ${customer.getSelect('',`placeholder="${labelrow.con_cus_id}" name="con_cus_id" checks="isNotBlank"`)}
+                `)}
+                <div class="flexl1r2 flexGap">
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>contact.con_type,'phone')}"
+                            onchange="ifElementIsNotValueDisableInputWithNameOnForm(this,'phone','con_method');"
+                            placeholder="${labelrow.con_type}" name="con_type" checks="isNotBlank" 
+                        >
+                            ${win_contact_types.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                        </select>`
+                    )}
+                    ${input(`<input 
+                        type="text" value="${issetReturn(()=>contact.con_address,'')}" 
+                        placeholder="${labelrow.con_address}" name="con_address"  
+                    >`)}
+                </div>
+                ${wrapSelectElement(
+                    `<select 
+                        type="text" placeholder="${labelrow.con_method}" name="con_method" checks="isNotBlank" 
+                        value="${issetReturn(()=>contact.con_method,'')}" 
+                        ${issetReturn(()=>contact.con_type,'phone')!='phone' ? `disabled="disabled"` : ``}
+                    >
+                        ${win_contact_method.map(type=>`<option value="${type}">${ucFirst(type)}</option>`).join('')}
+                    </select>`
+                )}
+                <div class="jr"><button onclick="new Contact().addUsingFormChild(this);">Save contact</button></div>
+        `;
+    }
+}
+
+class CustomerFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.winObjectType = 'customer';
+        this.defaultClasses = ['formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        
+        return `
+                ${input(`<input 
+                    type="text" value="${issetReturn(()=>this.datarow.cus_first_name,'')}" 
+                    placeholder="${labelrow.cus_first_name}" name="cus_first_name" checks="isNotBlank" 
+                >`)}
+                ${input(`<input 
+                    type="text" value="${issetReturn(()=>this.datarow.cus_last_name,'')}" 
+                    placeholder="${labelrow.cus_last_name}" name="cus_last_name" checks="isNotBlank" 
+                >`)}
+                <div class="buttonRow">
+                    <button onclick="contact.appendFormAboveButtonRow(this)"><span class="flexGap"><span>+</span><div class="">Add Contact</div></span></button>
+                    <div class="flex1"></div>
+                    <button onclick="new Customer().addUsingFormChild(this);;"><span>Save Customer</span></button>
+                </div>
+        `;
+    }
+}
+
+class PrjCusLinkFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.winObjectType = 'prj_cus_link';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        return `
+            ${wrapSelectElement(`
+                ${project.getSelect('',`placeholder="${labelrow.prj_cus_link_prj_id}" name="prj_cus_link_prj_id" checks="isNotBlank"`)}
+            `)}
+            ${wrapSelectElement(`
+                ${customer.getSelect('',`placeholder="${labelrow.prj_cus_link_cus_id}" name="prj_cus_link_cus_id" checks="isNotBlank"`)}
+            `)}
+            <div class="jr"><button onclick="new PrjCusLink().addUsingFormChild(this);">Save prj_cus_link</button></div>
+        `;
+    }
+}
 
 class ProjectFormPanel extends FormPanel{
     constructor(datarow=''){
@@ -1605,11 +1925,360 @@ class ProjectFormPanel extends FormPanel{
             <div class="buttonRow">
                 <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                 <span class="flex1"></span>
-                <button onclick="new Project2().addUsingFormChild(this);">Save Project</button>
+                <button onclick="new Project().addUsingFormChild(this);">Save Project</button>
             </div>
         `;
     }
 }
+
+class RecItemFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.winObjectType = 'rec_item';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        return `
+            ${select(`
+                <select placeholder="${labelrow.rci_rec_id}" name="rci_rec_id" checks="isNotBlank" >
+                    <option value="">None</option>
+                    ${Object.values(win_records).map((rec)=>{
+                        let prjRow = win_projects[rec.rec_prj_id];
+                        return `
+                            <option value="${rec.rec_id}" ${rec.rec_id==issetReturn(()=>rec_item.rci_rec_id,'') ? `selected="selected"` : ``}>
+                                ${prjRow.prj_acronym}: ${formatTimestampToDate(rec.rec_timestamp_planned_start)}: ${rec.rec_description}
+                            </option>
+                        `;
+                    }).join('')}
+                </select>
+            `)}
+            ${inputSelect(
+                `<input 
+                    type="text" value="${issetReturn(()=>rec_item.rci_work,'')}"
+                    placeholder="${labelrow.rci_work}" name="rci_work" checks="isNotBlank" 
+                >`
+                ,
+                Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_work'))
+            )}
+            ${inputSelect(
+                `<input 
+                    type="text" value="${issetReturn(()=>rec_item.rci_unit,'')}"
+                    placeholder="${labelrow.rci_unit}" name="rci_unit" checks="isNotBlank" 
+                >`
+                ,
+                Object.keys(indexAnObjectOfObjects(win_rec_items,'rci_unit'))
+            )}
+            <div class="flexGap">
+                <span class="lhSquare jc borderBottom borderTop">£</span>
+                ${input(`<input 
+                    type="number" value="${issetReturn(()=>rec_item.rci_cost_per_unit,'0.00')}" class="flex1"
+                    oninput="updateInputOnFormWithNameRci_total(this);" step="0.01"
+                    placeholder="${labelrow.rci_cost_per_unit}" name="rci_cost_per_unit" checks="isNotBlank" 
+                >`)}
+                <span class="lhSquare jc borderBottom borderTop padSmall">x</span>
+                ${input(`<input 
+                    type="number" value="${issetReturn(()=>rec_item.rci_qty,'1')}" class="flex1" 
+                    oninput="updateInputOnFormWithNameRci_total(this);" step="0.01"
+                    placeholder="${labelrow.rci_qty}" name="rci_qty" checks="isNotBlank" 
+                >`)}
+            </div>
+            <div>
+                <span class="borderBottom borderTop lh padSmall flexGap">
+                    <span class="lightText">Total</span>
+                    <span class="lightText">|</span>
+                    <span class="jr" name="rci_price">
+                        <input class="tar width3Lh" type="text" name="rci_total" value="${price('')}" readonly>
+                    </span>
+                </span>
+                <span class="flex1"></span>
+                <button onclick="new RecItem.addUsingFormChild(this);">Save rec_item</button>
+            </div>
+        `;
+    }
+}
+
+class RecordFormPanel extends FormPanel{
+    constructor(datarow=''){
+        super();
+        this.init(datarow);
+    }
+    
+    init(datarow=''){
+        this.winObjectType = 'record';
+        this.defaultClasses = ['panel','formPanel','form'];
+        
+        this.initFormPanel(datarow);
+    }
+    
+    
+    getHtml(){
+        let labelrow = this.labelrow;
+        return `
+            <div class="panel form">
+                ${wrapSelectElement(`
+                    ${project.getSelect('',`
+                        placeholder="${labelRow.rec_prj_id}" name="rec_prj_id" checks="isNotBlank" 
+                        oninput="record.updateFormWithProjectDetails(this,this.value);"
+                    `)}
+                `)}
+                
+                ${inputSelect(
+                    `<input 
+                        type="text" value="${issetReturn(()=>record.rec_description,'')}"
+                        placeholder="${labelRow.rec_description}" name="rec_description" checks="isNotBlank" 
+                    >`
+                    ,Object.keys(indexAnObjectOfObjects(win_records,'rec_description'))
+                    ,''
+                )}
+                
+                ${dateInput(`<input 
+                    value="${issetReturn(()=>record.rec_timestamp_planned_start,'')}" checks="isNotBlank" 
+                    placeholder="${labelRow.rec_timestamp_planned_start}" name="rec_timestamp_planned_start"
+                >`)}
+                <div class="flexGap">
+                    ${wrapInputElement(`<input type="number" value="${issetReturn(()=>record.rec_duration_qty,'1')}" 
+                        name="rec_duration_qty" placeholder="${labelRow.rec_duration_qty}" 
+                        checks="isInt_positive" class="width2Lh"
+                    >`)}
+                    ${wrapSelectElement(
+                        `<select 
+                            type="text" value="${issetReturn(()=>record.rec_duration_unit,'hour')}"
+                            placeholder="${labelRow.rec_duration_unit}" name="rec_duration_unit" 
+                            checks="isNotBlank" 
+                        >
+                            ${win_time_units.map(unit=>`<option value="${unit}">${ucFirst(unit)}s</option>`).join('')}
+                        </select>`
+                    )}
+                </div>
+                <div>
+                    <span class="borderBottom borderTop lh padSmall flexGap">
+                        <span class="lightText">Total</span>
+                        <span class="lightText">|</span>
+                        <span class="jr" name="rec_price">
+                            <input class="tar width3Lh" type="text" name="rec_total" value="${price('')}" readonly>
+                        </span>
+                    </span>
+                </div>                
+                <div class="buttonRow flexGap">
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDefaultDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span>+</span><div>Add Item</div></span></button>
+                    <button onclick="rec_item.appendFormAboveButtonRow(this,rec_item.getRecItemDurationDatarowFromProjectId(getTargetElementValue(this,'form','[name=rec_prj_id]')));"><span class="flexGap"><span><i class="far fa-clock"></i></span><div>Add Duration</div></span></button>
+                    <div class="flex1"></div>
+                    <button onclick="record.addObjectFromAnyElementInForm(this);">Save Record</button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+class ContactDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'contact';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `[summary line]`;
+    }
+}
+
+
+class CustomerDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'customer';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    getHtml(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        let contactsOnCustomer = issetReturn(()=>win_contactsGroupedByCus_id[this.datarow.cus_id],{});
+        
+        return `
+            <div class="panel singleColumn">
+                <div class="fw600 jc">${this.datarow.cus_first_name} ${this.datarow.cus_last_name}</div>
+                ${Object.values(contactsOnCustomer).map((contactDatarow)=>{
+                    let primaryContact = this.datarow.cus_primary_con_id==contactDatarow.con_id;
+                    return `
+                        <a class="flexl1r2 flexGap lh" href="${getHrefContactString(contactDatarow.con_method,contact.con_address,'hello world')}">
+                            <div class="nowrap">${contactDatarow.con_type} [${contactDatarow.con_method}]</div>
+                            <div class="jr flexGap">
+                                <div class="jr">${contactDatarow.con_address}</div>
+                                <span class="jc lightAccentBorder border borderRadius lhSquare">
+                                    <span class="${primaryContact ? `accentText` : `transparent`}">&#9673;</span>
+                                </span>
+                            </div>
+                        </a>
+                    `;
+                }).join('')}
+                <button><span class="flexGap"><span>+</span><div>Add New Method Of Contact</div></span></button>
+            </div>
+        `;
+    }
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `[summary line]`;
+    }
+}
+
+
+class PrjCusLinkDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'prj_cus_link';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+        
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `[summary line]`;
+    }
+}
+
+
+class ProjectDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'project';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    getHtml(datarow=''){
+        //~ let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[project.prj_id],{});
+        //~ let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[project.prj_id],{});
+        
+        //~ let primaryCustomer = issetReturn(()=>win_customers[project.prj_primary_cus_id],{});
+        //~ let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
+        
+        datarow = datarow=='' ? this.datarow : datarow;
+        
+        let customersOnProject = issetReturn(()=>win_customersGroupedByPrj_id[datarow.prj_id],{});
+        let recordsOnProject = issetReturn(()=>win_recordsGroupedByPrj_id[datarow.prj_id],{});
+        
+        let primaryCustomer = issetReturn(()=>win_customers[datarow.prj_primary_cus_id],{});
+        let primaryContact = issetReturn(()=>win_contacts[primaryCustomer.cus_primary_con_id],{});
+        
+        return `
+            <div class="fw600">
+                <div>${this.getSummaryLine()}</div>
+                <div class="flex1 jr">${price(datarow.prj_rate_per_default_unit)}/${datarow.prj_default_unit}</div>
+            </div>
+            <span>
+                <span>
+                    ${datarow.prj_default_qty} ${datarow.prj_default_unit}s
+                    every
+                    ${datarow.prj_default_repeat_every_qty} ${datarow.prj_default_repeat_every_unit}s
+                </span>
+            </span>
+            ${Object.values(customersOnProject).map(customer=>`
+                <div class="grid12 ${primaryCustomer.cus_id==customer.cus_id ? `lightBg` : ``}">
+                    <span class="gs4 borderRight">${customer.cus_first_name} ${customer.cus_last_name}</span>
+                    <div class="gs8 singleColumn">
+                        ${Object.values(issetReturn(()=>win_contactsGroupedByCus_id[customer.cus_id],{})).map(contact=>`
+                            <a class="jc" href="${getHrefContactString(contact.con_method,contact.con_address,'hello world')}">
+                                ${customer.cus_primary_con_id == contact.con_id ? `<span class="accentText">&#9673;</span>` : ``}
+                                ${contact.con_address} 
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+            <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
+                <div>Records (${Object.keys(recordsOnProject).length} on project) &#9660;</div>
+            </span>
+            <div class="singleColumn hidden flex1">
+                <span><button><span>Add Record</span></button></span>
+                ${Object.values(recordsOnProject).map(record=>`
+                    <div class="grid12">
+                        <div class="gs4 borderRight">${formatTimestampToDate(record.rec_timestamp_planned_start)}</div>
+                        <div class="gs8">${record.rec_description}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="jr"><button><span class="icon"><i class="fas fa-pencil-ruler"></i></span></button></div>
+        `;
+    }
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `${datarow.prj_acronym}: ${[datarow.prj_address_1,datarow.prj_city].filter((entry)=>entry.trim()!='').join(',  ')}`;
+    }
+}
+
+
+class RecItemDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'rec_item';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `[summary line]`;
+    }
+}
+
+
+class RecordDisplayPanel extends DisplayPanel{
+    constructor(datarow=''){
+        super();
+        
+        this.winObjectType = 'record';
+        this.defaultClasses = [];
+        this.initDisplayPanel(datarow);
+    }
+    
+    getHtml(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        let itemsOnRecord = issetReturn(()=>win_rec_itemsGroupedByRec_id[record.rec_id],{});
+        return `
+            <div class="panel singleColumn">
+                <div class="fw600 grid12">
+                    <div class="fw600 gs8">${record.rec_description}</div>
+                    <div class="fw600 gs4 jr">${price(record.rec_total)}</div>
+                </div>
+                <span onclick="toggleClassOnNextElement(this,'hidden');" class="click">
+                    <div>Items (${Object.keys(itemsOnRecord).length} on project) &#9660;</div>
+                </span>
+                <div class="singleColumn gridGapSmall hidden">
+                    <span class="button">Add New Item +</span>
+                    ${Object.values(itemsOnRecord).map((item)=>`${rec_item.getSummaryLine(item)}`).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    getSummaryLine(datarow=''){
+        datarow = datarow=='' ? this.datarow : datarow;
+        return `[summary line]`;
+    }
+}
+
 
 function defaultInputWithWrapperFunction(input){
     inputWrapperUpdate(input);
@@ -1771,27 +2440,36 @@ function refreshDom(pageName=''){
     currentPageName = pageName;
     switch(pageName){
         case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
-        case 'customers':customer.loadPage();break;
-        case 'contacts':contact.loadPage();break;
+        case 'contacts':allContacts.loadPage();break;
+        case 'customers':allCustomers.loadPage();break;
+        case 'prj_cus_links':allPrjCusLinks.loadPage();break;
         case 'projects':allProjects.loadPage();break;
-        case 'records':record.loadPage();break;
-        case 'prj_cus_links':prj_cus_link.loadPage();break;
-        case 'rec_items':rec_item.loadPage();break;
+        //~ case 'prj_cus_links':prj_cus_link.loadPage();break;
+        //~ case 'records':record.loadPage();break;
+        //~ case 'rec_items':rec_item.loadPage();break;
+        case 'records':allRecords.loadPage();break;
+        case 'rec_items':allRecItems.loadPage();break;
     }
 }
 
 function initWinObjects(){
-    //~ allCustomers   = new Customers();
-    //~ allContacts    = new Contacts();
-    //~ allPrjCusLinks = new PrjCusLinks();
+    allCustomers   = new Customers();
+    allContacts    = new Contacts();
+    allPrjCusLinks = new PrjCusLinks();
     allProjects    = new Projects();
-    //~ allRecords     = new Records();
-    //~ allRecItems    = new RecItems();
+    allRecords     = new Records();
+    allRecItems    = new RecItems();
 }
 
 
 function refreshWinObjects(){
+    //~ allProjects.refresh();
+    allCustomers.refresh();
+    allContacts.refresh();   
+    allPrjCusLinks.refresh();
     allProjects.refresh();
+    allRecords.refresh();
+    allRecItems.refresh();
 }
 
 const primaryWinVars = ['project','customer','prj_cus_link','contact','record','rec_item'];
@@ -1810,12 +2488,20 @@ function refreshWinVars(){
 
 
 function refreshPrimaryWinVars(){
-    allProjects.init();
-    customer.initObjects();
-    win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
-    win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
-    win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
-    record.initObjects();
+    allContacts.refresh();
+    allCustomers.refresh();
+    allPrjCusLinks.refresh();
+    allProjects.refresh();
+    allRecItems.refresh();
+    allRecords.refresh();
+
+    //~ allProjects.init();
+    
+    //~ customer.initObjects();
+    //~ win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
+    //~ win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
+    //~ win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
+    //~ record.initObjects();
 }
 
 
@@ -2054,7 +2740,10 @@ function ucFirstOfEachWord(str){
 }
 
 function formatStringForTitle(str){
-	return ucFirstOfEachWord(str.replace(/-/g, " "));
+    return ucFirstOfEachWord(str.replace(/-/g, " ").replace(/_/g, " "));
+}
+function formatStringForLabel(str){
+    return formatStringForTitle(str).replace(/ /g, "");
 }
 
 function formatString(str){
