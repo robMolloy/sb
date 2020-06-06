@@ -1,4 +1,4 @@
-class WinObject2{
+class WinObject{
     
     constructor(){
         //~ this.winObjectType = '';

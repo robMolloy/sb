@@ -15,34 +15,35 @@
     win_info = {
         customer:{
             keys:{primary:'cus_id',temp:'cus_temp_id',user:'cus_usr_id'},
-            blankrow:{cus_id:'',cus_usr_id:'',cus_first_name:'',cus_last_name:'',cus_primary_con_id:''},
+            blankrow:{cus_id:'',cus_temp_id:'',cus_usr_id:'',cus_first_name:'',cus_last_name:'',cus_primary_con_id:''},
             labelrow:{cus_id:'Id',cus_temp_id:'Temp Id',cus_usr_id:'User Id',cus_first_name:'First Name',cus_last_name:'Last Name',cus_primary_con_id:'Primary Contact Id'}
         },
         contact:{
             keys:{primary:'con_id',temp:'con_temp_id',user:'con_usr_id'},
-            blankrow:{con_id:'',con_usr_id:'',con_cus_id:'',con_type:'',con_method:'',con_address:''},
+            blankrow:{con_id:'',con_temp_id:'',con_usr_id:'',con_cus_id:'',con_type:'',con_method:'',con_address:''},
             labelrow:{con_id:'Id',con_temp_id:'Temp Id',con_usr_id:'User Id',con_cus_id:'Customer Id',con_type:'type',con_method:'method',con_address:'Address'}
         },
         prj_cus_link:{
             keys:{primary:'prj_cus_link_id',temp:'prj_cus_link_temp_id',user:'prj_cus_link_usr_id'},
-            blankrow:{prj_cus_link_id:'',prj_cus_link_usr_id:'',prj_cus_link_prj_id:'',prj_cus_link_cus_id:''},
+            blankrow:{prj_cus_link_id:'',prj_cus_link_temp_id:'',prj_cus_link_usr_id:'',prj_cus_link_prj_id:'',prj_cus_link_cus_id:''},
             labelrow:{prj_cus_link_id:'cus_link_id',prj_cus_link_temp_id:'Temp Id',prj_cus_link_usr_id:'prj_cus_link_usr_id',prj_cus_link_prj_id:'prj_cus_link_prj_id',prj_cus_link_cus_id:'prj_cus_link_cus_id'}
         },
         project:{
             keys:{primary:'prj_id',temp:'prj_temp_id',user:'prj_usr_id'},
-            blankrow:{prj_id:'',prj_usr_id:'',prj_default_qty:'',prj_default_unit:'',prj_default_work:'',prj_rate_per_default_unit:'',prj_default_repeat_every_qty:'',prj_default_repeat_every_unit:'',prj_acronym:'',prj_address_1:'',prj_address_2:'',prj_city:'',prj_postcode:'',prj_primary_cus_id:'',prj_default_duration_unit:'',prj_default_duration_qty:'',prj_default_cost_per_duration_unit:''},
+            blankrow:{prj_id:'',prj_temp_id:'',prj_usr_id:'',prj_default_qty:'',prj_default_unit:'',prj_default_work:'',prj_rate_per_default_unit:'',prj_default_repeat_every_qty:'',prj_default_repeat_every_unit:'',prj_acronym:'',prj_address_1:'',prj_address_2:'',prj_city:'',prj_postcode:'',prj_primary_cus_id:'',prj_default_duration_unit:'',prj_default_duration_qty:'',prj_default_cost_per_duration_unit:''},
             labelrow:{prj_id:'Id',prj_temp_id:'Temp Id',prj_usr_id:'User Id',prj_default_qty:'Quantity',prj_default_work:'Work',prj_default_unit:'Unit',prj_rate_per_default_unit:'Rate Per Unit',prj_default_repeat_every_qty:'',prj_default_repeat_every_unit:'Length Of Time',prj_acronym:'Reference',prj_address_1:'Address 1',prj_address_2:'Address 2',prj_city:'City',prj_postcode:'Postcode',prj_primary_cus_id:'Primary Customer Id',prj_default_duration_unit:'Duration Unit',prj_default_duration_qty:'',prj_default_cost_per_duration_unit:'Cost Per Duration Unit'}
         },
         rec_item:{
             keys:{primary:'rci_id',temp:'rci_temp_id',user:'rci_usr_id'},
-            blankrow:{rci_id:'',rci_usr_id:'',rci_rec_id:'',rci_work:'',rci_unit:'',rci_qty:'',rci_cost_per_unit:'',rci_total:''},
+            blankrow:{rci_id:'',rci_temp_id:'',rci_usr_id:'',rci_rec_id:'',rci_work:'',rci_unit:'',rci_qty:'',rci_cost_per_unit:'',rci_total:''},
             labelrow:{rci_id:'Id',rci_temp_id:'Id',rci_usr_id:'User Id',rci_rec_id:'Record Id',rci_work:'Type Of Work',rci_unit:'Unit',rci_qty:'Quantity',rci_cost_per_unit:'Cost per Unit',rci_total:'Total'}
         },
         record:{
             keys:{primary:'rec_id',temp:'rec_temp_id',user:'rec_usr_id'},
-            blankrow:{rec_id:'',rec_usr_id:'',rec_prj_id:'',rec_description:'',rec_timestamp_planned_start:'',rec_timestamp_planned_finish:'',rec_timestamp_completed:'',rec_timestamp_paid:'',rec_total:'',rec_duration_qty:'',rec_duration_unit:'',},
+            blankrow:{rec_id:'',rec_temp_id:'',rec_usr_id:'',rec_prj_id:'',rec_description:'',rec_timestamp_planned_start:'',rec_timestamp_planned_finish:'',rec_timestamp_completed:'',rec_timestamp_paid:'',rec_total:'',rec_duration_qty:'',rec_duration_unit:'',},
             labelrow:{rec_id:'Id',rec_temp_id:'Temp Id',rec_usr_id:'User Id',rec_prj_id:'Project Id',rec_description:'Description',rec_timestamp_planned_start:'Planned Start',rec_timestamp_planned_finish:'Planned Finish',rec_timestamp_completed:'Time Completed',rec_timestamp_paid:'Time Paid',rec_total:'Total',rec_duration_qty:'Duration',rec_duration_unit:'Duration Quantity'}
         },
+        
         
         contacts:{
             keys:{primary:'con_id',temp:'con_temp_id',user:'con_usr_id'},

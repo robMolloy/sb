@@ -139,7 +139,7 @@ class FormPanel extends Panel{
     }
 }
 
-class WinObject2{
+class WinObject{
     
     constructor(){
         //~ this.winObjectType = '';
@@ -1578,7 +1578,7 @@ class record extends WinObject{
 
 */
 
-class Contact extends WinObject2{
+class Contact extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1598,7 +1598,7 @@ class Contact extends WinObject2{
 }
 
 
-class Customer extends WinObject2{
+class Customer extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1618,7 +1618,7 @@ class Customer extends WinObject2{
 }
 
 
-class PrjCusLink extends WinObject2{
+class PrjCusLink extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1638,7 +1638,7 @@ class PrjCusLink extends WinObject2{
 }
 
 
-class Project extends WinObject2{
+class Project extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1658,7 +1658,7 @@ class Project extends WinObject2{
 }
 
 
-class RecItem extends WinObject2{
+class RecItem extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -1678,7 +1678,7 @@ class RecItem extends WinObject2{
 }
 
 
-class Record extends WinObject2{
+class Record extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
@@ -2247,11 +2247,7 @@ class RecItemDisplayPanel extends DisplayPanel{
     
     
     static getSummaryLine(datarow=''){
-        console.log(datarow);
-        
         datarow = datarow=='' ? this.datarow : datarow;
-        
-        console.log(datarow);
         return `
             ${datarow.rci_work}: 
             ${datarow.rci_qty}
@@ -2287,7 +2283,6 @@ class RecordDisplayPanel extends DisplayPanel{
             <div class="singleColumn gridGapSmall hidden">
                 <span class="button">Add New Item +</span>
                 ${Object.values(itemDatarowsOnRecord).map((recItemDatarow)=>{
-                    console.log(recItemDatarow);
                     return `<div>${RecItemDisplayPanel.getSummaryLine(recItemDatarow)}</div>`;
                 }).join('')}
             </div>
@@ -2477,6 +2472,13 @@ function initWinObjects(){
     allProjects    = new Projects();
     allRecords     = new Records();
     allRecItems    = new RecItems();
+
+    templateCustomer   = new Customer();
+    templateContact    = new Contact();
+    templatePrjCusLink = new PrjCusLink();
+    templateProject    = new Project();
+    templateRecord     = new Record();
+    templateRecItem    = new RecItem();
 }
 
 
@@ -2488,6 +2490,8 @@ function refreshWinObjects(){
     allProjects.refresh();
     allRecords.refresh();
     allRecItems.refresh();
+    
+    
 }
 
 const primaryWinVars = ['project','customer','prj_cus_link','contact','record','rec_item'];

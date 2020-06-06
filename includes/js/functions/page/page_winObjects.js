@@ -5,6 +5,13 @@ function initWinObjects(){
     allProjects    = new Projects();
     allRecords     = new Records();
     allRecItems    = new RecItems();
+
+    templateCustomer   = new Customer();
+    templateContact    = new Contact();
+    templatePrjCusLink = new PrjCusLink();
+    templateProject    = new Project();
+    templateRecord     = new Record();
+    templateRecItem    = new RecItem();
 }
 
 
@@ -16,4 +23,6 @@ function refreshWinObjects(){
     allProjects.refresh();
     allRecords.refresh();
     allRecItems.refresh();
+    
+    
 }

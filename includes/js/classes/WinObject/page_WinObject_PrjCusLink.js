@@ -1,4 +1,4 @@
-class PrjCusLink extends WinObject2{
+class PrjCusLink extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);

@@ -1,4 +1,4 @@
-class Customer extends WinObject2{
+class Customer extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);

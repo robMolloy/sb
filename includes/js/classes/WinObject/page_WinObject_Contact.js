@@ -1,4 +1,4 @@
-class Contact extends WinObject2{
+class Contact extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);

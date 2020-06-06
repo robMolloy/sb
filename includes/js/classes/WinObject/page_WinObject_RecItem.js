@@ -1,4 +1,4 @@
-class RecItem extends WinObject2{
+class RecItem extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);

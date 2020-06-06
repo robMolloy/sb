@@ -9,11 +9,7 @@ class RecItemDisplayPanel extends DisplayPanel{
     
     
     static getSummaryLine(datarow=''){
-        console.log(datarow);
-        
         datarow = datarow=='' ? this.datarow : datarow;
-        
-        console.log(datarow);
         return `
             ${datarow.rci_work}: 
             ${datarow.rci_qty}

@@ -1,4 +1,4 @@
-class Project extends WinObject2{
+class Project extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);

@@ -1,4 +1,4 @@
-class Record extends WinObject2{
+class Record extends WinObject{
     constructor(uniqueIdentifier=''){
         super();
         this.init(uniqueIdentifier);
