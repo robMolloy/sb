@@ -1,3 +1,4 @@
+
 class WinObjects{
     
     constructor(){
@@ -11,7 +12,9 @@ class WinObjects{
     }
     
     
+    
     initWinObjects(){
+        this.tempObject = window[`template${formatAsLabel(this.winObjectType)}`];
         this.refreshWinObjects()
         return this;
     }
@@ -24,25 +27,26 @@ class WinObjects{
         //~ using this.datarows - refreshes and sets this.objects
         this.refreshObjects();
         
+        this.tempObject.datarow = this.tempObject.blankrow;
+        this.tempObject.refresh();
     }
     
     
     refreshDatarows(){
-        let idbDatarows = window[`idb_${this.winObjectType}s`];
-        let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
-        let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
+        this.datarows = window[`win_${this.winObjectType}s`];
+
+        // let idbDatarows = window[`idb_${this.winObjectType}s`];
+        // let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
+        // let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
         
-        this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
-        //~ window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
+        // this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
         
-        Object.values(deletedDatarows).forEach((datarow)=>{
-            delete this.datarows[datarow[this.keys.primary]];
-            delete this.datarows[datarow[this.keys.temp]];
-            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
-            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
-        });
+        // Object.values(deletedDatarows).forEach((datarow)=>{
+        //     delete this.datarows[datarow[this.keys.primary]];
+        //     delete this.datarows[datarow[this.keys.temp]];
+        // });
         
-        window[`win_${this.winObjectType}s`] = this.datarows;
+        // window[`win_${this.winObjectType}s`] = this.datarows;
     }
     
     
@@ -53,6 +57,7 @@ class WinObjects{
             let datarow = entry[1];
             this.objects[key] = this.getNewObject(datarow);
         });
+        
     }
     
     
@@ -60,8 +65,7 @@ class WinObjects{
         setTitle(ucFirst(this.winObjectType));
         displayHeaderBar(`${this.winObjectType}s`);
         clearMain();
-        let tempObject = this.getNewObject();
-        tempObject.renderFormPanel();
+        this.tempObject.renderFormPanel();window[`template${ucFirst(this.winObjectType)}`]
         Object.values(this.objects).forEach(object=>object.renderDisplayPanel());
     }
     

@@ -8,12 +8,13 @@ async function initPage(page=''){
     //stores all datarows from idb in window[`idb_${tableName}`]
     await initDbVars();
     
-    //initialises list objects; allProjects = new Projects() etc.
-    initWinObjects();
-    
     //initialises winVars
     initWinVars();
     //~ initSecondaryWinVars()
+    
+    //initialises list objects; allProjects = new Projects() etc.
+    initWinObjects();
+    
     
     //~ load page
     initDom(page);
@@ -45,6 +46,7 @@ async function initDbVars(){
 
 
 //~ initWinObjects() is in page_winObjects.js
+
 //~ initWinVars() is in page_winVars.js
 
 

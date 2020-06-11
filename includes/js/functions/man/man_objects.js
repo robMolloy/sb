@@ -39,7 +39,6 @@ function indexObjectsUsingLinkObjects(linkWinObjectType,indexWinObjectType,objec
     let newObject = {};
     let indexPrimaryKey = win_info[indexWinObjectType][`keys`][`primary`];
     let objectPrimaryKey = win_info[objectWinObjectType][`keys`][`primary`];
-    
     Object.keys(window[`win_${indexWinObjectType}s`]).forEach(indexId => newObject[indexId] = {});
     
     Object.values(window[`win_${linkWinObjectType}s`]).forEach(link =>{

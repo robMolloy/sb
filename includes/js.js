@@ -492,6 +492,7 @@ class WinObject{
 
 */
 
+
 class WinObjects{
     
     constructor(){
@@ -505,7 +506,9 @@ class WinObjects{
     }
     
     
+    
     initWinObjects(){
+        this.tempObject = window[`template${formatAsLabel(this.winObjectType)}`];
         this.refreshWinObjects()
         return this;
     }
@@ -518,6 +521,8 @@ class WinObjects{
         //~ using this.datarows - refreshes and sets this.objects
         this.refreshObjects();
         
+        this.tempObject.datarow = this.tempObject.blankrow;
+        this.tempObject.refresh();
     }
     
     
@@ -547,6 +552,7 @@ class WinObjects{
             let datarow = entry[1];
             this.objects[key] = this.getNewObject(datarow);
         });
+        
     }
     
     
@@ -554,8 +560,7 @@ class WinObjects{
         setTitle(ucFirst(this.winObjectType));
         displayHeaderBar(`${this.winObjectType}s`);
         clearMain();
-        let tempObject = this.getNewObject();
-        tempObject.renderFormPanel();
+        this.tempObject.renderFormPanel();window[`template${ucFirst(this.winObjectType)}`]
         Object.values(this.objects).forEach(object=>object.renderDisplayPanel());
     }
     
@@ -1945,7 +1950,7 @@ class ProjectFormPanel extends FormPanel{
             <div class="buttonRow">
                 <button onclick="prj_cus_link.appendFormAboveButtonRow(this);"><span class="flexGap"><span>+</span><div>Add Customer</div></span></button>
                 <span class="flex1"></span>
-                <button onclick="new Project().addUsingFormChild(this);">Save Project</button>
+                <button onclick="templateProject.addUsingFormChild(this);">Save Project</button>
             </div>
         `;
     }
@@ -2336,12 +2341,13 @@ async function initPage(page=''){
     //stores all datarows from idb in window[`idb_${tableName}`]
     await initDbVars();
     
-    //initialises list objects; allProjects = new Projects() etc.
-    initWinObjects();
-    
     //initialises winVars
     initWinVars();
     //~ initSecondaryWinVars()
+    
+    //initialises list objects; allProjects = new Projects() etc.
+    initWinObjects();
+    
     
     //~ load page
     initDom(page);
@@ -2373,6 +2379,7 @@ async function initDbVars(){
 
 
 //~ initWinObjects() is in page_winObjects.js
+
 //~ initWinVars() is in page_winVars.js
 
 
@@ -2475,32 +2482,29 @@ function refreshDom(pageName=''){
 }
 
 function initWinObjects(){
-    allCustomers   = new Customers();
-    allContacts    = new Contacts();
-    allPrjCusLinks = new PrjCusLinks();
-    allProjects    = new Projects();
-    allRecords     = new Records();
-    allRecItems    = new RecItems();
-
     templateCustomer   = new Customer();
     templateContact    = new Contact();
     templatePrjCusLink = new PrjCusLink();
     templateProject    = new Project();
     templateRecord     = new Record();
     templateRecItem    = new RecItem();
+
+    allCustomers   = new Customers();
+    allContacts    = new Contacts();
+    allPrjCusLinks = new PrjCusLinks();
+    allProjects    = new Projects();
+    allRecords     = new Records();
+    allRecItems    = new RecItems();
 }
 
 
 function refreshWinObjects(){
-    //~ allProjects.refresh();
     allCustomers.refresh();
     allContacts.refresh();   
     allPrjCusLinks.refresh();
     allProjects.refresh();
     allRecords.refresh();
     allRecItems.refresh();
-    
-    
 }
 
 const primaryWinVars = ['project','customer','prj_cus_link','contact','record','rec_item'];
@@ -2517,22 +2521,33 @@ function refreshWinVars(){
     refreshSecondaryWinVars();
 }
 
+function refreshPrimaryWinVar(winObjectType){
+    let keys = win_info[winObjectType].keys;
+    let idbDatarows = window[`idb_${winObjectType}s`];
+    let storedDatarows = mightyStorage.get(`${winObjectType}s`,{});
+    let deletedDatarows = mightyStorage.get(`deleted_${winObjectType}s`,{});
+    
+    tempDatarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
+    
+    Object.values(deletedDatarows).forEach((datarow)=>{
+        delete tempDatarows[datarow[keys.primary]];
+        delete tempDatarows[datarow[keys.temp]];
+    });
+    
+    window[`win_${winObjectType}s`] = tempDatarows;
+}
 
 function refreshPrimaryWinVars(){
-    allContacts.refresh();
-    allCustomers.refresh();
-    allPrjCusLinks.refresh();
-    allProjects.refresh();
-    allRecItems.refresh();
-    allRecords.refresh();
-
-    //~ allProjects.init();
+    primaryWinVars.forEach(winObjectType=>{
+        refreshPrimaryWinVar(winObjectType)
+    });
     
-    //~ customer.initObjects();
-    //~ win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
-    //~ win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
-    //~ win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
-    //~ record.initObjects();
+    // allContacts.refresh();
+    // allCustomers.refresh();
+    // allPrjCusLinks.refresh();
+    // allProjects.refresh();
+    // allRecItems.refresh();
+    // allRecords.refresh();
 }
 
 
@@ -2750,7 +2765,6 @@ function indexObjectsUsingLinkObjects(linkWinObjectType,indexWinObjectType,objec
     let newObject = {};
     let indexPrimaryKey = win_info[indexWinObjectType][`keys`][`primary`];
     let objectPrimaryKey = win_info[objectWinObjectType][`keys`][`primary`];
-    
     Object.keys(window[`win_${indexWinObjectType}s`]).forEach(indexId => newObject[indexId] = {});
     
     Object.values(window[`win_${linkWinObjectType}s`]).forEach(link =>{
@@ -2772,6 +2786,10 @@ function ucFirstOfEachWord(str){
 
 function formatStringForTitle(str){
     return ucFirstOfEachWord(str.replace(/-/g, " ").replace(/_/g, " "));
+}
+
+function formatAsLabel(str){
+    return formatStringForTitle(str).replace(/ /g, "");
 }
 function formatStringForLabel(str){
     return formatStringForTitle(str).replace(/ /g, "");

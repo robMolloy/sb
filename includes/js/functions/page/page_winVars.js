@@ -12,22 +12,33 @@ function refreshWinVars(){
     refreshSecondaryWinVars();
 }
 
+function refreshPrimaryWinVar(winObjectType){
+    let keys = win_info[winObjectType].keys;
+    let idbDatarows = window[`idb_${winObjectType}s`];
+    let storedDatarows = mightyStorage.get(`${winObjectType}s`,{});
+    let deletedDatarows = mightyStorage.get(`deleted_${winObjectType}s`,{});
+    
+    tempDatarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
+    
+    Object.values(deletedDatarows).forEach((datarow)=>{
+        delete tempDatarows[datarow[keys.primary]];
+        delete tempDatarows[datarow[keys.temp]];
+    });
+    
+    window[`win_${winObjectType}s`] = tempDatarows;
+}
 
 function refreshPrimaryWinVars(){
-    allContacts.refresh();
-    allCustomers.refresh();
-    allPrjCusLinks.refresh();
-    allProjects.refresh();
-    allRecItems.refresh();
-    allRecords.refresh();
-
-    //~ allProjects.init();
+    primaryWinVars.forEach(winObjectType=>{
+        refreshPrimaryWinVar(winObjectType)
+    });
     
-    //~ customer.initObjects();
-    //~ win_prj_cus_links = mergeTwoIndexedObjects(idb_prj_cus_links,mightyStorage.get('prj_cus_links',{}));
-    //~ win_contacts = mergeTwoIndexedObjects(idb_contacts,mightyStorage.get('contacts',{}));
-    //~ win_rec_items = mergeTwoIndexedObjects(idb_rec_items,mightyStorage.get('rec_items',{}));
-    //~ record.initObjects();
+    // allContacts.refresh();
+    // allCustomers.refresh();
+    // allPrjCusLinks.refresh();
+    // allProjects.refresh();
+    // allRecItems.refresh();
+    // allRecords.refresh();
 }
 
 
