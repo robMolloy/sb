@@ -10,6 +10,7 @@ class Project extends WinObject{
         this.formPanel = new ProjectFormPanel(this.datarow);
         this.displayPanel = new ProjectDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

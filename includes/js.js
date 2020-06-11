@@ -262,6 +262,9 @@ class WinObject{
     }
 }
 
+
+
+//~ Redundant object - uses all static methods
 /*
 class WinObject{
     
@@ -1590,6 +1593,7 @@ class Contact extends WinObject{
         this.formPanel = new ContactFormPanel(this.datarow);
         this.displayPanel = new ContactDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
@@ -1610,6 +1614,7 @@ class Customer extends WinObject{
         this.formPanel = new CustomerFormPanel(this.datarow);
         this.displayPanel = new CustomerDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
@@ -1630,6 +1635,7 @@ class PrjCusLink extends WinObject{
         this.formPanel = new PrjCusLinkFormPanel(this.datarow);
         this.displayPanel = new PrjCusLinkDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
@@ -1650,6 +1656,7 @@ class Project extends WinObject{
         this.formPanel = new ProjectFormPanel(this.datarow);
         this.displayPanel = new ProjectDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
@@ -1670,6 +1677,7 @@ class RecItem extends WinObject{
         this.formPanel = new RecItemFormPanel(this.datarow);
         this.displayPanel = new RecItemDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
@@ -1690,6 +1698,7 @@ class Record extends WinObject{
         this.formPanel = new RecordFormPanel(this.datarow);
         this.displayPanel = new RecordDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

@@ -10,6 +10,7 @@ class RecItem extends WinObject{
         this.formPanel = new RecItemFormPanel(this.datarow);
         this.displayPanel = new RecItemDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

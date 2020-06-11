@@ -10,6 +10,7 @@ class PrjCusLink extends WinObject{
         this.formPanel = new PrjCusLinkFormPanel(this.datarow);
         this.displayPanel = new PrjCusLinkDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

@@ -10,6 +10,7 @@ class Contact extends WinObject{
         this.formPanel = new ContactFormPanel(this.datarow);
         this.displayPanel = new ContactDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

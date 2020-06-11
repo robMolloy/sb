@@ -121,6 +121,9 @@ class WinObject{
     }
 }
 
+
+
+//~ Redundant object - uses all static methods
 /*
 class WinObject{
     

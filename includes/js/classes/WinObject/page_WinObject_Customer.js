@@ -10,6 +10,7 @@ class Customer extends WinObject{
         this.formPanel = new CustomerFormPanel(this.datarow);
         this.displayPanel = new CustomerDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){

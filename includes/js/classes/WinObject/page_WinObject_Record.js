@@ -10,6 +10,7 @@ class Record extends WinObject{
         this.formPanel = new RecordFormPanel(this.datarow);
         this.displayPanel = new RecordDisplayPanel(this.datarow);; 
         this.refresh();
+        return this;
     }
     
     refresh(){
