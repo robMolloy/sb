@@ -14,12 +14,19 @@ function initWinObjects(){
     allRecItems    = new RecItems();
 }
 
+function refreshWinObject(winObjectType){
+    window[`all${formatAsLabel(winObjectType)}`].refresh();
+}
+
 
 function refreshWinObjects(){
-    allCustomers.refresh();
-    allContacts.refresh();   
-    allPrjCusLinks.refresh();
-    allProjects.refresh();
-    allRecords.refresh();
-    allRecItems.refresh();
+    primaryWinVars.forEach(winObjectType => {
+        refreshWinObject(winObjectType);
+    });
+    // allCustomers.refresh();
+    // allContacts.refresh();   
+    // allPrjCusLinks.refresh();
+    // allProjects.refresh();
+    // allRecords.refresh();
+    // allRecItems.refresh();
 }

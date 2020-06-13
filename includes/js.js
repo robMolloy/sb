@@ -527,21 +527,20 @@ class WinObjects{
     
     
     refreshDatarows(){
-        let idbDatarows = window[`idb_${this.winObjectType}s`];
-        let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
-        let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
+        this.datarows = window[`win_${this.winObjectType}s`];
+
+        // let idbDatarows = window[`idb_${this.winObjectType}s`];
+        // let storedDatarows = mightyStorage.get(`${this.winObjectType}s`,{});
+        // let deletedDatarows = mightyStorage.get(`deleted_${this.winObjectType}s`,{});
         
-        this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
-        //~ window[`win_${this.winObjectType}s`] = mergeTwoIndexedObjects(dbObjects,storedObjects);
+        // this.datarows = mergeTwoIndexedObjects(idbDatarows,storedDatarows);
         
-        Object.values(deletedDatarows).forEach((datarow)=>{
-            delete this.datarows[datarow[this.keys.primary]];
-            delete this.datarows[datarow[this.keys.temp]];
-            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['primary']]];
-            //~ delete window[`win_${this.winObjectType}s`][obj1[this.keys['temp']]];
-        });
+        // Object.values(deletedDatarows).forEach((datarow)=>{
+        //     delete this.datarows[datarow[this.keys.primary]];
+        //     delete this.datarows[datarow[this.keys.temp]];
+        // });
         
-        window[`win_${this.winObjectType}s`] = this.datarows;
+        // window[`win_${this.winObjectType}s`] = this.datarows;
     }
     
     
@@ -2474,13 +2473,17 @@ function refreshDom(pageName=''){
         case 'index':displayHeaderBar('');appendToMain(`<div class="panel singlePanel">At Index.php</div>`);break;
         case 'contacts':    allContacts.loadPage();break;
         case 'customers':   allCustomers.loadPage();break;
-        case 'prj_cus_links':allPrjCusLinks.loadPage();break;
+        case 'prj_cus_links': allPrjCusLinks.loadPage();break;
         case 'projects':    allProjects.loadPage();break;
         case 'records':     allRecords.loadPage();break;
         case 'rec_items':   allRecItems.loadPage();break;
     }
 }
 
+function refresh(){
+    refreshWinVars();
+    refreshWinObjects();
+}
 function initWinObjects(){
     templateCustomer   = new Customer();
     templateContact    = new Contact();
@@ -2497,14 +2500,21 @@ function initWinObjects(){
     allRecItems    = new RecItems();
 }
 
+function refreshWinObject(winObjectType){
+    window[`all${formatAsLabel(winObjectType)}`].refresh();
+}
+
 
 function refreshWinObjects(){
-    allCustomers.refresh();
-    allContacts.refresh();   
-    allPrjCusLinks.refresh();
-    allProjects.refresh();
-    allRecords.refresh();
-    allRecItems.refresh();
+    primaryWinVars.forEach(winObjectType => {
+        refreshWinObject(winObjectType);
+    });
+    // allCustomers.refresh();
+    // allContacts.refresh();   
+    // allPrjCusLinks.refresh();
+    // allProjects.refresh();
+    // allRecords.refresh();
+    // allRecItems.refresh();
 }
 
 const primaryWinVars = ['project','customer','prj_cus_link','contact','record','rec_item'];
